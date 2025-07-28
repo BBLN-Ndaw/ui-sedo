@@ -1,1 +1,70 @@
-/* You can add global styles to this file, and also import other style files */
+
+// Import Angular Material base theme
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+// Thème personnalisé avec 2 couleurs principales
+:root {
+  // Couleurs personnalisées
+  --primary-color: #2E7D32;    // Vert foncé
+  --accent-color: #FF6F00;     // Orange
+
+  // Override des variables CSS d'Angular Material
+  --mdc-theme-primary: var(--primary-color);
+  --mdc-theme-secondary: var(--accent-color);
+  --mat-toolbar-container-background-color: var(--primary-color);
+  --mdc-filled-button-container-color: var(--primary-color);
+  --mdc-protected-button-container-color: var(--primary-color);
+  --mdc-outlined-button-outline-color: var(--primary-color);
+  --mdc-text-button-label-text-color: var(--primary-color);
+}
+
+// Classes utilitaires pour les couleurs personnalisées
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-accent {
+  color: var(--accent-color) !important;
+}
+
+// Gradient personnalisé
+.gradient-bg {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+}
+
+html, body { 
+  height: 100%; 
+  margin: 0;
+  padding: 0;
+}
+
+body { 
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f5f5;
+}
+
+// Styles globaux pour l'application
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}

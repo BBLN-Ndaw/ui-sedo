@@ -1,59 +1,145 @@
-# UiSedo
+# UI-SEDO - Angular Application with Authentication
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.12.
+## Description
+Modern Angular application with JWT authentication system, using Angular Material for the user interface.
 
-## Development server
+## Features
 
-To start a local development server, run:
+### ✨ Authentication
+- Secure login page with form validation
+- API POST call to `http://localhost:8080/api/login`
+- Secure storage of JWT token in localStorage
+- Automatic redirection after login
 
+### 🎨 Design
+- Modern interface with Angular Material
+- Custom theme with main colors:
+  - **Primary Green**: #2E7D32
+  - **Accent Orange**: #FF6F00
+- Responsive design and smooth animations
+- Gradient backgrounds and visual effects
+
+### 🔒 Security
+- Route guards to protect pages
+- Automatic HTTP interceptor for authentication headers
+- Error handling and user notifications
+
+### 🚀 Navigation
+- Protected routing with automatic redirections
+- Home page (Hello) after login
+- Logout with token cleanup
+
+## Installation & Startup
+
+### Prerequisites
+- Node.js (version 18+)
+- Angular CLI (version 19+)
+
+### Installation
 ```bash
+npm install
+```
+
+### Development Startup
+```bash
+npm start
+# or
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The app will be available at `http://localhost:4200`
 
-## Code scaffolding
+## Architecture
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+### Folder Structure
+```
+src/app/
+├── components/
+│   ├── login/           # Login component
+│   └── hello/           # Home page after login
+├── services/
+│   └── auth.service.ts  # Authentication service
+├── guards/
+│   ├── auth.guard.ts    # Protected routes
+│   └── login.guard.ts   # Redirect if already logged in
+├── interceptors/
+│   └── auth.interceptor.ts  # Automatic token addition
+└── shared/
+    └── material.exports.ts  # Angular Material exports
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Services
+- **AuthService**: Handles authentication, token storage, API calls
+- **AuthGuard**: Protects routes requiring authentication
+- **LoginGuard**: Redirects if user is already logged in
+- **AuthInterceptor**: Automatically adds token to HTTP requests
 
-```bash
-ng generate --help
+## Backend API
+
+### Login Endpoint
+```
+POST http://localhost:8080/api/login
+Content-Type: application/json
+
+{
+  "username": "string",
+  "password": "string"
+}
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
+### Expected Response
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Usage
 
-## Running unit tests
+### Login
+1. Go to the login page
+2. Enter your credentials (username and password)
+3. The form automatically validates the fields
+4. After successful login, you are redirected to the Hello page
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### After Login
+- The token is automatically added to HTTP request headers
+- Access the Hello page with session information
+- Option to logout
 
-```bash
-ng test
+### Hello Page Features
+- Real-time clock display
+- Information about the current JWT token
+- Button to test API calls with authentication
+- Secure logout
+
+## Customization
+
+### Change Colors
+Edit the `src/styles.scss` file to change the main colors:
+```scss
+$primary-color: #2E7D32; // Green
+$accent-color: #FF6F00;   // Orange
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+### API Configuration
+Edit the API URL in `src/app/services/auth.service.ts`:
+```typescript
+private apiUrl = 'http://localhost:8080/api';
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Technologies Used
+- **Angular 19** - Main framework
+- **Angular Material** - UI components
+- **RxJS** - Reactive programming
+- **TypeScript** - Development language
+- **SCSS** - Styles and themes
 
-## Additional Resources
+## Security
+- Client-side validation with Angular Reactive Forms
+- Route protection with Guards
+- Secure JWT token management
+- Automatic cleanup of sensitive data on logout
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+Developed with ❤️ for UI-SEDO
