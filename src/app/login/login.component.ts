@@ -63,7 +63,7 @@ export class LoginComponent {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          this.router.navigate(['/hello']);
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           this.isLoading = false;

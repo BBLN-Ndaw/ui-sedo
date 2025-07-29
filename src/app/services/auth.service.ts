@@ -10,7 +10,6 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   token: string;
-  // Ajoutez d'autres propriétés si nécessaire
 }
 
 @Injectable({

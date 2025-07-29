@@ -14,7 +14,7 @@ export class LoginGuard {
 
   canActivate(): boolean {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/hello']);
+      this.router.navigate(['/dashboard']);
       return false;
     }
     return true;

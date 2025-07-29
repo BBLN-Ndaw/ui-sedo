@@ -2,42 +2,56 @@
 // Import Angular Material base theme
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-// Thème personnalisé avec 2 couleurs principales
+// Design System - Store Management Application
 :root {
-  // Couleurs personnalisées
-  --primary-color: #2E7D32;    // Vert foncé
-  --accent-color: #FF6F00;     // Orange
+  // Couleurs principales
+  --primary-blue: #2563EB;      // Bleu moderne et professionnel
+  --secondary-green: #10B981;   // Vert pour succès/validation
+  --accent-orange: #F59E0B;     // Orange pour alertes/actions
+  
+  // Couleurs neutres
+  --dark-gray: #1F2937;         // Texte principal
+  --medium-gray: #6B7280;       // Texte secondaire
+  --light-gray: #F3F4F6;        // Arrière-plans
+  --white: #FFFFFF;
+  
+  // Couleurs d'état
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #3B82F6;
 
   // Override des variables CSS d'Angular Material
-  --mdc-theme-primary: var(--primary-color);
-  --mdc-theme-secondary: var(--accent-color);
-  --mat-toolbar-container-background-color: var(--primary-color);
-  --mdc-filled-button-container-color: var(--primary-color);
-  --mdc-protected-button-container-color: var(--primary-color);
-  --mdc-outlined-button-outline-color: var(--primary-color);
-  --mdc-text-button-label-text-color: var(--primary-color);
+  --mdc-theme-primary: var(--primary-blue);
+  --mdc-theme-secondary: var(--secondary-green);
+  --mat-toolbar-container-background-color: var(--primary-blue);
+  --mdc-filled-button-container-color: var(--primary-blue);
+  --mdc-protected-button-container-color: var(--primary-blue);
+  --mdc-outlined-button-outline-color: var(--primary-blue);
+  --mdc-text-button-label-text-color: var(--primary-blue);
 }
 
-// Classes utilitaires pour les couleurs personnalisées
-.bg-primary {
-  background-color: var(--primary-color) !important;
+// Classes utilitaires pour les couleurs
+.bg-primary { background-color: var(--primary-blue) !important; }
+.bg-secondary { background-color: var(--secondary-green) !important; }
+.bg-accent { background-color: var(--accent-orange) !important; }
+.bg-success { background-color: var(--success) !important; }
+.bg-warning { background-color: var(--warning) !important; }
+.bg-error { background-color: var(--error) !important; }
+
+.text-primary { color: var(--primary-blue) !important; }
+.text-secondary { color: var(--secondary-green) !important; }
+.text-accent { color: var(--accent-orange) !important; }
+.text-dark { color: var(--dark-gray) !important; }
+.text-medium { color: var(--medium-gray) !important; }
+
+// Gradient pour les backgrounds modernes
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-green) 100%);
 }
 
-.bg-accent {
-  background-color: var(--accent-color) !important;
-}
-
-.text-primary {
-  color: var(--primary-color) !important;
-}
-
-.text-accent {
-  color: var(--accent-color) !important;
-}
-
-// Gradient personnalisé
-.gradient-bg {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+.gradient-accent {
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-blue) 100%);
 }
 
 html, body { 
