@@ -38,6 +38,7 @@ export class AuthService {
 
   getToken(): string | null {
     if (typeof window !== 'undefined' && window.localStorage) {
+      console.log('Retrieving token from localStorage', localStorage.getItem(this.tokenKey));
       return localStorage.getItem(this.tokenKey);
     }
     return null;

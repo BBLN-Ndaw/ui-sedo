@@ -113,57 +113,271 @@
   }
 }
 
-// Navigation Menu
+// Navigation Menu - 
 .navigation-menu {
-  padding: 16px 0;
+  padding: 20px 0;
   flex: 1;
 
   .nav-item {
-    margin: 4px 16px;
-    border-radius: 8px;
+    position: relative;
+    margin: 6px 16px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    // Indicateur de sélection à gauche
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 0;
+      background: var(--accent-color);
+      border-radius: 0 4px 4px 0;
+      transition: all 0.3s ease;
+    }
 
     &:hover {
-      background: var(--hover-color);
-      transform: translateX(4px);
+      background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.1), 
+        rgba(118, 75, 162, 0.08)
+      );
+      transform: translateX(8px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+
+      &::before {
+        height: 24px;
+      }
+
+      mat-icon {
+        color: var(--accent-color);
+        transform: scale(1.1);
+      }
+
+      span {
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+    }
+
+    // État actif/sélectionné
+    &.active {
+      background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.15), 
+        rgba(118, 75, 162, 0.12)
+      );
+      border: 1px solid rgba(102, 126, 234, 0.2);
+
+      &::before {
+        height: 32px;
+        width: 5px;
+      }
+
+      mat-icon {
+        color: var(--accent-color);
+      }
+
+      span {
+        color: var(--primary-color);
+        font-weight: 700;
+      }
     }
 
     mat-icon {
       color: var(--text-secondary);
       margin-right: 16px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      transition: all 0.3s ease;
     }
 
     span {
       color: var(--text-primary);
       font-weight: 500;
+      font-size: 15px;
+      transition: all 0.3s ease;
     }
 
-    .badge-icon {
-      margin-left: auto;
-      margin-right: 0;
+    // Badge de notification moderne
+    .nav-badge {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: linear-gradient(135deg, #ff4757, #ff3742);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+      animation: pulse 2s infinite;
     }
+
+    // Suppression de l'ancien badge-icon
+    .badge-icon {
+      display: none;
+    }
+  }
+
+  // Séparateur entre sections
+  .nav-divider {
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--border-color), 
+      transparent
+    );
+    margin: 16px 24px;
+    opacity: 0.6;
+  }
+
+  // Sous-titre de section
+  .nav-section-title {
+    padding: 12px 24px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
   }
 }
 
-// Sidebar Footer
+// Animation pour les badges
+@keyframes pulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.6), 0 0 0 4px rgba(255, 71, 87, 0.1);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+  }
+}
+
+// Sidebar Footer - 
 .sidenav-footer {
   margin-top: auto;
-  border-top: 1px solid var(--border-color);
-  padding: 16px;
+  padding: 20px 16px 24px;
+  position: relative;
+
+  // Ligne de séparation moderne en haut
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--border-color), 
+      transparent
+    );
+    opacity: 0.8;
+  }
 
   .logout-item {
-    border-radius: 8px;
+    position: relative;
+    margin: 0;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--error-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    background: rgba(244, 67, 54, 0.05);
+    border: 1px solid rgba(244, 67, 54, 0.1);
+
+    // Indicateur de danger à gauche
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 0;
+      background: var(--error-color);
+      border-radius: 0 4px 4px 0;
+      transition: all 0.3s ease;
+    }
 
     &:hover {
-      background: rgba(244, 67, 54, 0.1);
+      background: linear-gradient(135deg, 
+        rgba(244, 67, 54, 0.12), 
+        rgba(239, 68, 68, 0.08)
+      );
+      transform: translateX(8px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+      border-color: rgba(244, 67, 54, 0.25);
+
+      &::before {
+        height: 24px;
+      }
+
+      mat-icon {
+        color: #dc2626;
+        transform: scale(1.1) rotate(-5deg);
+      }
+
+      span {
+        color: #dc2626;
+        font-weight: 600;
+      }
+    }
+
+    // Style au focus pour l'accessibilité
+    &:focus {
+      outline: 2px solid rgba(244, 67, 54, 0.3);
+      outline-offset: 2px;
     }
 
     mat-icon {
       color: var(--error-color);
+      margin-right: 16px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      transition: all 0.3s ease;
+    }
+
+    span {
+      color: var(--error-color);
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    // Effet de confirmation au clic
+    &:active {
+      transform: translateX(8px) scale(0.98);
+    }
+  }
+
+  // Message de footer optionnel
+  .footer-info {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    line-height: 1.4;
+
+    .app-version {
+      font-weight: 600;
+      color: var(--accent-color);
     }
   }
 }
@@ -205,27 +419,165 @@
   }
 }
 
-// User Menu
+// User Menu - Design moderne et spacieux
 .user-menu {
-  min-width: 250px;
+  min-width: 320px;
+  max-width: 380px;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden;
 
   .user-menu-header {
-    padding: 16px;
-    background: var(--primary-light);
+    padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+
+    // Effet de texture subtil
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.3;
+    }
+
+    .user-menu-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: white;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 2;
+    }
 
     .user-menu-info {
+      position: relative;
+      z-index: 2;
+
       .user-menu-name {
-        font-weight: 600;
-        font-size: 16px;
-        color: var(--text-primary);
-        margin-bottom: 4px;
+        font-weight: 700;
+        font-size: 18px;
+        color: white;
+        margin-bottom: 6px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .user-menu-email {
         font-size: 14px;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+
+      .user-menu-role {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 4px 12px;
+        border-radius: 12px;
+        display: inline-block;
+        font-weight: 600;
       }
     }
+  }
+
+  // Styling des éléments de menu
+  .mat-mdc-menu-item {
+    height: 56px !important;
+    padding: 0 24px !important;
+    font-size: 15px !important;
+    transition: all 0.3s ease !important;
+    border-radius: 0 !important;
+    position: relative;
+
+    &:hover {
+      background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.08), 
+        rgba(118, 75, 162, 0.06)
+      ) !important;
+      
+      mat-icon {
+        color: var(--accent-color) !important;
+        transform: scale(1.1);
+      }
+
+      span {
+        color: var(--primary-color) !important;
+        font-weight: 600;
+      }
+    }
+
+    mat-icon {
+      color: var(--text-secondary) !important;
+      margin-right: 16px !important;
+      font-size: 22px !important;
+      width: 22px !important;
+      height: 22px !important;
+      transition: all 0.3s ease;
+    }
+
+    span {
+      color: var(--text-primary) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    // Style spécial pour le logout
+    &.logout-action {
+      margin-top: 8px;
+      color: var(--error-color) !important;
+
+      &:hover {
+        background: rgba(244, 67, 54, 0.08) !important;
+        
+        mat-icon {
+          color: #dc2626 !important;
+        }
+
+        span {
+          color: #dc2626 !important;
+        }
+      }
+
+      mat-icon, span {
+        color: var(--error-color) !important;
+      }
+    }
+  }
+
+  // Dividers modernes
+  .mat-mdc-menu-divider {
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    margin: 8px 16px !important;
+  }
+
+  // Ajout d'une ombre interne pour plus de profondeur
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 }
 

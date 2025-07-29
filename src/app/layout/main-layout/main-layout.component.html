@@ -85,25 +85,47 @@
       </button>
 
       <mat-menu #userMenu="matMenu" class="user-menu">
-        <div class="user-menu-header">
+        <!-- En-tête moderne avec avatar -->
+        <div class="user-menu-header" mat-menu-item disabled>
+          <div class="user-menu-avatar">
+            {{ getUserInitials() }}
+          </div>
           <div class="user-menu-info">
             <div class="user-menu-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</div>
             <div class="user-menu-email">{{ currentUser?.email }}</div>
+            <div class="user-menu-role">{{ getRoleDisplayName() }}</div>
           </div>
         </div>
+
         <mat-divider></mat-divider>
-        <button mat-menu-item>
+
+        <!-- Actions utilisateur -->
+        <button mat-menu-item class="menu-action-item">
           <mat-icon>person</mat-icon>
-          <span>Profile</span>
+          <span>Mon Profil</span>
         </button>
-        <button mat-menu-item>
+
+        <button mat-menu-item class="menu-action-item">
           <mat-icon>settings</mat-icon>
-          <span>Settings</span>
+          <span>Paramètres</span>
         </button>
+
+        <button mat-menu-item class="menu-action-item">
+          <mat-icon>help</mat-icon>
+          <span>Aide & Support</span>
+        </button>
+
+        <button mat-menu-item class="menu-action-item">
+          <mat-icon>notifications</mat-icon>
+          <span>Notifications</span>
+        </button>
+
         <mat-divider></mat-divider>
-        <button mat-menu-item (click)="onLogout()">
+
+        <!-- Déconnexion -->
+        <button mat-menu-item (click)="onLogout()" class="menu-action-item logout-action">
           <mat-icon>logout</mat-icon>
-          <span>Logout</span>
+          <span>Se déconnecter</span>
         </button>
       </mat-menu>
     </mat-toolbar>
