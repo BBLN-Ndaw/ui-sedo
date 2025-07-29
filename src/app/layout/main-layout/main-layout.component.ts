@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -15,6 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 
 import { AuthService } from '../../services/auth.service';
+import { TokenRefreshService } from '../../services/token-refresh.service';
 import { User, UserRole } from '../../shared/models';
 
 interface MenuItem {
@@ -42,7 +43,7 @@ interface MenuItem {
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatSidenav;
 
   isHandset$!: Observable<boolean>;
@@ -124,16 +125,29 @@ export class MainLayoutComponent implements OnInit {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
+    private tokenRefreshService: TokenRefreshService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Démarrer la validation périodique du token
+    this.tokenRefreshService.startTokenValidation();
+
     // Initialiser isHandset$ après l'injection des dépendances
     this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
       .pipe(
         map(result => result.matches),
         shareReplay()
       );
+
+    // Vérifier l'état d'authentification
+    this.authService.isAuthenticated$.subscribe(isAuth => {
+      if (!isAuth && this.currentUser) {
+        // L'utilisateur vient d'être déconnecté (token expiré)
+        this.currentUser = null;
+        console.log('Utilisateur déconnecté automatiquement');
+      }
+    });
 
     // Simuler l'utilisateur connecté pour le moment
     this.currentUser = {
@@ -146,6 +160,11 @@ export class MainLayoutComponent implements OnInit {
       isActive: true,
       createdAt: new Date()
     };
+  }
+
+  ngOnDestroy(): void {
+    // Arrêter la validation du token lors de la destruction du component
+    this.tokenRefreshService.stopTokenValidation();
   }
 
   get filteredMenuItems(): MenuItem[] {
@@ -166,8 +185,10 @@ export class MainLayoutComponent implements OnInit {
   }
 
   onLogout(): void {
+    // Arrêter la validation du token
+    this.tokenRefreshService.stopTokenValidation();
+    // Déconnecter l'utilisateur
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   getUserInitials(): string {

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable()
@@ -20,7 +21,17 @@ export class AuthInterceptor implements HttpInterceptor {
       const authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
-      return next.handle(authReq);
+      
+      return next.handle(authReq).pipe(
+        catchError((error: HttpErrorResponse) => {
+          // Si le serveur retourne 401 (Unauthorized), le token est expiré/invalide
+          if (error.status === 401) {
+            console.log('Token expiré détecté par le serveur (401)');
+            this.authService.logout();
+          }
+          return throwError(() => error);
+        })
+      );
     }
 
     return next.handle(req);
