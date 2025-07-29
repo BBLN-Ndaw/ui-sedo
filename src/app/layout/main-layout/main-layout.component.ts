@@ -130,41 +130,87 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.initializeServices();
+    this.setupResponsiveLayout();
+    this.setupAuthenticationHandling();
+    this.loadInitialUserProfile();
+  }
+
+  ngOnDestroy(): void {
+    // Arrêter la validation du token lors de la destruction du component
+    this.tokenRefreshService.stopTokenValidation();
+  }
+
+  private initializeServices(): void {
     // Démarrer la validation périodique du token
     this.tokenRefreshService.startTokenValidation();
+  }
 
+  private setupResponsiveLayout(): void {
     // Initialiser isHandset$ après l'injection des dépendances
     this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
       .pipe(
         map(result => result.matches),
         shareReplay()
       );
-
-    // Vérifier l'état d'authentification
-    this.authService.isAuthenticated$.subscribe(isAuth => {
-      if (!isAuth && this.currentUser) {
-        // L'utilisateur vient d'être déconnecté (token expiré)
-        this.currentUser = null;
-        console.log('Utilisateur déconnecté automatiquement');
-      }
-    });
-
-    // Simuler l'utilisateur connecté pour le moment
-    this.currentUser = {
-      id: 1,
-      username: 'owner',
-      email: 'owner@store.com',
-      firstName: 'Yaya',
-      lastName: 'NDAW',
-      role: UserRole.OWNER,
-      isActive: true,
-      createdAt: new Date()
-    };
   }
 
-  ngOnDestroy(): void {
-    // Arrêter la validation du token lors de la destruction du component
-    this.tokenRefreshService.stopTokenValidation();
+  private setupAuthenticationHandling(): void {
+    // Vérifier l'état d'authentification et maj en fonction de l'etat propagé de isAuthenticated$
+    this.authService.isAuthenticated$.subscribe(isAuth => {
+      if (isAuth) {
+        this.handleUserAuthenticated();
+      } else if (this.currentUser) {
+        this.handleUserLoggedOut();
+      }
+    });
+  }
+
+  private loadInitialUserProfile(): void {
+    // Initialiser l'utilisateur si déjà authentifié au démarrage
+    if (this.authService.isAuthenticated()) {
+      this.handleUserAuthenticated();
+    }
+  }
+
+  private handleUserAuthenticated(): void {
+    const basicUserInfo = this.authService.getUserFromToken();
+    if (basicUserInfo) {
+      this.loadUserProfile(basicUserInfo);
+    }
+  }
+
+  private handleUserLoggedOut(): void {
+    // L'utilisateur vient d'être déconnecté (token expiré)
+    this.currentUser = null;
+    console.log('Utilisateur déconnecté automatiquement - currentUser nettoyé');
+    // Pas besoin de rediriger ici car AuthService s'en charge déjà
+  }
+
+  private loadUserProfile(basicUserInfo: any): void {
+    // Récupérer le profil complet depuis l'API
+    this.authService.getUserProfile().subscribe({
+      next: (fullProfile) => {
+        this.currentUser = fullProfile;
+        console.log('Profil utilisateur chargé:', this.currentUser);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du profil:', error);
+        this.setFallbackUserData(basicUserInfo);
+      }
+    });
+  }
+
+  private setFallbackUserData(basicUserInfo: any): void {
+    // En cas d'erreur, utiliser les données minimales du token
+    this.currentUser = {
+      ...basicUserInfo,
+      email: '',
+      firstName: basicUserInfo.username,
+      lastName: '',
+      isActive: true,
+      createdAt: new Date()
+    } as User;
   }
 
   get filteredMenuItems(): MenuItem[] {

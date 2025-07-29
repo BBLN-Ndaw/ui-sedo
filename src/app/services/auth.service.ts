@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
+import { User } from '../shared/models';
 
 export interface LoginCredentials {
   username: string;
@@ -20,7 +21,7 @@ export interface LoginResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api';
   private tokenKey = 'auth_token';
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false); //diffuseur d'etat
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
@@ -117,6 +118,59 @@ export class AuthService {
       console.log('Token expiré ou invalide détecté au démarrage');
       this.handleTokenExpiry();
     }
+  }
+
+  // Extraire les données utilisateur du token JWT (minimal)
+  getUserFromToken(): any | null {
+    const token = this.getToken();
+    if (!token || !this.isTokenValid()) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Données utilisateur extraites du token:', payload);
+      
+      // Adapter selon votre structure JWT serveur
+      return {
+        id: payload.userId || payload.id, // ID si disponible dans un claim personnalisé
+        username: payload.sub, // Le subject contient le username
+        role: this.extractUserRole(payload.roles), // Extraire le rôle principal depuis le tableau
+        // Ne pas inclure d'infos sensibles ici
+      };
+    } catch (error) {
+      console.error('Erreur lors de l\'extraction des données utilisateur:', error);
+      return null;
+    }
+  }
+
+  // Extraire le rôle principal depuis le tableau de rôles
+  private extractUserRole(roles: string[] | string | undefined): string {
+    if (!roles) return 'CUSTOMER'; // Rôle par défaut
+
+    // Si c'est un tableau, prendre le premier rôle
+    if (Array.isArray(roles)) {
+      const role = roles[0] || 'CUSTOMER';
+      // Nettoyer le préfixe ROLE_ si présent
+      return role.replace('ROLE_', '');
+    }
+
+    // Si c'est une string, la nettoyer
+    if (typeof roles === 'string') {
+      return roles.replace('ROLE_', '');
+    }
+
+    return 'CUSTOMER';
+  }
+
+  // Récupérer le profil complet de l'utilisateur depuis l'API
+  getUserProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user/profile`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur lors de la récupération du profil:', error);
+        throw error;
+      })
+    );
   }
 
   // Valider le token côté serveur (optionnel mais recommandé)
