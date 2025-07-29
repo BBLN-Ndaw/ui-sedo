@@ -140,8 +140,8 @@ export class MainLayoutComponent implements OnInit {
       id: 1,
       username: 'owner',
       email: 'owner@store.com',
-      firstName: 'Store',
-      lastName: 'Owner',
+      firstName: 'Yaya',
+      lastName: 'NDAW',
       role: UserRole.OWNER,
       isActive: true,
       createdAt: new Date()
