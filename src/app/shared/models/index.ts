@@ -1,19 +1,16 @@
 // Core interfaces pour le système de gestion de magasin
 
 export interface User {
-  id: number;
   username: string;
-  email: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
+  email: string;
   isActive: boolean;
-  createdAt: Date;
-  lastLogin?: Date;
+  roles: string[];
 }
 
 export enum UserRole {
-  OWNER = 'OWNER',        // Propriétaire - contrôle total
+  ADMIN = 'ADMIN',        // Administrateur - contrôle total
   EMPLOYEE = 'EMPLOYEE',  // Gestionnaire/Employé unique
   CUSTOMER = 'CUSTOMER'   // Clients du magasin
 }

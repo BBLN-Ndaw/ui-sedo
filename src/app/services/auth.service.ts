@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { Observable, BehaviorSubject, interval, Subscription } from 'rxjs';
+import { tap, catchError, map, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { User } from '../shared/models';
 
+// ===== INTERFACES =====
 export interface LoginCredentials {
   username: string;
   password: string;
@@ -15,177 +16,283 @@ export interface LoginResponse {
   token: string;
 }
 
+// ===== CONSTANTES =====
+const API_CONFIG = {
+  BASE_URL: 'http://localhost:8080/api',
+  ENDPOINTS: {
+    LOGIN: '/login',
+    VALIDATE_TOKEN: '/validate-token',
+    USER_PROFILE: '/users/profile'
+  }
+} as const;
+
+const TOKEN_CONFIG = {
+  STORAGE_KEY: 'auth_token',
+  CHECK_INTERVAL: 60000 // 1 minute
+} as const;
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api';
-  private tokenKey = 'auth_token';
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false); //diffuseur d'etat
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  // ===== PROPRIÉTÉS PRIVÉES =====
+  private readonly tokenKey = TOKEN_CONFIG.STORAGE_KEY;
+  
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private tokenCheckInterval: Subscription | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {
-    // Vérifier l'état d'authentification au démarrage
+  // ===== PROPRIÉTÉS PUBLIQUES =====
+  public readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  // ===== CONSTRUCTEUR =====
+  constructor(
+    private readonly http: HttpClient, 
+    private readonly router: Router
+  ) {
     this.checkAuthenticationStatus();
   }
 
+  // ===== MÉTHODES D'AUTHENTIFICATION =====
+  
+  /**
+   * Connecter un utilisateur avec ses identifiants
+   * @param credentials - Les identifiants de connexion
+   * @returns Observable<LoginResponse> - La réponse de connexion
+   */
   login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials)
+    return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, credentials)
       .pipe(
         tap(response => {
-          if (response.token) {
-            this.setToken(response.token);
+          if (response?.token) {
+            this.handleSuccessfulLogin(response.token);
           }
+        }),
+        catchError(error => {
+          console.error('Erreur lors de la connexion:', error);
+          throw error;
         })
       );
   }
 
+  /**
+   * Déconnecter l'utilisateur
+   */
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
+    this.stopPeriodicValidation();
+    this.clearStoredToken();
+    this.updateAuthenticationState(false);
+    this.navigateToLogin();
+    console.log('Utilisateur déconnecté');
   }
 
+  // ===== MÉTHODES DE GESTION DES TOKENS =====
+  
+  /**
+   * Récupérer le token stocké
+   * @returns Le token JWT ou null
+   */
   getToken(): string | null {
-    if (typeof window !== 'undefined' && window.localStorage) {
+    if (this.isClientSide()) {
       return localStorage.getItem(this.tokenKey);
     }
     return null;
   }
 
+  /**
+   * Créer les en-têtes d'autorisation
+   * @returns Les en-têtes HTTP avec ou sans token
+   */
+  getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return new HttpHeaders(headers);
+  }
+
+  // ===== MÉTHODES PRIVÉES DE GESTION DES TOKENS =====
+  
   private setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    if (this.isClientSide()) {
+      localStorage.setItem(this.tokenKey, token);
+    }
+  }
+
+  private clearStoredToken(): void {
+    if (this.isClientSide()) {
+      localStorage.removeItem(this.tokenKey);
+    }
   }
 
   private hasToken(): boolean {
     return !!this.getToken();
   }
 
-  getAuthHeaders(): HttpHeaders {
-    const token = this.getToken();
-    if (token) {
-      return new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
+  private isClientSide(): boolean {
+    return typeof window !== 'undefined' && !!window.localStorage;
+  }
+
+  // ===== MÉTHODES DE VALIDATION =====
+  
+  /**
+   * Vérification manuelle de l'authentification côté serveur
+   * @returns Observable<boolean> - True si authentifié, false sinon
+   */
+  isAuthenticated(): Observable<boolean> {
+    if (!this.hasToken()) {
+      return of(false);
     }
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
+    return this.validateTokenWithServer();
+  }
+
+  // ===== MÉTHODES D'INITIALISATION ET GESTION D'ÉTAT =====
+  
+  /**
+   * Vérifier le statut d'authentification lors du démarrage de l'application
+   */
+  private checkAuthenticationStatus(): void {
+    const token = this.getToken();
+    
+    if (!token) {
+      this.updateAuthenticationState(false);
+      return;
+    }
+
+    this.validateTokenWithServer().subscribe({
+      next: (isValid) => this.handleAuthenticationValidation(isValid),
+      error: (error) => this.handleAuthenticationError(error)
     });
   }
 
-  isAuthenticated(): boolean {
-    return this.hasToken() && this.isTokenValid();
-  }
-
-  // Vérifier si le token est valide (non expiré)
-  private isTokenValid(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-
-    try {
-      // Décoder le JWT pour vérifier l'expiration
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      if (payload.exp && payload.exp < currentTime) {
-        // Token expiré, le supprimer
-        this.handleTokenExpiry();
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Token invalide:', error);
+  /**
+   * Gérer le résultat de la validation d'authentification
+   * @param isValid - Résultat de la validation
+   */
+  private handleAuthenticationValidation(isValid: boolean): void {
+    if (isValid) {
+      console.log('Utilisateur authentifié détecté au démarrage');
+      this.updateAuthenticationState(true);
+      this.startPeriodicValidation();
+    } else {
+      console.log('Token invalide détecté au démarrage');
       this.handleTokenExpiry();
-      return false;
     }
   }
 
-  // Gérer l'expiration du token
-  private handleTokenExpiry(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
+  /**
+   * Gérer les erreurs d'authentification
+   * @param error - L'erreur survenue
+   */
+  private handleAuthenticationError(error: any): void {
+    console.error('Erreur lors de la validation du token au démarrage:', error);
+    this.handleTokenExpiry();
   }
 
-  // Vérifier le statut d'authentification au démarrage
-  private checkAuthenticationStatus(): void {
-    const isAuth = this.isAuthenticated();
-    this.isAuthenticatedSubject.next(isAuth);
+  // ===== MÉTHODES DE VALIDATION PÉRIODIQUE =====
+  
+  /**
+   * Démarrer la validation périodique du token
+   */
+  private startPeriodicValidation(): void {
+    this.stopPeriodicValidation();
     
-    if (!isAuth && this.getToken()) {
-      // Token présent mais invalide/expiré
-      console.log('Token expiré ou invalide détecté au démarrage');
-      this.handleTokenExpiry();
+    this.tokenCheckInterval = interval(TOKEN_CONFIG.CHECK_INTERVAL).pipe(
+      switchMap(() => this.isAuthenticated())
+    ).subscribe({
+      next: (isValid) => {
+        if (!isValid) {
+          console.log('Token expiré détecté lors de la validation périodique');
+          this.handleTokenExpiry();
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la validation périodique:', error);
+        this.handleTokenExpiry();
+      }
+    });
+  }
+
+  /**
+   * Arrêter la validation périodique du token
+   */
+  private stopPeriodicValidation(): void {
+    if (this.tokenCheckInterval) {
+      this.tokenCheckInterval.unsubscribe();
+      this.tokenCheckInterval = null;
     }
   }
 
-  // Extraire les données utilisateur du token JWT (minimal)
-  getUserFromToken(): any | null {
-    const token = this.getToken();
-    if (!token || !this.isTokenValid()) return null;
+  // ===== MÉTHODES API =====
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log('Données utilisateur extraites du token:', payload);
-      
-      // Adapter selon votre structure JWT serveur
-      return {
-        id: payload.userId || payload.id, // ID si disponible dans un claim personnalisé
-        username: payload.sub, // Le subject contient le username
-        role: this.extractUserRole(payload.roles), // Extraire le rôle principal depuis le tableau
-        // Ne pas inclure d'infos sensibles ici
-      };
-    } catch (error) {
-      console.error('Erreur lors de l\'extraction des données utilisateur:', error);
-      return null;
-    }
-  }
-
-  // Extraire le rôle principal depuis le tableau de rôles
-  private extractUserRole(roles: string[] | string | undefined): string {
-    if (!roles) return 'CUSTOMER'; // Rôle par défaut
-
-    // Si c'est un tableau, prendre le premier rôle
-    if (Array.isArray(roles)) {
-      const role = roles[0] || 'CUSTOMER';
-      // Nettoyer le préfixe ROLE_ si présent
-      return role.replace('ROLE_', '');
-    }
-
-    // Si c'est une string, la nettoyer
-    if (typeof roles === 'string') {
-      return roles.replace('ROLE_', '');
-    }
-
-    return 'CUSTOMER';
-  }
-
-  // Récupérer le profil complet de l'utilisateur depuis l'API
-  getUserProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/profile`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      catchError(error => {
-        console.error('Erreur lors de la récupération du profil:', error);
-        throw error;
-      })
-    );
-  }
-
-  // Valider le token côté serveur (optionnel mais recommandé)
-  validateTokenWithServer(): Observable<boolean> {
-    return this.http.get<any>(`${this.apiUrl}/validate-token`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap(() => {
-        this.isAuthenticatedSubject.next(true);
-      }),
+  /**
+   * Valider le token côté serveur
+   * @returns Observable<boolean> - True si le token est valide
+   */
+  private validateTokenWithServer(): Observable<boolean> {
+    return this.http.get<any>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.VALIDATE_TOKEN}`).pipe(
+      map((response) => this.isValidTokenResponse(response)),
       catchError(error => {
         console.error('Validation du token échouée:', error);
         this.handleTokenExpiry();
         return of(false);
       })
     );
+  }
+
+  // ===== MÉTHODES UTILITAIRES PRIVÉES =====
+  
+  /**
+   * Gérer une connexion réussie
+   * @param token - Le token JWT reçu
+   */
+  private handleSuccessfulLogin(token: string): void {
+    this.setToken(token);
+    this.updateAuthenticationState(true);
+    this.startPeriodicValidation();
+    console.log('Utilisateur connecté avec succès');
+  }
+
+  /**
+   * Gérer l'expiration du token
+   */
+  private handleTokenExpiry(): void {
+    this.stopPeriodicValidation();
+    this.clearStoredToken();
+    this.updateAuthenticationState(false);
+    this.navigateToLogin();
+  }
+
+  /**
+   * Mettre à jour l'état d'authentification
+   * @param isAuthenticated - Nouvel état d'authentification
+   */
+  private updateAuthenticationState(isAuthenticated: boolean): void {
+    this.isAuthenticatedSubject.next(isAuthenticated);
+  }
+
+  /**
+   * Naviguer vers la page de connexion
+   */
+  private navigateToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Vérifier si la réponse du serveur indique un token valide
+   * @param response - La réponse du serveur
+   * @returns True si le token est valide selon le serveur
+   */
+  private isValidTokenResponse(response: any): boolean {
+    if (response && (response.valid === true || response.status === 'ACCEPTED')) {
+      return true;
+    } else {
+      this.handleTokenExpiry();
+      return false;
+    }
   }
 }

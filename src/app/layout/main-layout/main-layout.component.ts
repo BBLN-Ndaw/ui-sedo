@@ -15,8 +15,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 
 import { AuthService } from '../../services/auth.service';
-import { TokenRefreshService } from '../../services/token-refresh.service';
 import { User, UserRole } from '../../shared/models';
+import { UserService } from '../../services/user.service';
 
 interface MenuItem {
   icon: string;
@@ -43,12 +43,12 @@ interface MenuItem {
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent implements OnInit, OnDestroy {
+export class MainLayoutComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
 
   isHandset$!: Observable<boolean>;
 
-  currentUser: User | null = null;
+  currentUser!: User;
   UserRole = UserRole;
 
   menuItems: MenuItem[] = [
@@ -56,50 +56,50 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       icon: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
-      roles: [UserRole.OWNER, UserRole.EMPLOYEE]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'inventory_2',
       label: 'Products & Stock',
       route: '/products',
-      roles: [UserRole.OWNER, UserRole.EMPLOYEE]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'shopping_cart',
       label: 'Orders',
       route: '/orders',
-      roles: [UserRole.OWNER, UserRole.EMPLOYEE],
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE],
       badge: 5 // Exemple: nouvelles commandes
     },
     {
       icon: 'point_of_sale',
       label: 'Point of Sale',
       route: '/pos',
-      roles: [UserRole.OWNER, UserRole.EMPLOYEE]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'people',
       label: 'Customers',
       route: '/customers',
-      roles: [UserRole.OWNER, UserRole.EMPLOYEE]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'analytics',
       label: 'Reports & Analytics',
       route: '/reports',
-      roles: [UserRole.OWNER]
+      roles: [UserRole.ADMIN]
     },
     {
       icon: 'admin_panel_settings',
       label: 'Store Administration',
       route: '/admin',
-      roles: [UserRole.OWNER]
+      roles: [UserRole.ADMIN]
     },
     {
       icon: 'settings',
       label: 'Settings',
       route: '/settings',
-      roles: [UserRole.OWNER]
+      roles: [UserRole.ADMIN]
     },
     // Menu spécifique aux clients
     {
@@ -125,25 +125,13 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
-    private tokenRefreshService: TokenRefreshService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.initializeServices();
     this.setupResponsiveLayout();
-    this.setupAuthenticationHandling();
-    this.loadInitialUserProfile();
-  }
-
-  ngOnDestroy(): void {
-    // Arrêter la validation du token lors de la destruction du component
-    this.tokenRefreshService.stopTokenValidation();
-  }
-
-  private initializeServices(): void {
-    // Démarrer la validation périodique du token
-    this.tokenRefreshService.startTokenValidation();
+    this.loadUserProfile();
   }
 
   private setupResponsiveLayout(): void {
@@ -155,68 +143,27 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       );
   }
 
-  private setupAuthenticationHandling(): void {
-    // Vérifier l'état d'authentification et maj en fonction de l'etat propagé de isAuthenticated$
-    this.authService.isAuthenticated$.subscribe(isAuth => {
-      if (isAuth) {
-        this.handleUserAuthenticated();
-      } else if (this.currentUser) {
-        this.handleUserLoggedOut();
-      }
-    });
-  }
-
-  private loadInitialUserProfile(): void {
-    // Initialiser l'utilisateur si déjà authentifié au démarrage
-    if (this.authService.isAuthenticated()) {
-      this.handleUserAuthenticated();
-    }
-  }
-
-  private handleUserAuthenticated(): void {
-    const basicUserInfo = this.authService.getUserFromToken();
-    if (basicUserInfo) {
-      this.loadUserProfile(basicUserInfo);
-    }
-  }
-
-  private handleUserLoggedOut(): void {
-    // L'utilisateur vient d'être déconnecté (token expiré)
-    this.currentUser = null;
-    console.log('Utilisateur déconnecté automatiquement - currentUser nettoyé');
-    // Pas besoin de rediriger ici car AuthService s'en charge déjà
-  }
-
-  private loadUserProfile(basicUserInfo: any): void {
-    // Récupérer le profil complet depuis l'API
-    this.authService.getUserProfile().subscribe({
+  /**
+   * Charge le profil complet de l'utilisateur depuis l'API.
+   * Le serveur identifie l'utilisateur via le token JWT.
+   */
+  private loadUserProfile(): void {
+    this.userService.getCurrentUserProfile().subscribe({
       next: (fullProfile) => {
         this.currentUser = fullProfile;
         console.log('Profil utilisateur chargé:', this.currentUser);
       },
       error: (error) => {
         console.error('Erreur lors du chargement du profil:', error);
-        this.setFallbackUserData(basicUserInfo);
+        this.authService.logout();
       }
     });
   }
 
-  private setFallbackUserData(basicUserInfo: any): void {
-    // En cas d'erreur, utiliser les données minimales du token
-    this.currentUser = {
-      ...basicUserInfo,
-      email: '',
-      firstName: basicUserInfo.username,
-      lastName: '',
-      isActive: true,
-      createdAt: new Date()
-    } as User;
-  }
-
   get filteredMenuItems(): MenuItem[] {
     if (!this.currentUser) return [];
-    return this.menuItems.filter(item => 
-      item.roles.includes(this.currentUser!.role)
+    return this.menuItems.filter(item =>
+      this.currentUser!.roles.some(userRole => item.roles.includes(userRole as UserRole))
     );
   }
 
@@ -231,8 +178,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    // Arrêter la validation du token
-    this.tokenRefreshService.stopTokenValidation();
     // Déconnecter l'utilisateur
     this.authService.logout();
   }
@@ -244,11 +189,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   getRoleDisplayName(): string {
     if (!this.currentUser) return '';
-    switch (this.currentUser.role) {
-      case UserRole.OWNER: return 'Store Owner';
-      case UserRole.EMPLOYEE: return 'Store Employee';
-      case UserRole.CUSTOMER: return 'Customer';
-      default: return this.currentUser.role;
-    }
+    return this.currentUser.roles.map(role => role).join(', ');
   }
 }
