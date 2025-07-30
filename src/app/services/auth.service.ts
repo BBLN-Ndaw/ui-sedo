@@ -1,10 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, interval, Subscription } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { User } from '../shared/models';
 
 // ===== INTERFACES =====
 export interface LoginCredentials {
@@ -40,6 +39,7 @@ export class AuthService {
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private tokenCheckInterval: Subscription | null = null;
+  private initialized = false;
 
   // ===== PROPRIÉTÉS PUBLIQUES =====
   public readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -48,9 +48,7 @@ export class AuthService {
   constructor(
     private readonly http: HttpClient, 
     private readonly router: Router
-  ) {
-    this.checkAuthenticationStatus();
-  }
+  ) {}
 
   // ===== MÉTHODES D'AUTHENTIFICATION =====
   
@@ -92,6 +90,8 @@ export class AuthService {
    * @returns Le token JWT ou null
    */
   getToken(): string | null {
+    this.ensureInitialized();
+    
     if (this.isClientSide()) {
       return localStorage.getItem(this.tokenKey);
     }
@@ -144,6 +144,8 @@ export class AuthService {
    * @returns Observable<boolean> - True si authentifié, false sinon
    */
   isAuthenticated(): Observable<boolean> {
+    this.ensureInitialized();
+    
     if (!this.hasToken()) {
       return of(false);
     }
@@ -152,6 +154,16 @@ export class AuthService {
 
   // ===== MÉTHODES D'INITIALISATION ET GESTION D'ÉTAT =====
   
+  /**
+   * Assurer que le service est initialisé (lazy initialization)
+   */
+  private ensureInitialized(): void {
+    if (!this.initialized) {
+      this.initialized = true;
+      this.checkAuthenticationStatus();
+    }
+  }
+
   /**
    * Vérifier le statut d'authentification lors du démarrage de l'application
    */

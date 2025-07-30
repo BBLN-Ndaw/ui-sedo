@@ -79,9 +79,7 @@ export class UserService {
    * @returns Observable<User> - Le profil utilisateur
    */
   getCurrentUserProfile(): Observable<User> {
-    return this.http.get<User>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.PROFILE}`, {
-      headers: this.authService.getAuthHeaders()
-    }).pipe(
+    return this.http.get<User>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.PROFILE}`).pipe(
       tap(user => {
         this.currentUserSubject.next(user);
         console.log('Profil utilisateur chargé:', user.username);
