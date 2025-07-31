@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap, catchError, map } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -20,7 +20,6 @@ const API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api',
   ENDPOINTS: {
     LOGIN: '/login',
-    VALIDATE_TOKEN: '/validate-token',
     USER_PROFILE: '/users/profile'
   }
 } as const;
@@ -137,16 +136,12 @@ export class AuthService {
   // ===== MÉTHODES DE VALIDATION =====
   
   /**
-   * Vérification manuelle de l'authentification côté serveur
-   * @returns Observable<boolean> - True si authentifié, false sinon
+   * Vérifier l'état d'authentification local
+   * @returns Observable<boolean> - True si authentifié localement
    */
   isAuthenticated(): Observable<boolean> {
     this.ensureInitialized();
-    
-    if (!this.hasToken()) {
-      return of(false);
-    }
-    return this.validateTokenWithServer();
+    return of(this.hasToken());
   }
 
   // ===== MÉTHODES D'INITIALISATION ET GESTION D'ÉTAT =====
@@ -167,55 +162,12 @@ export class AuthService {
   private checkAuthenticationStatus(): void {
     const token = this.getToken();
     
-    if (!token) {
-      this.updateAuthenticationState(false);
-      return;
-    }
-
-    this.validateTokenWithServer().subscribe({
-      next: (isValid) => this.handleAuthenticationValidation(isValid),
-      error: (error) => this.handleAuthenticationError(error)
-    });
-  }
-
-  /**
-   * Gérer le résultat de la validation d'authentification
-   * @param isValid - Résultat de la validation
-   */
-  private handleAuthenticationValidation(isValid: boolean): void {
-    if (isValid) {
-      console.log('Utilisateur authentifié détecté au démarrage');
+    if (token) {
+      console.log('Token détecté au démarrage');
       this.updateAuthenticationState(true);
     } else {
-      console.log('Token invalide détecté au démarrage');
-      this.handleTokenExpiry();
+      this.updateAuthenticationState(false);
     }
-  }
-
-  /**
-   * Gérer les erreurs d'authentification
-   * @param error - L'erreur survenue
-   */
-  private handleAuthenticationError(error: any): void {
-    console.error('Erreur lors de la validation du token au démarrage:', error);
-    this.handleTokenExpiry();
-  }
-
-  // ===== MÉTHODES API =====
-
-  /**
-   * Valider le token côté serveur
-   * @returns Observable<boolean> - True si le token est valide
-   */
-  private validateTokenWithServer(): Observable<boolean> {
-    return this.http.get<any>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.VALIDATE_TOKEN}`).pipe(
-      map((response) => this.isValidTokenResponse(response)),
-      catchError(error => {
-        console.error('Validation du token échouée:', error);
-        this.handleTokenExpiry();
-        return of(false);
-      })
-    );
   }
 
   // ===== MÉTHODES UTILITAIRES PRIVÉES =====
@@ -252,19 +204,5 @@ export class AuthService {
    */
   private navigateToLogin(): void {
     this.router.navigate(['/login']);
-  }
-
-  /**
-   * Vérifier si la réponse du serveur indique un token valide
-   * @param response - La réponse du serveur
-   * @returns True si le token est valide selon le serveur
-   */
-  private isValidTokenResponse(response: any): boolean {
-    if (response && (response.valid === true || response.status === 'ACCEPTED')) {
-      return true;
-    } else {
-      this.handleTokenExpiry();
-      return false;
-    }
   }
 }
