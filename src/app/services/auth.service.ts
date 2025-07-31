@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, interval, Subscription } from 'rxjs';
-import { tap, catchError, map, switchMap } from 'rxjs/operators';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -26,8 +26,7 @@ const API_CONFIG = {
 } as const;
 
 const TOKEN_CONFIG = {
-  STORAGE_KEY: 'auth_token',
-  CHECK_INTERVAL: 60000 // 1 minute
+  STORAGE_KEY: 'auth_token'
 } as const;
 
 @Injectable({
@@ -38,7 +37,6 @@ export class AuthService {
   private readonly tokenKey = TOKEN_CONFIG.STORAGE_KEY;
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  private tokenCheckInterval: Subscription | null = null;
   private initialized = false;
 
   // ===== PROPRIÉTÉS PUBLIQUES =====
@@ -76,7 +74,6 @@ export class AuthService {
    * Déconnecter l'utilisateur
    */
   logout(): void {
-    this.stopPeriodicValidation();
     this.clearStoredToken();
     this.updateAuthenticationState(false);
     this.navigateToLogin();
@@ -189,7 +186,6 @@ export class AuthService {
     if (isValid) {
       console.log('Utilisateur authentifié détecté au démarrage');
       this.updateAuthenticationState(true);
-      this.startPeriodicValidation();
     } else {
       console.log('Token invalide détecté au démarrage');
       this.handleTokenExpiry();
@@ -203,40 +199,6 @@ export class AuthService {
   private handleAuthenticationError(error: any): void {
     console.error('Erreur lors de la validation du token au démarrage:', error);
     this.handleTokenExpiry();
-  }
-
-  // ===== MÉTHODES DE VALIDATION PÉRIODIQUE =====
-  
-  /**
-   * Démarrer la validation périodique du token
-   */
-  private startPeriodicValidation(): void {
-    this.stopPeriodicValidation();
-    
-    this.tokenCheckInterval = interval(TOKEN_CONFIG.CHECK_INTERVAL).pipe(
-      switchMap(() => this.isAuthenticated())
-    ).subscribe({
-      next: (isValid) => {
-        if (!isValid) {
-          console.log('Token expiré détecté lors de la validation périodique');
-          this.handleTokenExpiry();
-        }
-      },
-      error: (error) => {
-        console.error('Erreur lors de la validation périodique:', error);
-        this.handleTokenExpiry();
-      }
-    });
-  }
-
-  /**
-   * Arrêter la validation périodique du token
-   */
-  private stopPeriodicValidation(): void {
-    if (this.tokenCheckInterval) {
-      this.tokenCheckInterval.unsubscribe();
-      this.tokenCheckInterval = null;
-    }
   }
 
   // ===== MÉTHODES API =====
@@ -265,7 +227,6 @@ export class AuthService {
   private handleSuccessfulLogin(token: string): void {
     this.setToken(token);
     this.updateAuthenticationState(true);
-    this.startPeriodicValidation();
     console.log('Utilisateur connecté avec succès');
   }
 
@@ -273,7 +234,6 @@ export class AuthService {
    * Gérer l'expiration du token
    */
   private handleTokenExpiry(): void {
-    this.stopPeriodicValidation();
     this.clearStoredToken();
     this.updateAuthenticationState(false);
     this.navigateToLogin();
