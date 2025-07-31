@@ -1,11 +1,13 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, throwError, switchMap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  if (req.url.includes('/login')) {
+  
+  // Exclure les endpoints qui n'ont pas besoin d'authentification
+  if (req.url.includes('/login') || req.url.includes('/register') || req.url.includes('/refresh')) {
     return next(req);
   }
 
@@ -18,15 +20,40 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     
     return next(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Si le serveur retourne 401 (Unauthorized), le token est expiré/invalide
         if (error.status === 401) {
-          console.log('Token expiré détecté par le serveur (401)');
+          // Token expiré - tentative de refresh automatique
+          console.log('🔄 Token expiré, refresh automatique...');
+          
+          return authService.refreshToken().pipe(
+            switchMap(() => {
+              // Retry la requête avec le nouveau token
+              const newToken = authService.getToken();
+              const retryReq = req.clone({
+                headers: req.headers.set('Authorization', `Bearer ${newToken}`)
+              });
+              console.log('✅ Retry avec nouveau token');
+              return next(retryReq);
+            }),
+            catchError((refreshError) => {
+              // Si le refresh échoue, déconnecter
+              console.log('❌ Refresh échoué, déconnexion');
+              authService.logout();
+              return throwError(() => error);
+            })
+          );
+        }
+        
+        if (error.status === 403) {
+          // Permissions insuffisantes
+          console.log('❌ Permissions insuffisantes');
           authService.logout();
         }
+        
         return throwError(() => error);
       })
     );
   }
 
+  // Si pas de token, laisser passer (le serveur décidera)
   return next(req);
 };

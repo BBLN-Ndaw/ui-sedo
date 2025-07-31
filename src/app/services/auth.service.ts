@@ -12,7 +12,13 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
+  expiresIn: number; // durée en secondes
+}
+
+export interface RefreshResponse {
+  accessToken: string;
+  expiresIn: number;
 }
 
 // ===== CONSTANTES =====
@@ -20,12 +26,10 @@ const API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api',
   ENDPOINTS: {
     LOGIN: '/login',
+    REFRESH: '/refresh',
+    LOGOUT: '/logout',
     USER_PROFILE: '/users/profile'
   }
-} as const;
-
-const TOKEN_CONFIG = {
-  STORAGE_KEY: 'auth_token'
 } as const;
 
 @Injectable({
@@ -33,7 +37,7 @@ const TOKEN_CONFIG = {
 })
 export class AuthService {
   // ===== PROPRIÉTÉS PRIVÉES =====
-  private readonly tokenKey = TOKEN_CONFIG.STORAGE_KEY;
+  private accessToken: string | null = null;
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private initialized = false;
@@ -55,11 +59,13 @@ export class AuthService {
    * @returns Observable<LoginResponse> - La réponse de connexion
    */
   login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, credentials)
+    return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, credentials, {
+      withCredentials: true // Important pour les cookies httpOnly
+    })
       .pipe(
         tap(response => {
-          if (response?.token) {
-            this.handleSuccessfulLogin(response.token);
+          if (response?.accessToken) {
+            this.handleSuccessfulLogin(response.accessToken, response.expiresIn);
           }
         }),
         catchError(error => {
@@ -73,7 +79,15 @@ export class AuthService {
    * Déconnecter l'utilisateur
    */
   logout(): void {
-    this.clearStoredToken();
+    // Appeler l'endpoint de logout pour nettoyer le refresh token côté serveur
+    this.http.post(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {}, {
+      withCredentials: true
+    }).subscribe({
+      next: () => console.log('Logout côté serveur réussi'),
+      error: (error) => console.warn('Erreur logout serveur:', error)
+    });
+    
+    this.clearTokens();
     this.updateAuthenticationState(false);
     this.navigateToLogin();
     console.log('Utilisateur déconnecté');
@@ -82,16 +96,12 @@ export class AuthService {
   // ===== MÉTHODES DE GESTION DES TOKENS =====
   
   /**
-   * Récupérer le token stocké
+   * Récupérer l'access token en mémoire
    * @returns Le token JWT ou null
    */
   getToken(): string | null {
     this.ensureInitialized();
-    
-    if (this.isClientSide()) {
-      return localStorage.getItem(this.tokenKey);
-    }
-    return null;
+    return this.accessToken;
   }
 
   /**
@@ -113,24 +123,27 @@ export class AuthService {
 
   // ===== MÉTHODES PRIVÉES DE GESTION DES TOKENS =====
   
-  private setToken(token: string): void {
-    if (this.isClientSide()) {
-      localStorage.setItem(this.tokenKey, token);
-    }
+  /**
+   * Stocker l'access token en mémoire
+   * @param token - L'access token
+   */
+  private setAccessToken(token: string): void {
+    this.accessToken = token;
   }
 
-  private clearStoredToken(): void {
-    if (this.isClientSide()) {
-      localStorage.removeItem(this.tokenKey);
-    }
+  /**
+   * Nettoyer tous les tokens
+   */
+  private clearTokens(): void {
+    this.accessToken = null;
   }
 
+  /**
+   * Vérifier si on a un access token valide
+   * @returns true si token présent
+   */
   private hasToken(): boolean {
-    return !!this.getToken();
-  }
-
-  private isClientSide(): boolean {
-    return typeof window !== 'undefined' && !!window.localStorage;
+    return !!this.accessToken;
   }
 
   // ===== MÉTHODES DE VALIDATION =====
@@ -142,6 +155,28 @@ export class AuthService {
   isAuthenticated(): Observable<boolean> {
     this.ensureInitialized();
     return of(this.hasToken());
+  }
+
+  /**
+   * Rafraîchir l'access token en utilisant le refresh token
+   * @returns Observable<RefreshResponse> - Nouveau token
+   */
+  refreshToken(): Observable<RefreshResponse> {
+    return this.http.post<RefreshResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REFRESH}`, {}, {
+      withCredentials: true // Pour envoyer le refresh token en cookie
+    }).pipe(
+      tap(response => {
+        if (response?.accessToken) {
+          this.setAccessToken(response.accessToken);
+          console.log('Token rafraîchi avec succès');
+        }
+      }),
+      catchError(error => {
+        console.error('Erreur lors du refresh du token:', error);
+        this.logout(); // Si le refresh échoue, déconnecter
+        throw error;
+      })
+    );
   }
 
   // ===== MÉTHODES D'INITIALISATION ET GESTION D'ÉTAT =====
@@ -160,24 +195,29 @@ export class AuthService {
    * Vérifier le statut d'authentification lors du démarrage de l'application
    */
   private checkAuthenticationStatus(): void {
-    const token = this.getToken();
-    
-    if (token) {
-      console.log('Token détecté au démarrage');
-      this.updateAuthenticationState(true);
-    } else {
-      this.updateAuthenticationState(false);
-    }
+    // Au démarrage, essayer de rafraîchir le token
+    // Si on a un refresh token valide en cookie, on récupérera un nouvel access token
+    this.refreshToken().subscribe({
+      next: () => {
+        console.log('Session restaurée avec succès');
+        this.updateAuthenticationState(true);
+      },
+      error: () => {
+        console.log('Aucune session active trouvée');
+        this.updateAuthenticationState(false);
+      }
+    });
   }
 
   // ===== MÉTHODES UTILITAIRES PRIVÉES =====
   
   /**
    * Gérer une connexion réussie
-   * @param token - Le token JWT reçu
+   * @param accessToken - L'access token reçu
+   * @param expiresIn - Durée de validité en secondes
    */
-  private handleSuccessfulLogin(token: string): void {
-    this.setToken(token);
+  private handleSuccessfulLogin(accessToken: string, expiresIn: number): void {
+    this.setAccessToken(accessToken);
     this.updateAuthenticationState(true);
     console.log('Utilisateur connecté avec succès');
   }
@@ -186,7 +226,7 @@ export class AuthService {
    * Gérer l'expiration du token
    */
   private handleTokenExpiry(): void {
-    this.clearStoredToken();
+    this.clearTokens();
     this.updateAuthenticationState(false);
     this.navigateToLogin();
   }
