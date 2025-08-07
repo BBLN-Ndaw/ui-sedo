@@ -14,12 +14,12 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   success: boolean;
-  message: string;
+  token?: string;
 }
 
 // ===== CONSTANTES =====
 const API_CONFIG = {
-  BASE_URL: 'http://localhost:8080/api',
+  BASE_URL: 'http://localhost:8080/api/auth',
   ENDPOINTS: {
     LOGIN: '/login',
     REFRESH: '/refresh_token',
@@ -34,9 +34,9 @@ const API_CONFIG = {
 })
 export class AuthService {
   
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private accessTokenSubject = new BehaviorSubject<string|null>(null);
 
-  public readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  public readonly accessToken$ = this.accessTokenSubject.asObservable();
 
   constructor(
     private readonly http: HttpClient, 
@@ -55,13 +55,9 @@ export class AuthService {
     })
       .pipe(
         tap(response => {
-          if (response.success === true) {
-            this.updateAuthenticationState(true);
+          if (response.success === true && response.token) {
+            this.updateAccessTokenState(response.token);
           }
-        }),
-        catchError(error => {
-          console.error('Erreur lors de la connexion:', error);
-          throw error;
         })
       );
   }
@@ -75,7 +71,7 @@ logout(): void {
     }).subscribe({
       next: () => {
         console.log('Logout côté serveur réussi');
-        this.updateAuthenticationState(false);
+        this.updateAccessTokenState(null);
         this.router.navigate(['/login']);
       },
       error: (error) => console.warn('Erreur logout serveur:', error)
@@ -85,11 +81,11 @@ logout(): void {
   /**
    * Forcer la déconnexion sans appel serveur (pour éviter les boucles)
    */
-  forceLogout(): void {
-    console.log('🚪 Déconnexion forcée');
-    this.updateAuthenticationState(false);
-    this.router.navigate(['/login']);
-  }
+  // forceLogout(): void {
+  //   console.log('🚪 Déconnexion forcée');
+  //   this.updateAccessTokenState(false);
+  //   this.router.navigate(['/login']);
+  // }
 
   /**
    * Rafraîchir l'access token en utilisant le refresh token
@@ -100,16 +96,17 @@ logout(): void {
       withCredentials: true // Pour envoyer le refresh token en cookie et recevoir le nouveau access token
     }).pipe(
       tap(response => {
-        if (response.success === true) {
+        if (response.success === true && response.token) {
           console.log('Token rafraîchi avec succès - nouveaux cookies reçus');
-          this.updateAuthenticationState(true);
+          this.updateAccessTokenState(response.token);
         }
       }),
-      catchError(error => {
-        console.error('Erreur lors du refresh du token:', error);
-        // NE PAS appeler logout() ici pour éviter les boucles
-        this.updateAuthenticationState(false);
-        throw error;
+      catchError((error) => {
+        console.error('Erreur lors du rafraîchissement du token:', error);
+        console.warn('Échec du rafraîchissement du token');
+        this.updateAccessTokenState(null);
+        this.navigateToLogin();
+        return of({ success: false });
       })
     );
   }
@@ -117,34 +114,34 @@ logout(): void {
   /**
    * verifier si l'utilisateur est connecté
    */
-  checkLoginStatus(): Observable<LoginResponse> {
-    return this.http.get<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CHECK_LOGIN}`, {
-      withCredentials: true // Pour vérifier l'état de la session avec les cookies httpOnly
-    }).pipe(
-      tap(response => {
-        if (response.success === true && response.message ==='SUCCESS') {
-          console.log('session active - utilisateur connecté');
-          this.updateAuthenticationState(true);
-        }
-        else {
-          console.log('session inactive - utilisateur non connecté');
-          this.updateAuthenticationState(false);
-        }
-      }),
-         catchError(error => {
-        console.error('Erreur lors de la verification du statut de connexion:', error);
-        this.updateAuthenticationState(false);
-        throw error;
-      })
-    );
-  }
+  // checkLoginStatus(): Observable<LoginResponse> {
+  //   return this.http.get<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CHECK_LOGIN}`, {
+  //     withCredentials: true // Pour vérifier l'état de la session avec les cookies httpOnly
+  //   }).pipe(
+  //     tap(response => {
+  //       if (response.success === true && response.message ==='SUCCESS') {
+  //         console.log('session active - utilisateur connecté');
+  //         this.updateAcessTokenState(true);
+  //       }
+  //       else {
+  //         console.log('session inactive - utilisateur non connecté');
+  //         this.updateAcessTokenState(false);
+  //       }
+  //     }),
+  //        catchError(error => {
+  //       console.error('Erreur lors de la verification du statut de connexion:', error);
+  //       this.updateAcessTokenState(false);
+  //       throw error;
+  //     })
+  //   );
+  // }
 
   /**
    * Mettre à jour l'état d'authentification
    * @param isAuthenticated - Nouvel état d'authentification
    */
-  private updateAuthenticationState(isAuthenticated: boolean): void {
-    this.isAuthenticatedSubject.next(isAuthenticated);
+  private updateAccessTokenState(isAuthenticated: string | null): void {
+    this.accessTokenSubject.next(isAuthenticated);
   }
 
   /**
@@ -159,26 +156,30 @@ logout(): void {
   return publicRoutes.some(route => url.startsWith(route));
 }
 
-  silentAuthInit(): Observable<LoginResponse> {
-  const location = inject(Location);
-  const currentPath = location.path();
-
-    console.debug('current path:', currentPath);
-  if (this.isPublicRoute(currentPath)) {
-    console.debug('[Auth] Public route, skip auth check:', currentPath);
-    this.updateAuthenticationState(false);
-    return of({ success: false, message: 'REJECTED' });
+setAccessToken(token: string | null): void {
+    this.updateAccessTokenState(token);
   }
+
+//   silentAuthInit(): Observable<LoginResponse> {
+//   const location = inject(Location);
+//   const currentPath = location.path();
+
+//     console.debug('current path:', currentPath);
+//   if (this.isPublicRoute(currentPath)) {
+//     console.debug('[Auth] Public route, skip auth check:', currentPath);
+//     this.updateAccessTokenState(false);
+//     return of({ success: false, message: 'REJECTED' });
+//   }
   
-  // Faire uniquement une vérification silencieuse sans redirection automatique
-  return this.checkLoginStatus().pipe(
-    catchError((error) => {
-      console.debug('[Auth] Silent auth failed, user will need to login manually');
-      this.updateAuthenticationState(false);
-      return of({ success: false, message: 'REJECTED' });
-    })
-  );
-}
+//   // Faire uniquement une vérification silencieuse sans redirection automatique
+//   return this.checkLoginStatus().pipe(
+//     catchError((error) => {
+//       console.debug('[Auth] Silent auth failed, user will need to login manually');
+//       this.updateAccessTokenState(false);
+//       return of({ success: false, message: 'REJECTED' });
+//     })
+//   );
+// }
 
 
 }

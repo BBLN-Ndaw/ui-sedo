@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAppInitializer(() => {
       const auth = inject(AuthService);
-      return firstValueFrom(auth.silentAuthInit());
+      return firstValueFrom(auth.refreshToken());
     }),
     provideAnimationsAsync()
   ]
