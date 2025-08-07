@@ -1,59 +1,53 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { catchError, throwError, switchMap } from 'rxjs';
+import { inject, Injector } from '@angular/core';
+import { catchError, throwError, switchMap, EMPTY } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
+// Flag global pour éviter les appels multiples de refresh
+let isRefreshing = false;
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+
+   const injector = inject(Injector);
+  const authService = injector.get(AuthService);
   
   // Exclure les endpoints qui n'ont pas besoin d'authentification
-  if (req.url.includes('/login') || req.url.includes('/register') || req.url.includes('/refresh')) {
+  if (req.url.includes('/login') || req.url.includes('/logout') || req.url.includes('/register') || req.url.includes('/refresh_token') || req.url.includes('/check_login')) {
     return next(req);
   }
 
-  const token = authService.getToken();
+  const authReq = req.clone({
+    withCredentials: true // Les cookies httpOnly sont automatiquement inclus
+  });
   
-  if (token) {
-    const authReq = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`)
-    });
-    
-    return next(authReq).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Token expiré - tentative de refresh automatique
-          console.log('🔄 Token expiré, refresh automatique...');
-          
-          return authService.refreshToken().pipe(
-            switchMap(() => {
-              // Retry la requête avec le nouveau token
-              const newToken = authService.getToken();
-              const retryReq = req.clone({
-                headers: req.headers.set('Authorization', `Bearer ${newToken}`)
-              });
-              console.log('✅ Retry avec nouveau token');
-              return next(retryReq);
-            }),
-            catchError((refreshError) => {
-              // Si le refresh échoue, déconnecter
-              console.log('❌ Refresh échoué, déconnexion');
-              authService.logout();
-              return throwError(() => error);
-            })
-          );
-        }
-        
-        if (error.status === 403) {
-          // Permissions insuffisantes
-          console.log('❌ Permissions insuffisantes');
-          authService.logout();
-        }
-        
-        return throwError(() => error);
-      })
-    );
-  }
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !isRefreshing) {
+        // Token expiré - tentative de refresh automatique
+        console.log('🔄 Token expiré (401), refresh automatique...');
+        isRefreshing = true;
 
-  // Si pas de token, laisser passer (le serveur décidera)
-  return next(req);
+        return authService.refreshToken().pipe(
+          switchMap(() => {
+            // Retry la requête - les nouveaux cookies sont automatiquement utilisés
+            console.log('✅ Retry avec nouveaux cookies');
+            isRefreshing = false;
+            return next(authReq); // Même requête, nouveaux cookies
+          }),
+          catchError((refreshError) => {
+            // Si le refresh échoue, déconnecter
+            console.log('❌ Refresh échoué, déconnexion forcée');
+            isRefreshing = false;
+            authService.forceLogout();
+            return EMPTY; // Retourne un observable vide pour stopper la chaîne
+          })
+        );
+      } else if (error.status === 401 && isRefreshing) {
+        // Si un refresh est déjà en cours, on ignore cette erreur
+        console.log('🚫 Refresh déjà en cours, requête ignorée');
+        return EMPTY;
+      }
+      return throwError(() => error);
+    })
+  );
 };

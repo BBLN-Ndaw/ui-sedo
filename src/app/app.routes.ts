@@ -11,6 +11,7 @@ export const routes: Routes = [
     component: LoginComponent,
     canActivate: [LoginGuard]
   },
+  { path: 'logout', redirectTo: '/login' },
   {
     path: '',
     component: MainLayoutComponent,

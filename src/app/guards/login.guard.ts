@@ -19,7 +19,7 @@ export class LoginGuard implements CanActivate {
    * @returns true si l'accès est autorisé, false sinon
    */
   canActivate(): Observable<boolean> {
-    return this.authService.isAuthenticated().pipe(
+    return this.authService.isAuthenticated$.pipe(
       take(1),
       map(isAuthenticated => {
         if (isAuthenticated === true) {

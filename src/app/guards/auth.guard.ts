@@ -20,19 +20,20 @@ export class AuthGuard implements CanActivate {
    */
   canActivate(): Observable<boolean> {
     console.log("Vérification d'authentification dans le guard");
-    
-    // Utiliser isAuthenticated() qui fait une vérification active du token
-    return this.authService.isAuthenticated().pipe(
+
+    // D'abord vérifier l'état actuel
+    return this.authService.isAuthenticated$.pipe(
       take(1),
-      tap(isAuthenticated => {
+      map(isAuthenticated => {
         if (!isAuthenticated) {
           console.log('Accès refusé - Redirection vers login');
           this.router.navigate(['/login']);
+          return false;
         } else {
           console.log('Accès autorisé - Utilisateur authentifié');
+          return true;
         }
-      }),
-      map(isAuthenticated => isAuthenticated)
+      })
     );
   }
 }
