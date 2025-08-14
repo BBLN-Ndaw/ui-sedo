@@ -46,8 +46,6 @@ interface MenuItem {
 export class MainLayoutComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
 
-  isHandset$!: Observable<boolean>;
-
   currentUser!: User;
   UserRole = UserRole;
 
@@ -130,17 +128,7 @@ export class MainLayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.setupResponsiveLayout();
     this.loadUserProfile();
-  }
-
-  private setupResponsiveLayout(): void {
-    // Initialiser isHandset$ après l'injection des dépendances
-    this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
-      .pipe(
-        map(result => result.matches),
-        shareReplay()
-      );
   }
 
   /**
@@ -155,7 +143,16 @@ export class MainLayoutComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement du profil:', error);
-        this.authService.logout();
+        this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('Déconnexion réussie:', response);
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la déconnexion:', error);
+        this.router.navigate(['/login']);
+      }
+    });
       }
     });
   }
@@ -169,17 +166,20 @@ export class MainLayoutComponent implements OnInit {
 
   onMenuItemClick(route: string): void {
     this.router.navigate([route]);
-    // Fermer le drawer sur mobile après clic
-    this.isHandset$.subscribe(isHandset => {
-      if (isHandset) {
-        this.drawer.close();
-      }
-    });
   }
 
   onLogout(): void {
     // Déconnecter l'utilisateur
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('Déconnexion réussie:', response);
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la déconnexion:', error);
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   getUserInitials(): string {

@@ -64,14 +64,6 @@ export class LoginComponent {
             panelClass: ['success-snackbar']
           });
           this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Connexion error:', error);
-          this.snackBar.open('Connexion error. Please verify your credentials.', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
         }
       });
     } else {

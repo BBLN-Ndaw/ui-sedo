@@ -22,7 +22,7 @@ const API_CONFIG = {
   ENDPOINTS: {
     LOGIN: '/login',
     REFRESH: '/refresh_token',
-    LOGOUT: '/auth/logout',
+    LOGOUT: '/logout',
     CHECK_LOGIN: '/check_login',
     USER_PROFILE: '/users/profile'
   }
@@ -92,12 +92,12 @@ export class AuthService {
           this.updateAccessTokenState(response.token);
           this.initializedSubject.next(true); // Indique que l'initialisation est terminée
         }
-      }),
-      catchError(() => {
+      }), catchError(error => {
         console.warn('Échec du rafraîchissement du token');
-        this.updateAccessTokenState(null);
-        this.initializedSubject.next(true);
-        this.navigateToLogin();
+        this.logout().subscribe({
+          next: () => this.navigateToLogin(),
+          error: () => this.navigateToLogin()
+        });
         return of({ success: false });
       })
     );

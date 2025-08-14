@@ -60,12 +60,6 @@ function handle401(
           setHeaders: { Authorization: `Bearer ${newToken}` },
           withCredentials: true
         }));
-      }),
-      catchError(err => {
-        isRefreshing = false;
-        // authService.logout();
-        router.navigate(['/login']);
-        return throwError(() => err);
       })
     );
   }
