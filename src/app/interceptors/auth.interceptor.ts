@@ -18,10 +18,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   const authService = inject(AuthService);
   const router = inject(Router);
   
-
-  
-  // Éviter intercept sur la route /refresh pour prévenir les boucles infinies
-  if (req.url.includes('/api/auth/refresh')) {
+  if (req.url.includes('/api/auth/refresh') || req.url.includes('/api/auth/logout')) {
     return next(req);
   }
   let accessToken: string | null = null;
@@ -35,7 +32,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   return next(authReq).pipe(
     catchError(error => {
       if (error.status === 401) {
-        // Si ce n’est pas une requête de refresh
+        // erreur 401 et ce n’est pas une requête de refresh
         return handle401(authService, router, req, next);
       }
       return throwError(() => error);

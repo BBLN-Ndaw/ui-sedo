@@ -19,17 +19,16 @@ export class LoginGuard implements CanActivate {
    * @returns true si l'accès est autorisé, false sinon
    */
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    return this.authService.accessToken$.pipe(
-      first(),
-      switchMap(token => {
-        if (token) {
-          console.log('Utilisateur déjà connecté - Redirection vers dashboard');
+  canActivate(): Observable<boolean> {
+    return this.authService.initialized$.pipe(
+      map(() => {
+        const isLoggedIn = !!this.authService.accessTokenSubject.value;
+        if (isLoggedIn) {
+           console.log('Utilisateur déjà connecté - Redirection vers dashboard');
           this.router.navigate(['/dashboard']);
-          return of(false);
-        } 
-         console.log('Accès autorisé à la page de login');
-        return of(true);
+          return false;
+        }
+        return true;
       })
     );
   }
