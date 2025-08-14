@@ -57,6 +57,12 @@ export class MainLayoutComponent implements OnInit {
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
+      icon: 'storefront',
+      label: 'Catalogue Boutique',
+      route: '/catalog',
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
+    },
+    {
       icon: 'inventory_2',
       label: 'Products & Stock',
       route: '/products',
@@ -190,5 +196,27 @@ export class MainLayoutComponent implements OnInit {
   getRoleDisplayName(): string {
     if (!this.currentUser) return '';
     return this.currentUser.roles.map(role => role).join(', ');
+  }
+
+  getPageTitle(): string {
+    const url = this.router.url;
+    switch (url) {
+      case '/dashboard':
+        return 'Dashboard';
+      case '/catalog':
+        return 'Catalogue Boutique';
+      case '/profile':
+        return 'Mon Profil';
+      case '/pos':
+        return 'Point of Sale';
+      case '/customers':
+        return 'Clients';
+      case '/reports':
+        return 'Rapports & Analytics';
+      case '/admin':
+        return 'Administration';
+      default:
+        return 'Store Manager';
+    }
   }
 }

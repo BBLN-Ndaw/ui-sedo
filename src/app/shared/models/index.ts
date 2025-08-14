@@ -30,6 +30,9 @@ export interface Product {
   unit: string;
   images: string[];
   isActive: boolean;
+  isOnPromotion?: boolean;
+  promotionPrice?: number;
+  promotionEndDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,10 +40,34 @@ export interface Product {
 export interface ProductCategory {
   id: number;
   name: string;
-  description: string;
-  parentId?: number;
-  icon?: string;
+  description?: string;
   isActive: boolean;
+}
+
+export interface Category {
+  id?: number;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+}
+
+export interface ProductWithCategoryDto {
+  id: number;
+  name: string;
+  description?: string | null;
+  sku: string;
+  category: Category;
+  supplierId: string;
+  sellingPrice: number;
+  stockQuantity: number;
+  minStock: number;
+  expirationDate: Date;
+  unit: string;
+  isActive: boolean;
+  imageUrls: string[];
+  isOnPromotion: boolean;
+  promotionPrice?: number | null;
+  promotionEndDate?: Date | null; 
 }
 
 export interface Order {

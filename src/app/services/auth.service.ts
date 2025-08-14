@@ -93,7 +93,6 @@ export class AuthService {
           this.initializedSubject.next(true); // Indique que l'initialisation est terminée
         }
       }), catchError(error => {
-        console.warn('Échec du rafraîchissement du token');
         this.logout().subscribe({
           next: () => this.navigateToLogin(),
           error: () => this.navigateToLogin()

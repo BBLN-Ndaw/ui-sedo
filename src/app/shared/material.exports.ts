@@ -8,3 +8,5 @@ export { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 export { MatToolbarModule } from '@angular/material/toolbar';
 export { MatChipsModule } from '@angular/material/chips';
+export { MatPaginatorModule} from '@angular/material/paginator';
+import {MatSelectModule} from '@angular/material/select';
