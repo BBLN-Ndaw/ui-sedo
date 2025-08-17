@@ -17,7 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
 // Services et Modèles
 import { CatalogService } from '../../services/catalog.service';
 import { ProductWithCategoryDto } from '../../shared/models';
-import { PathNames } from '../constant/path-names.enum';
+import { PathNames } from '../../constant/path-names.enum';
 
 @Component({
   selector: 'app-product-details',

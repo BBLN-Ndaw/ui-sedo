@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 // Services et Modèles
 import { CatalogService } from '../services/catalog.service';
 import { Product, ProductCategory, ProductWithCategoryDto } from '../shared/models';
-import { PathNames } from './constant/path-names.enum';
+import { PathNames } from '../constant/path-names.enum';
 
 @Component({
   selector: 'app-catalog',

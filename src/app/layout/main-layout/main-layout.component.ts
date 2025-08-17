@@ -17,6 +17,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { AuthService } from '../../services/auth.service';
 import { User, UserRole } from '../../shared/models';
 import { UserService } from '../../services/user.service';
+import { PathNames } from '../../constant/path-names.enum';
 
 interface MenuItem {
   icon: string;
@@ -53,14 +54,8 @@ export class MainLayoutComponent implements OnInit {
     {
       icon: 'dashboard',
       label: 'Dashboard',
-      route: '/dashboard',
+      route: PathNames.dashboard,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
-    },
-    {
-      icon: 'storefront',
-      label: 'Catalogue Boutique',
-      route: '/catalog',
-      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
     },
     {
       icon: 'inventory_2',
@@ -71,57 +66,58 @@ export class MainLayoutComponent implements OnInit {
     {
       icon: 'shopping_cart',
       label: 'Orders',
-      route: '/orders',
+      route: PathNames.orders,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE],
       badge: 5 // Exemple: nouvelles commandes
     },
     {
       icon: 'point_of_sale',
       label: 'Point of Sale',
-      route: '/pos',
+      route: PathNames.pos,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'people',
       label: 'Customers',
-      route: '/customers',
+      route: PathNames.customers,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
       icon: 'analytics',
       label: 'Reports & Analytics',
-      route: '/reports',
+      route: PathNames.reports,
       roles: [UserRole.ADMIN]
     },
     {
       icon: 'admin_panel_settings',
       label: 'Store Administration',
-      route: '/admin',
+      route: PathNames.admin,
       roles: [UserRole.ADMIN]
     },
     {
       icon: 'settings',
       label: 'Settings',
-      route: '/settings',
+      route: PathNames.settings,
       roles: [UserRole.ADMIN]
     },
-    // Menu spécifique aux clients
+    //Menu pour tous les utilisateurs
     {
       icon: 'storefront',
-      label: 'Shop Catalog',
-      route: '/shop',
-      roles: [UserRole.CUSTOMER]
+      label: 'Catalogue Boutique',
+      route: PathNames.catalog,
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
     },
+    // Menu spécifique aux client
     {
       icon: 'shopping_bag',
-      label: 'My Orders',
-      route: '/my-orders',
+      label: 'Mes Commandes',
+      route: PathNames.orders,
       roles: [UserRole.CUSTOMER]
     },
     {
       icon: 'account_circle',
-      label: 'My Profile',
-      route: '/profile',
+      label: 'Mon Profil',
+      route: PathNames.profile,
       roles: [UserRole.CUSTOMER]
     }
   ];
@@ -199,21 +195,23 @@ export class MainLayoutComponent implements OnInit {
   }
 
   getPageTitle(): string {
-    const url = this.router.url;
+    const url = this.router.url.replace('/', '');
     switch (url) {
-      case '/dashboard':
+      case PathNames.dashboard:
         return 'Dashboard';
-      case '/catalog':
+      case PathNames.catalog:
         return 'Catalogue Boutique';
-      case '/profile':
+      case PathNames.productDetails:
+        return 'Détails du Produit';
+      case PathNames.profile:
         return 'Mon Profil';
-      case '/pos':
+      case PathNames.pos:
         return 'Point of Sale';
-      case '/customers':
+      case PathNames.customers:
         return 'Clients';
-      case '/reports':
+      case PathNames.reports:
         return 'Rapports & Analytics';
-      case '/admin':
+      case PathNames.admin:
         return 'Administration';
       default:
         return 'Store Manager';
