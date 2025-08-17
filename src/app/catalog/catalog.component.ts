@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -15,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 // Services et Modèles
 import { CatalogService } from '../services/catalog.service';
 import { Product, ProductCategory, ProductWithCategoryDto } from '../shared/models';
+import { PathNames } from './constant/path-names.enum';
 
 @Component({
   selector: 'app-catalog',
@@ -33,8 +35,7 @@ import { Product, ProductCategory, ProductWithCategoryDto } from '../shared/mode
   styleUrl: './catalog.component.scss'
 })
 export class CatalogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-    @ViewChild('promoContainer', { static: false }) promoContainer!: ElementRef<HTMLElement>;
+  @ViewChild('promoContainer', { static: false }) promoContainer!: ElementRef<HTMLElement>;
 
   // État du composant
   isLoading = false;
@@ -43,7 +44,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
   categories: ProductCategory[] = [];
 
   constructor(
-    private catalogService: CatalogService
+    private catalogService: CatalogService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -52,13 +54,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private loadCategories(): void {
     this.catalogService.getCategories()
-      .pipe(takeUntil(this.destroy$))
       .subscribe(categories => {
         this.categories = categories;
       });
@@ -116,7 +115,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onProductView(product: ProductWithCategoryDto): void {
     console.log('Voir détails du produit:', product);
-    // TODO: Implémenter la vue détaillée du produit
+    this.router.navigate([PathNames.productDetails], { state: { currentProduct: product } });
   }
 
   trackByProductId(index: number, product: ProductWithCategoryDto): number {
