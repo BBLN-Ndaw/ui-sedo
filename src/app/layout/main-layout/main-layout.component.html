@@ -86,8 +86,14 @@
         </button>
 
         <!-- Cart -->
-        <button mat-button class="cart-btn">
-          <mat-icon matBadge="2" matBadgeColor="accent" matBadgeSize="small">shopping_cart</mat-icon>
+        <button mat-button class="cart-btn" [routerLink]="['/cart']">
+          <mat-icon 
+            [matBadge]="(cartSummary$ | async)?.itemCount || 0" 
+            matBadgeColor="accent" 
+            matBadgeSize="small"
+            [matBadgeHidden]="((cartSummary$ | async)?.itemCount || 0) === 0">
+            shopping_cart
+          </mat-icon>
           <span class="cart-text">Panier</span>
         </button>
       </div>
