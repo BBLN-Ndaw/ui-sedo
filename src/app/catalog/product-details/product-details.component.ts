@@ -13,11 +13,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
 import { CatalogService } from '../../services/catalog.service';
+import { CartService } from '../../services/cart.service';
+import { NotificationService } from '../../services/notification.service';
 import { ProductWithCategoryDto } from '../../shared/models';
 import { PathNames } from '../../constant/path-names.enum';
+import { ProductUtilities } from '../../utilities/product.utilities';
 
 @Component({
   selector: 'app-product-details',
@@ -31,7 +35,8 @@ import { PathNames } from '../../constant/path-names.enum';
     MatChipsModule,
     MatTooltipModule,
     MatBadgeModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSnackBarModule
   ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss'
@@ -40,11 +45,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: ProductWithCategoryDto | null = null;
   isLoading = false;
   currentImageIndex = 0;
+  
+  // Sujet pour gérer la désinscription des observables
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
-    private catalogService: CatalogService
+    public productUtilities: ProductUtilities
   ) {
     this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
   }
@@ -53,6 +60,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   
@@ -62,41 +71,19 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
-    console.log('Ajouter au panier:', product);
-    // TODO: Implémenter l'ajout au panier
-  }
-
-  getStockStatus(product: ProductWithCategoryDto): 'in-stock' | 'low-stock' | 'out-of-stock' {
-    if (product.stockQuantity === 0) return 'out-of-stock';
-    if (product.stockQuantity <= 5) return 'low-stock';
-    return 'in-stock';
+      this.productUtilities.handleaddingToCart(product);
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    const status = this.getStockStatus(product);
-    switch (status) {
-      case 'out-of-stock': return 'Rupture de stock';
-      case 'low-stock': return 'Stock faible';
-      case 'in-stock': return 'En stock';
-      default: return 'En stock';
-    }
+    return this.productUtilities.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    const status = this.getStockStatus(product);
-    switch (status) {
-      case 'out-of-stock': return 'block';
-      case 'low-stock': return 'warning';
-      case 'in-stock': return 'check_circle';
-      default: return 'check_circle';
-    }
+    return this.productUtilities.getStockStatusIcon(product);
   }
 
   formatCurrency(price: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(price);
+    return this.productUtilities.formatCurrency(price);
   }
 
   isPromotional(product: ProductWithCategoryDto): boolean {

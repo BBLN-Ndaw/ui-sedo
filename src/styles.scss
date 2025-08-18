@@ -82,3 +82,57 @@ body {
   align-items: center;
   min-height: 100vh;
 }
+
+// ===== STYLES POUR LES NOTIFICATIONS =====
+
+.notification-snackbar {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+
+  .mat-mdc-snack-bar-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .mat-mdc-snack-bar-action {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.notification-success {
+  background-color: var(--success) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
+
+.notification-error {
+  background-color: var(--error) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
+
+.notification-warning {
+  background-color: var(--warning) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
+
+.notification-info {
+  background-color: var(--info) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}

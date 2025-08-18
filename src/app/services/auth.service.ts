@@ -37,6 +37,9 @@ export class AuthService {
 
   public readonly accessToken$ = this.accessTokenSubject.asObservable();
 
+  private readonly CART_STORAGE_KEY = 'shopping_cart';
+
+
   // flag pour indiquer que l'initApp (APP_INITIALIZER) est terminé
   private initializedSubject = new BehaviorSubject<boolean>(false);
   initialized$ = this.initializedSubject.asObservable();
@@ -71,6 +74,7 @@ export class AuthService {
   logout(): Observable<LoginResponse> {
     this.accessTokenSubject.next(null);
     this.initializedSubject.next(true);
+    localStorage.removeItem(this.CART_STORAGE_KEY);
     return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {}, {withCredentials: true})
   }
 

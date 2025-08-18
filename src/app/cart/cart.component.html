@@ -1,0 +1,201 @@
+<div class="cart-showcase">
+  <!-- Header du panier -->
+  <div class="cart-header">
+    <div class="header-content">
+      <h1 class="cart-title">
+        <mat-icon class="title-icon">shopping_cart</mat-icon>
+        Mon Panier
+      </h1>
+      <div class="cart-summary" *ngIf="!isCartEmpty">
+        <span class="item-count">{{ totalItems }} article{{ totalItems > 1 ? 's' : '' }}</span>
+        <span class="total-amount">{{ formatCurrency(cart?.total || 0) }}</span>
+      </div>
+    </div>
+    
+    <!-- Actions rapides -->
+    <div class="header-actions" *ngIf="!isCartEmpty">
+      <button 
+        mat-stroked-button 
+        color="warn"
+        (click)="clearCart()"
+        matTooltip="Vider le panier">
+        <mat-icon>delete_sweep</mat-icon>
+        Vider le panier
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="cart-content">
+    <!-- Panier vide -->
+    <div class="empty-cart" *ngIf="isCartEmpty">
+      <mat-card class="empty-cart-card">
+        <mat-card-content>
+          <div class="empty-content">
+            <mat-icon class="empty-icon">shopping_cart</mat-icon>
+            <h2 class="empty-title">Votre panier est vide</h2>
+            <p class="empty-message">
+              Découvrez nos produits et ajoutez vos favoris à votre panier pour commencer vos achats.
+            </p>
+            <button mat-raised-button color="primary" routerLink="/catalog">
+              <mat-icon>storefront</mat-icon>
+              Découvrir le catalogue
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Panier avec articles -->
+    <div class="cart-with-items" *ngIf="!isCartEmpty">
+      <div class="cart-layout">
+        <!-- Liste des articles -->
+        <div class="cart-items">
+          <mat-card 
+            class="cart-item-card" 
+            *ngFor="let item of cart?.items; trackBy: trackByItemId">
+            <div class="item-content">
+              <!-- Image du produit -->
+              <div class="item-image">
+                <img 
+                  [src]="item.imageUrl || 'assets/images/no-image.png'" 
+                  [alt]="item.productName"
+                  loading="lazy">
+                <div class="category-badge">{{ item.category }}</div>
+              </div>
+
+              <!-- Informations du produit -->
+              <div class="item-info">
+                <h3 class="item-name">{{ item.productName }}</h3>
+                <p class="item-sku">Référence: {{ item.productSku }}</p>
+                <div class="item-pricing">
+                  <span class="unit-price">{{ formatCurrency(item.unitPrice) }} / unité</span>
+                  <span class="total-price">{{ formatCurrency(item.total) }}</span>
+                </div>
+                <div class="stock-info">
+                  <mat-icon class="stock-icon">inventory</mat-icon>
+                  <span>{{ item.maxQuantity }} disponible{{ item.maxQuantity > 1 ? 's' : '' }}</span>
+                </div>
+              </div>
+
+              <!-- Contrôles de quantité -->
+              <div class="quantity-controls">
+                <div class="quantity-selector">
+                  <button 
+                    mat-icon-button 
+                    (click)="decreaseQuantity(item)"
+                    [disabled]="item.quantity <= 1"
+                    matTooltip="Diminuer la quantité">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  
+                  <span class="quantity-display">{{ item.quantity }}</span>
+                  
+                  <button 
+                    mat-icon-button 
+                    (click)="increaseQuantity(item)"
+                    [disabled]="item.quantity >= item.maxQuantity"
+                    matTooltip="Augmenter la quantité">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+
+                <button 
+                  mat-icon-button 
+                  color="warn"
+                  (click)="removeItem(item)"
+                  matTooltip="Supprimer du panier"
+                  class="remove-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Résumé du panier -->
+        <div class="cart-summary-panel">
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-card-title>Résumé de la commande</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="summary-lines">
+                <div class="summary-line">
+                  <span class="label">Sous-total ({{ totalItems }} article{{ totalItems > 1 ? 's' : '' }})</span>
+                  <span class="value">{{ formatCurrency(cart?.subtotal || 0) }}</span>
+                </div>
+                
+                <div class="summary-line">
+                  <span class="label">TVA (20%)</span>
+                  <span class="value">{{ formatCurrency(cart?.tax || 0) }}</span>
+                </div>
+                
+                <div class="summary-line discount" *ngIf="(cart?.discount || 0) > 0">
+                  <span class="label">Remise</span>
+                  <span class="value">-{{ formatCurrency(cart?.discount || 0) }}</span>
+                </div>
+                
+                <mat-divider></mat-divider>
+                
+                <div class="summary-line total">
+                  <span class="label">Total</span>
+                  <span class="value">{{ formatCurrency(cart?.total || 0) }}</span>
+                </div>
+              </div>
+
+              <div class="checkout-actions">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  class="checkout-btn"
+                  (click)="onProceedToPayment()">
+                  <mat-icon>payment</mat-icon>
+                  Procéder au paiement
+                </button>
+                
+                <button 
+                  mat-stroked-button 
+                  routerLink="/catalog"
+                  class="continue-shopping-btn">
+                  <mat-icon>arrow_back</mat-icon>
+                  Continuer mes achats
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Informations additionnelles -->
+          <mat-card class="additional-info">
+            <mat-card-content>
+              <div class="info-section">
+                <mat-icon class="info-icon">local_shipping</mat-icon>
+                <div class="info-text">
+                  <strong>Livraison gratuite</strong>
+                  <span>dès 50€ d'achat</span>
+                </div>
+              </div>
+              
+              <div class="info-section">
+                <mat-icon class="info-icon">verified_user</mat-icon>
+                <div class="info-text">
+                  <strong>Paiement sécurisé</strong>
+                  <span>Vos données sont protégées</span>
+                </div>
+              </div>
+              
+              <div class="info-section">
+                <mat-icon class="info-icon">assignment_return</mat-icon>
+                <div class="info-text">
+                  <strong>Retour gratuit</strong>
+                  <span>sous 30 jours</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

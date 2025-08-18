@@ -166,4 +166,6 @@ export class CatalogService {
       currency: 'EUR'
     }).format(price);
   }
+
+  
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, RouterModule } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, shareReplay, takeUntil } from 'rxjs/operators';
 
 // Angular Material
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -20,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { AuthService } from '../../services/auth.service';
-import { User, UserRole } from '../../shared/models';
+import { CartService } from '../../services/cart.service';
+import { User, UserRole, CartSummary } from '../../shared/models';
 import { UserService } from '../../services/user.service';
 import { PathNames } from '../../constant/path-names.enum';
 
@@ -38,6 +39,7 @@ interface MenuItem {
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterModule,
     MatSidenavModule,
     MatToolbarModule,
     MatButtonModule,
@@ -54,11 +56,15 @@ interface MenuItem {
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatSidenav;
 
   currentUser!: User;
   UserRole = UserRole;
+  cartSummary$: Observable<CartSummary>;
+  
+  // Sujet pour gérer la désinscription des observables
+  private destroy$ = new Subject<void>();
 
   menuItems: MenuItem[] = [
     {
@@ -136,11 +142,20 @@ export class MainLayoutComponent implements OnInit {
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
     private userService: UserService,
+    private cartService: CartService,
     private router: Router
-  ) {}
+  ) {
+    // Initialiser l'observable du résumé du panier
+    this.cartSummary$ = this.cartService.cartSummary$;
+  }
 
   ngOnInit(): void {
     this.loadUserProfile();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**

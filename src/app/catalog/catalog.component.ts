@@ -12,11 +12,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
 import { CatalogService } from '../services/catalog.service';
-import { Product, ProductCategory, ProductWithCategoryDto } from '../shared/models';
+import { CartService } from '../services/cart.service';
+import { NotificationService } from '../services/notification.service';
+import {ProductCategory, ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
+import { ProductUtilities } from '../utilities/product.utilities';
 
 @Component({
   selector: 'app-catalog',
@@ -29,7 +33,8 @@ import { PathNames } from '../constant/path-names.enum';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatRippleModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSnackBarModule
   ],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss'
@@ -42,10 +47,15 @@ export class CatalogComponent implements OnInit, OnDestroy {
   productWithCategorys: ProductWithCategoryDto[] = [];
   promotionalProductWithCategorys: ProductWithCategoryDto[] = [];
   categories: ProductCategory[] = [];
+  
+  // Sujet pour gérer la désinscription des observables
+  private destroy$ = new Subject<void>();
 
   constructor(
     private catalogService: CatalogService,
-    private router: Router
+    private notificationService: NotificationService,
+    private router: Router,
+    public productUtilities: ProductUtilities
   ) {}
 
   ngOnInit(): void {
@@ -54,10 +64,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private loadCategories(): void {
     this.catalogService.getCategories()
+      .pipe(takeUntil(this.destroy$))
       .subscribe(categories => {
         this.categories = categories;
       });
@@ -65,7 +78,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   private loadProductsWithCategory(): void {
     this.isLoading = true;
-    this.catalogService.getProductWithCategory().subscribe({
+    this.catalogService.getProductWithCategory()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (productWithCategory) => {
         console.log('Produits avec catégorie chargés:', productWithCategory);
         this.productWithCategorys = productWithCategory;
@@ -76,41 +91,25 @@ export class CatalogComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         this.isLoading = false;
         console.error('Erreur lors du chargement du produit avec catégorie:', error);
+        this.notificationService.showError('Erreur lors du chargement des produits');
       }
     });
   }
 
   formatCurrency(price: number): string {
-    return this.catalogService.formatCurrency(price);
-  }
-
-  getStockStatus(product: ProductWithCategoryDto): 'in-stock' | 'low-stock' | 'out-of-stock' {
-    if (product.stockQuantity === 0) return 'out-of-stock';
-    if (product.stockQuantity <= product.minStock) return 'low-stock';
-    return 'in-stock';
+    return this.productUtilities.formatCurrency(price);
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    const status = this.getStockStatus(product);
-    switch (status) {
-      case 'in-stock': return 'En stock';
-      case 'low-stock': return 'Stock faible';
-      case 'out-of-stock': return 'Rupture de stock';
-    }
+    return this.productUtilities.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    const status = this.getStockStatus(product);
-    switch (status) {
-      case 'in-stock': return 'check_circle';
-      case 'low-stock': return 'warning';
-      case 'out-of-stock': return 'error';
-    }
+    return this.productUtilities.getStockStatusIcon(product);
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
-    console.log('Produit sélectionné:', product);
-    // TODO: Implémenter l'ajout au panier
+    this.productUtilities.handleaddingToCart(product);
   }
 
   onProductView(product: ProductWithCategoryDto): void {
@@ -123,7 +122,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   getInStockCount(): number {
-    return this.productWithCategorys.filter(product => this.getStockStatus(product) === 'in-stock').length;
+    return this.productWithCategorys.filter(product => this.productUtilities.getStockStatus(product) === 'in-stock').length;
   }
 
   getPromotionalProducts(): ProductWithCategoryDto[] {

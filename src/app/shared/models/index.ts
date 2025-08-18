@@ -191,3 +191,45 @@ export interface ApiResponse<T> {
   message?: string;
   errors?: string[];
 }
+
+// ===== INTERFACES PANIER =====
+
+export interface CartItem {
+  id: string; // ID unique pour l'item dans le panier
+  productId: number;
+  productName: string;
+  productSku: string;
+  unitPrice: number;
+  quantity: number;
+  maxQuantity: number; // Stock disponible
+  imageUrl?: string;
+  category: string;
+  total: number; // quantity * unitPrice
+}
+
+export interface Cart {
+  id: string;
+  items: CartItem[];
+  itemCount: number; // Nombre total d'articles
+  subtotal: number; // Sous-total avant taxes et remises
+  tax: number; // Montant des taxes
+  discount: number; // Montant des remises
+  total: number; // Total final
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AddToCartRequest {
+  productId: number;
+  quantity: number;
+}
+
+export interface UpdateCartItemRequest {
+  cartItemId: string;
+  quantity: number;
+}
+
+export interface CartSummary {
+  itemCount: number;
+  total: number;
+}
