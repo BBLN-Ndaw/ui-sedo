@@ -8,6 +8,7 @@
       <div class="user-info">
         <h1 class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
         <p class="user-email">{{ currentUser?.email }}</p>
+        <p class="user-email">Vous êtes parmis nous depuis {{ currentUser?.createdAt | date: 'longDate' }}</p>
         <div class="user-status">
           <mat-chip-set>
             <mat-chip>
@@ -72,7 +73,7 @@
   </mat-card>
 
   <!-- Main Content Tabs -->
-  <mat-tab-group class="profile-tabs" mat-stretch-tabs="false" animationDuration="300ms">
+  <mat-tab-group class="profile-tabs" mat-stretch-tabs="true" animationDuration="300ms">
     
     <!-- Personal Information Tab -->
     <mat-tab label="Informations personnelles">
@@ -192,7 +193,6 @@
                     <mat-icon>lock</mat-icon>
                     <div>
                       <h4>Mot de passe</h4>
-                      <p>Dernière modification il y a 3 mois</p>
                     </div>
                   </div>
                   <button mat-button color="primary" (click)="isChangingPassword = !isChangingPassword">

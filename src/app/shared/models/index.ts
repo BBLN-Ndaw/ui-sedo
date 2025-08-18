@@ -1,12 +1,28 @@
 // Core interfaces pour le système de gestion de magasin
 
 export interface User {
+  id: number;
   username: string;
   firstName: string;
   lastName: string;
+  address: Address;
+  numTel: string
   email: string;
+  createdAt?: Date;
   isActive: boolean;
   roles: string[];
+}
+
+export interface Address {
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface UpdatePasswordDto {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export enum UserRole {

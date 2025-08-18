@@ -64,6 +64,14 @@ export class LoginComponent {
             panelClass: ['success-snackbar']
           });
           this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.snackBar.open('Erreur de connexion. Veuillez réessayer.', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+          this.router.navigate(['/login']);
         }
       });
     } else {

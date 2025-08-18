@@ -17,8 +17,8 @@ const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
-  if (req.url.includes('/api/auth/refresh') || req.url.includes('/api/auth/logout')) {
+
+  if (req.url.includes('/api/auth/refresh') || req.url.includes('/api/auth/login') || req.url.includes('/api/auth/logout')) {
     return next(req);
   }
   let accessToken: string | null = null;

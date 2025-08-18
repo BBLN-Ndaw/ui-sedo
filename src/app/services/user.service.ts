@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { User, UserRole } from '../shared/models';
+import { UpdatePasswordDto, User, UserRole } from '../shared/models';
 import { AuthService } from './auth.service';
 
 // ===== INTERFACES =====
@@ -47,7 +47,6 @@ const USER_API_CONFIG = {
   ENDPOINTS: {
     USERS: '/users',
     PROFILE: '/users/profile',
-    CHANGE_PASSWORD: '/users/change-password',
     ACTIVATE: '/users/activate',
     DEACTIVATE: '/users/deactivate'
   }
@@ -80,11 +79,35 @@ export class UserService {
     }).pipe(
       tap(user => {
         this.currentUserSubject.next(user);
-        console.log('Profil utilisateur chargé:', user.username);
       }),
       catchError(error => {
         console.error('Erreur lors de la récupération du profil:', error);
         this.currentUserSubject.next(null);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  updateUser(id: string, updatedUser: User): Observable<User> {
+    return this.http.put<User>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`, updatedUser, {
+      withCredentials: true
+    }).pipe(
+      tap(updatedUser => {
+        this.currentUserSubject.next(updatedUser);
+      }),
+      catchError(error => {
+        console.error('Erreur lors de la mise à jour du profil:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  updatePassword(id: string, changePasswordRequest: ChangePasswordRequest): Observable<UpdatePasswordDto> {
+    return this.http.put<UpdatePasswordDto>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}/password`, changePasswordRequest, {
+      withCredentials: true
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur lors de la mise à jour du mot de passe:', error);
         return throwError(() => error);
       })
     );

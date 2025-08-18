@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ import { UserService } from '../../services/user.service';
 import { OrderService, Order as OrderModel } from '../../services/order.service';
 import { User } from '../../shared/models';
 import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
+import { Subject, takeUntil } from 'rxjs';
 
 interface Order {
   id: string;
@@ -73,17 +74,19 @@ interface LoyaltyProgram {
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
-  private authService = inject(AuthService);
+export class ProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
+    // Sujet pour gérer la désinscription des observables
+    private destroy$ = new Subject<void>();
+
   currentUser: User | null = null;
-  profileForm: FormGroup;
-  passwordForm: FormGroup;
+  profileForm!: FormGroup;
+  passwordForm!: FormGroup;
   isEditingProfile = false;
   isChangingPassword = false;
 
@@ -126,8 +129,10 @@ export class ProfileComponent implements OnInit {
     ]
   };
 
-  constructor() {
-    this.profileForm = this.fb.group({
+  constructor() {  }
+
+  ngOnInit() {
+     this.profileForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
@@ -143,32 +148,46 @@ export class ProfileComponent implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
-  }
 
-  ngOnInit() {
+
     this.loadUserProfile();
     this.loadOrders();
   }
 
-  loadUserProfile() {
-    this.userService.getCurrentUserProfile().subscribe({
-      next: (user) => {
-        this.currentUser = user;
-        this.profileForm.patchValue({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email
-        });
-      },
-      error: (error) => {
-        console.error('Error loading user profile:', error);
-        this.snackBar.open('Erreur lors du chargement du profil', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+  /* unsubscribe from all observables */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
+  loadUserProfile() {
+    this.userService.currentUser$
+        .pipe(takeUntil(this.destroy$)) // unsubscribe when component is destroyed
+        .subscribe({
+        next: (user: User | null) => {
+            this.currentUser = user;
+            if (user) {
+            this.profileForm.patchValue({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                address: user.address.street,
+                city: user.address.city,
+                postalCode: user.address.postalCode,
+                country: user.address.country,
+                phone: user.numTel
+            });
+            }
+        },
+        error: (error) => {
+            console.error('Error loading user profile:', error);
+            this.snackBar.open('Erreur lors du chargement du profil', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+            });
+        }
+        });
+    }
 
   loadOrders() {
     this.orderService.getOrders().subscribe({
@@ -264,15 +283,30 @@ export class ProfileComponent implements OnInit {
   }
 
   onSaveProfile() {
-    if (this.profileForm.valid) {
-      // Ici vous pourriez appeler un service pour sauvegarder les données
-      console.log('Saving profile:', this.profileForm.value);
-      this.isEditingProfile = false;
-      this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
-    }
+  if (this.profileForm.valid && this.currentUser) {
+    const updatedUser: User = { ...this.currentUser, ...this.profileForm.value };
+    console.log('Updating profile with:', updatedUser);
+    this.userService.updateUser(String(this.currentUser.id), updatedUser)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user) => {
+        console.log('Profile updated successfully:', user);
+        this.currentUser = user;
+        this.isEditingProfile = false;
+        this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      },
+      error: (error) => {
+        console.error('Error updating profile:', error);
+        this.snackBar.open('Erreur lors de la mise à jour du profil', 'Fermer', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
   }
 
   onCancelEdit() {
@@ -281,20 +315,46 @@ export class ProfileComponent implements OnInit {
       this.profileForm.patchValue({
         firstName: this.currentUser.firstName,
         lastName: this.currentUser.lastName,
-        email: this.currentUser.email
+        email: this.currentUser.email,
+        address: this.currentUser.address.street,
+        city: this.currentUser.address.city,
+        postalCode: this.currentUser.address.postalCode,
+        country: this.currentUser.address.country,
+        phone: this.currentUser.numTel
       });
     }
   }
 
   onChangePassword() {
-    if (this.passwordForm.valid) {
+    if (this.passwordForm.valid && this.currentUser) {
       // Ici vous pourriez appeler un service pour changer le mot de passe
       console.log('Changing password');
-      this.passwordForm.reset();
-      this.isChangingPassword = false;
-      this.snackBar.open('Mot de passe modifié avec succès', 'Fermer', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
+      const changePasswordRequest = { ...this.passwordForm.value };
+      this.userService.updatePassword(String(this.currentUser.id), changePasswordRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.passwordForm.reset();
+          this.isChangingPassword = false;
+          this.snackBar.open('Mot de passe modifié avec succès', 'Fermer', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error) => {
+          console.error('Error changing password:', error);
+          if(error.status === 400) {
+            this.snackBar.open('L\'ancien mot de passe est incorrect.', 'Fermer', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
+          } else {
+            this.snackBar.open('Erreur lors du changement de mot de passe', 'Fermer', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        }
       });
     }
   }
