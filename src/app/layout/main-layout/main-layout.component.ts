@@ -13,6 +13,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AuthService } from '../../services/auth.service';
 import { User, UserRole } from '../../shared/models';
@@ -39,7 +44,12 @@ interface MenuItem {
     MatIconModule,
     MatListModule,
     MatMenuModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatDividerModule
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
@@ -116,7 +126,7 @@ export class MainLayoutComponent implements OnInit {
     },
     {
       icon: 'account_circle',
-      label: 'Mon Profil',
+      label: 'Mon Espace Client',
       route: PathNames.profile,
       roles: [UserRole.CUSTOMER]
     }

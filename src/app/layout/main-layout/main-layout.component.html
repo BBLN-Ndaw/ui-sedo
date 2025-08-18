@@ -54,72 +54,87 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <!-- Top Toolbar -->
-    <mat-toolbar class="main-toolbar" color="primary">
+    <!-- Top Header -->
+    <div class="top-header">
+      <!-- Store Info -->
+      <div class="store-info">
+        <div class="store-name">
+          <mat-icon class="store-icon">store</mat-icon>
+          <span>Sedo Store</span>
+        </div>
+        <div class="store-address">
+          <mat-icon class="location-icon">location_on</mat-icon>
+          <span>123 Avenue de la République, 75011 Paris</span>
+        </div>
+      </div>
 
-      <!-- Page Title -->
-      <span class="toolbar-title">{{ getPageTitle() }}</span>
+      <!-- Search Bar -->
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <input matInput placeholder="Qu'est ce qui vous fait plaisir ?" class="search-input">
+          <button mat-icon-button matSuffix class="search-btn">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
 
-      <!-- Spacer -->
-      <span class="toolbar-spacer"></span>
+      <!-- Actions -->
+      <div class="header-actions">
+        <!-- User Menu -->
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+          <mat-icon class="user-icon">person</mat-icon>
+        </button>
 
-      <!-- Notifications -->
-      <button mat-icon-button class="notification-btn">
-        <mat-icon matBadge="3" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
-      </button>
+        <!-- Cart -->
+        <button mat-button class="cart-btn">
+          <mat-icon matBadge="2" matBadgeColor="accent" matBadgeSize="small">shopping_cart</mat-icon>
+          <span class="cart-text">Panier</span>
+        </button>
+      </div>
 
       <!-- User Menu -->
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-        <div class="user-avatar-small">
-          {{ getUserInitials() }}
-        </div>
-      </button>
-
       <mat-menu #userMenu="matMenu" class="user-menu">
-        <!-- En-tête moderne avec avatar -->
+        <!-- Header modernisé -->
         <div class="user-menu-header" mat-menu-item disabled>
-          <div class="user-menu-avatar">
-            {{ getUserInitials() }}
-          </div>
-          <div class="user-menu-info">
-            <div class="user-menu-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
-            <div class="user-menu-email">{{ currentUser.email }}</div>
-            <div class="user-menu-role">{{ getRoleDisplayName() }}</div>
+          <mat-icon class="user-menu-header-icon">person</mat-icon>
+          <div class="user-menu-header-info">
+            <div class="user-menu-header-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
+            <div class="user-menu-header-email">{{ currentUser.email }}</div>
+            <div class="user-menu-header-role">{{ getRoleDisplayName() }}</div>
           </div>
         </div>
-
         <mat-divider></mat-divider>
-
-        <!-- Actions utilisateur -->
-        <button mat-menu-item class="menu-action-item">
-          <mat-icon>person</mat-icon>
-          <span>Mon Profil</span>
-        </button>
-
-        <button mat-menu-item class="menu-action-item">
-          <mat-icon>settings</mat-icon>
-          <span>Paramètres</span>
-        </button>
-
-        <button mat-menu-item class="menu-action-item">
-          <mat-icon>help</mat-icon>
-          <span>Aide & Support</span>
-        </button>
-
-        <button mat-menu-item class="menu-action-item">
-          <mat-icon>notifications</mat-icon>
-          <span>Notifications</span>
-        </button>
-
+        <div class="user-menu-actions">
+          <button mat-menu-item class="menu-action-item">
+            <mat-icon>person</mat-icon>
+            <span>Mon Profil</span>
+          </button>
+          <button mat-menu-item class="menu-action-item">
+            <mat-icon>shopping_bag</mat-icon>
+            <span>Mes Commandes</span>
+          </button>
+          <button mat-menu-item class="menu-action-item">
+            <mat-icon>favorite</mat-icon>
+            <span>Ma Liste de Souhaits</span>
+          </button>
+          <button mat-menu-item class="menu-action-item">
+            <mat-icon>settings</mat-icon>
+            <span>Paramètres</span>
+          </button>
+          <button mat-menu-item class="menu-action-item">
+            <mat-icon>help</mat-icon>
+            <span>Aide & Support</span>
+          </button>
+        </div>
         <mat-divider></mat-divider>
-
-        <!-- Déconnexion -->
-        <button mat-menu-item (click)="onLogout()" class="menu-action-item logout-action">
-          <mat-icon>logout</mat-icon>
-          <span>Se déconnecter</span>
-        </button>
+        <div class="user-menu-logout">
+          <button mat-menu-item (click)="onLogout()" class="menu-action-item logout-action">
+            <mat-icon>logout</mat-icon>
+            <span>Se déconnecter</span>
+          </button>
+        </div>
       </mat-menu>
-    </mat-toolbar>
+    </div>
 
     <!-- Main Content Area -->
     <div class="main-content">
