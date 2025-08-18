@@ -136,3 +136,31 @@ body {
     color: rgba(255, 255, 255, 0.9) !important;
   }
 }
+
+// ===== DIALOG STYLES =====
+.order-details-dialog-container {
+  .mat-mdc-dialog-container {
+    border-radius: 16px !important;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+}
+
+// ===== SNACKBAR CUSTOM CLASSES =====
+.success-snackbar {
+  background-color: var(--success) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
+
+.error-snackbar {
+  background-color: var(--error) !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}

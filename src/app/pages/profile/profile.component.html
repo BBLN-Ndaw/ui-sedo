@@ -1,0 +1,412 @@
+<div class="profile-container">
+  <!-- Header Section -->
+  <div class="profile-header">
+    <div class="header-content">
+      <div class="user-avatar-large">
+        {{ getUserInitials() }}
+      </div>
+      <div class="user-info">
+        <h1 class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
+        <p class="user-email">{{ currentUser?.email }}</p>
+        <div class="user-status">
+          <mat-chip-set>
+            <mat-chip>
+              <mat-icon matChipAvatar>verified</mat-icon>
+              Compte vérifié
+            </mat-chip>
+            <mat-chip [color]="loyaltyProgram.level === 'Gold' ? 'accent' : 'primary'">
+              <mat-icon matChipAvatar>star</mat-icon>
+              Membre {{ loyaltyProgram.level }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-fab extended color="primary" (click)="toggleEditProfile()">
+          <mat-icon>{{ isEditingProfile ? 'save' : 'edit' }}</mat-icon>
+          {{ isEditingProfile ? 'Enregistrer' : 'Modifier profil' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loyalty Program Card -->
+  <mat-card class="loyalty-card">
+    <mat-card-header>
+      <div mat-card-avatar class="loyalty-avatar">
+        <mat-icon>star</mat-icon>
+      </div>
+      <mat-card-title>Programme de fidélité</mat-card-title>
+      <mat-card-subtitle>Membre {{ loyaltyProgram.level }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="loyalty-content">
+        <div class="points-section">
+          <div class="points-display">
+            <span class="points-number">{{ loyaltyProgram.points }}</span>
+            <span class="points-label">points</span>
+          </div>
+          <div class="progress-section">
+            <div class="progress-info">
+              <span>Vers le niveau Platinum</span>
+              <span>{{ loyaltyProgram.nextLevelPoints - loyaltyProgram.points }} points restants</span>
+            </div>
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="getLoyaltyProgress()"
+              color="accent">
+            </mat-progress-bar>
+          </div>
+        </div>
+        <div class="benefits-section">
+          <h4>Vos avantages :</h4>
+          <ul class="benefits-list">
+            <li *ngFor="let benefit of loyaltyProgram.benefits">
+              <mat-icon>check_circle</mat-icon>
+              {{ benefit }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Main Content Tabs -->
+  <mat-tab-group class="profile-tabs" mat-stretch-tabs="false" animationDuration="300ms">
+    
+    <!-- Personal Information Tab -->
+    <mat-tab label="Informations personnelles">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          <mat-card class="info-card">
+            <mat-card-header>
+              <div mat-card-avatar>
+                <mat-icon>person</mat-icon>
+              </div>
+              <mat-card-title>Informations personnelles</mat-card-title>
+              <mat-card-subtitle>Gérez vos informations de base</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Prénom</mat-label>
+                    <input matInput formControlName="firstName" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>person</mat-icon>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+                      Le prénom est requis
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('minlength')">
+                      Le prénom doit contenir au moins 2 caractères
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="lastName" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>person</mat-icon>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+                      Le nom est requis
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('minlength')">
+                      Le nom doit contenir au moins 2 caractères
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>email</mat-icon>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                      L'email est requis
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                      L'email n'est pas valide
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Téléphone</mat-label>
+                    <input matInput formControlName="phone" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>phone</mat-icon>
+                    <mat-error *ngIf="profileForm.get('phone')?.hasError('pattern')">
+                      Format de téléphone invalide
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Adresse</mat-label>
+                    <input matInput formControlName="address" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>home</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Ville</mat-label>
+                    <input matInput formControlName="city" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>location_city</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Code postal</mat-label>
+                    <input matInput formControlName="postalCode" [readonly]="!isEditingProfile">
+                    <mat-icon matSuffix>markunread_mailbox</mat-icon>
+                    <mat-error *ngIf="profileForm.get('postalCode')?.hasError('pattern')">
+                      Code postal invalide (5 chiffres)
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions" *ngIf="isEditingProfile">
+                  <button mat-raised-button color="primary" (click)="onSaveProfile()" [disabled]="profileForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Enregistrer
+                  </button>
+                  <button mat-button (click)="onCancelEdit()">
+                    <mat-icon>cancel</mat-icon>
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Security Section -->
+          <mat-card class="security-card">
+            <mat-card-header>
+              <div mat-card-avatar>
+                <mat-icon>security</mat-icon>
+              </div>
+              <mat-card-title>Sécurité</mat-card-title>
+              <mat-card-subtitle>Gérez la sécurité de votre compte</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="security-options">
+                <div class="security-item">
+                  <div class="security-info">
+                    <mat-icon>lock</mat-icon>
+                    <div>
+                      <h4>Mot de passe</h4>
+                      <p>Dernière modification il y a 3 mois</p>
+                    </div>
+                  </div>
+                  <button mat-button color="primary" (click)="isChangingPassword = !isChangingPassword">
+                    <mat-icon>edit</mat-icon>
+                    Modifier
+                  </button>
+                </div>
+
+                <div class="password-form" *ngIf="isChangingPassword">
+                  <form [formGroup]="passwordForm" class="change-password-form">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Mot de passe actuel</mat-label>
+                      <input matInput type="password" formControlName="currentPassword">
+                      <mat-icon matSuffix>lock</mat-icon>
+                      <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+                        Le mot de passe actuel est requis
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Nouveau mot de passe</mat-label>
+                      <input matInput type="password" formControlName="newPassword">
+                      <mat-icon matSuffix>lock_open</mat-icon>
+                      <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                        Le nouveau mot de passe est requis
+                      </mat-error>
+                      <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                        Le mot de passe doit contenir au moins 8 caractères
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Confirmer le nouveau mot de passe</mat-label>
+                      <input matInput type="password" formControlName="confirmPassword">
+                      <mat-icon matSuffix>lock_open</mat-icon>
+                      <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+                        Veuillez confirmer le mot de passe
+                      </mat-error>
+                      <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('passwordMismatch')">
+                        Les mots de passe ne correspondent pas
+                      </mat-error>
+                    </mat-form-field>
+
+                    <div class="password-actions">
+                      <button mat-raised-button color="primary" (click)="onChangePassword()" [disabled]="passwordForm.invalid">
+                        <mat-icon>save</mat-icon>
+                        Changer le mot de passe
+                      </button>
+                      <button mat-button (click)="isChangingPassword = false; passwordForm.reset()">
+                        <mat-icon>cancel</mat-icon>
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <!-- Orders History Tab -->
+    <mat-tab label="Mes commandes">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          <mat-card class="orders-card">
+            <mat-card-header>
+              <div mat-card-avatar>
+                <mat-icon>shopping_bag</mat-icon>
+              </div>
+              <mat-card-title>Historique des commandes</mat-card-title>
+              <mat-card-subtitle>{{ recentOrders.length }} commandes récentes</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="orders-list" *ngIf="recentOrders.length > 0; else noOrders">
+                <div class="order-item" *ngFor="let order of recentOrders">
+                  <div class="order-header">
+                    <div class="order-id">
+                      <mat-icon>receipt</mat-icon>
+                      <span>{{ order.id }}</span>
+                    </div>
+                    <div class="order-date">
+                      {{ order.date | date:'dd/MM/yyyy' }}
+                    </div>
+                  </div>
+                  
+                  <div class="order-details">
+                    <div class="order-info">
+                      <div class="order-items">
+                        <mat-icon>inventory</mat-icon>
+                        <span>{{ order.items }} article{{ order.items > 1 ? 's' : '' }}</span>
+                      </div>
+                      <div class="order-total">
+                        <span class="total-amount">{{ order.total | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="order-status">
+                      <mat-chip 
+                        [color]="getOrderStatusColor(order.status)"
+                        class="status-chip">
+                        <mat-icon matChipAvatar>{{ getOrderStatusIcon(order.status) }}</mat-icon>
+                        {{ order.status | titlecase }}
+                      </mat-chip>
+                    </div>
+                  </div>
+
+                  <div class="order-actions">
+                    <button mat-button (click)="openOrderDetails(order.id)">
+                      <mat-icon>visibility</mat-icon>
+                      Voir détails
+                    </button>
+                    <button mat-button *ngIf="order.status === 'delivered'" (click)="reorderItems(order.id, $event)">
+                      <mat-icon>refresh</mat-icon>
+                      Racheter
+                    </button>
+                    <button mat-button color="warn" *ngIf="order.status === 'pending' || order.status === 'processing'" (click)="cancelOrder(order.id, $event)">
+                      <mat-icon>cancel</mat-icon>
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noOrders>
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">shopping_bag</mat-icon>
+                  <h3>Aucune commande</h3>
+                  <p>Vous n'avez pas encore passé de commande</p>
+                  <button mat-raised-button color="primary" routerLink="/catalog">
+                    <mat-icon>shopping_cart</mat-icon>
+                    Commencer mes achats
+                  </button>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <!-- Wishlist Tab -->
+    <mat-tab label="Liste de souhaits">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          <mat-card class="wishlist-card">
+            <mat-card-header>
+              <div mat-card-avatar>
+                <mat-icon>favorite</mat-icon>
+              </div>
+              <mat-card-title>Ma liste de souhaits</mat-card-title>
+              <mat-card-subtitle>{{ wishlistItems.length }} article{{ wishlistItems.length > 1 ? 's' : '' }} sauvegardé{{ wishlistItems.length > 1 ? 's' : '' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else noWishlistItems">
+                <div class="wishlist-item" *ngFor="let item of wishlistItems">
+                  <div class="item-image">
+                    <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/images/placeholder.jpg'">
+                    <div class="item-overlay">
+                      <button mat-icon-button 
+                        matTooltip="Retirer de la liste" 
+                        (click)="removeFromWishlist(item.id)"
+                        class="remove-btn">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="item-content">
+                    <h4 class="item-name">{{ item.name }}</h4>
+                    <div class="item-price">
+                      {{ item.price | currency:'EUR':'symbol':'1.2-2':'fr' }}
+                    </div>
+                    
+                    <div class="item-availability">
+                      <mat-chip 
+                        [color]="getAvailabilityColor(item.availability)"
+                        class="availability-chip">
+                        <mat-icon matChipAvatar>{{ getAvailabilityIcon(item.availability) }}</mat-icon>
+                        {{ item.availability === 'in-stock' ? 'En stock' : 
+                           item.availability === 'low-stock' ? 'Stock faible' : 'Rupture de stock' }}
+                      </mat-chip>
+                    </div>
+
+                    <div class="item-actions">
+                      <button 
+                        mat-raised-button 
+                        color="primary" 
+                        (click)="addToCart(item)"
+                        [disabled]="item.availability === 'out-of-stock'">
+                        <mat-icon>shopping_cart</mat-icon>
+                        Ajouter au panier
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noWishlistItems>
+                <div class="empty-state">
+                  <mat-icon class="empty-icon">favorite_border</mat-icon>
+                  <h3>Votre liste de souhaits est vide</h3>
+                  <p>Parcourez notre catalogue et ajoutez vos articles préférés</p>
+                  <button mat-raised-button color="primary" routerLink="/catalog">
+                    <mat-icon>explore</mat-icon>
+                    Découvrir nos produits
+                  </button>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>
