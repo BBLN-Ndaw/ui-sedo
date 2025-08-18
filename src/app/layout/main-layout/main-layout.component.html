@@ -4,8 +4,9 @@
     class="sidenav" 
     fixedInViewport
     [attr.role]="'navigation'"
-    [mode]="'side'"
-    [opened]="true">
+    [mode]="'over'"
+    [opened]="false"
+    (backdropClick)="drawer.close()">
 
     <!-- Sidebar Header -->
     <div class="sidenav-header">
@@ -56,6 +57,11 @@
   <mat-sidenav-content>
     <!-- Top Header -->
     <div class="top-header">
+      <!-- Menu Toggle Button -->
+      <button mat-icon-button (click)="drawer.toggle()" class="menu-toggle-btn">
+        <mat-icon>menu</mat-icon>
+      </button>
+
       <!-- Store Info -->
       <div class="store-info">
         <div class="store-name">

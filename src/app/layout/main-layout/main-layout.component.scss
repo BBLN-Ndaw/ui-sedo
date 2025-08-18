@@ -1,19 +1,55 @@
 .sidenav-container {
   height: 100vh;
+  
+  // Forcer le sidenav à prendre toute la hauteur de la page
+  ::ng-deep .mat-drawer {
+    top: 0 !important; 
+    height: 100vh !important; 
+    z-index: 1001 ; 
+  }
+  
+  // Le backdrop aussi couvre toute la page
+  ::ng-deep .mat-drawer-backdrop {
+    top: 0 !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  // S'assurer que le contenu principal peut scroller correctement
+  ::ng-deep .mat-drawer-content {
+    overflow-y: auto;
+    height: 100vh;
+  }
 }
 
 .sidenav {
   width: 280px;
-  background: var(--surface-color);
-  border-right: 1px solid var(--border-color);
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08), 0 -2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
 }
 
 // Sidebar Header
 .sidenav-header {
   padding: 24px 20px;
-  border-bottom: 1px solid var(--border-color);
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: black;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  // Effet de superposition subtil
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
 
   .logo {
     display: flex;
@@ -23,13 +59,14 @@
     .logo-icon {
       font-size: 28px;
       margin-right: 12px;
-      color: var(--accent-color);
+      color: #ffd700;
     }
 
     .logo-text {
       font-size: 20px;
       font-weight: 600;
       letter-spacing: 0.5px;
+      color: white;
     }
   }
 
@@ -37,20 +74,20 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 16px;
     padding: 16px;
-    backdrop-filter: blur(15px);
-    transition: all 0.25s ease;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
     }
 
     .user-avatar {
@@ -76,23 +113,23 @@
       .user-name {
         font-weight: 600;
         font-size: 15px;
-        color: black;
+        color: white;
         margin-bottom: 4px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       }
 
       .user-role {
         font-size: 12px;
-        color: black;
+        color: rgba(255, 255, 255, 0.9);
         font-weight: 500;
         text-transform: capitalize;
         letter-spacing: 0.3px;
-        background: rgba(255, 255, 255, 0.12);
-        padding: 3px 10px;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 12px;
         display: inline-block;
       }
     }
@@ -113,18 +150,20 @@
   }
 }
 
-// Navigation Menu - 
+// Navigation Menu - Design moderne et épuré
 .navigation-menu {
   padding: 20px 0;
   flex: 1;
+  background: transparent;
 
   .nav-item {
     position: relative;
-    margin: 6px 16px;
+    margin: 4px 12px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    background: transparent;
 
     // Indicateur de sélection à gauche
     &::before {
@@ -133,32 +172,32 @@
       left: 0;
       top: 50%;
       transform: translateY(-50%);
-      width: 4px;
+      width: 3px;
       height: 0;
-      background: var(--accent-color);
-      border-radius: 0 4px 4px 0;
+      background: #667eea;
+      border-radius: 0 3px 3px 0;
       transition: all 0.3s ease;
     }
 
     &:hover {
       background: linear-gradient(135deg, 
-        rgba(102, 126, 234, 0.1), 
-        rgba(118, 75, 162, 0.08)
+        rgba(102, 126, 234, 0.08), 
+        rgba(102, 126, 234, 0.05)
       );
-      transform: translateX(8px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 
       &::before {
         height: 24px;
       }
 
       mat-icon {
-        color: var(--accent-color);
-        transform: scale(1.1);
+        color: #667eea;
+        transform: scale(1.05);
       }
 
       span {
-        color: var(--primary-color);
+        color: #374151;
         font-weight: 600;
       }
     }
@@ -166,32 +205,39 @@
     // État actif/sélectionné
     &.active {
       background: linear-gradient(135deg, 
-        rgba(102, 126, 234, 0.15), 
-        rgba(118, 75, 162, 0.12)
+        rgba(102, 126, 234, 0.12), 
+        rgba(102, 126, 234, 0.08)
       );
       border: 1px solid rgba(102, 126, 234, 0.2);
 
       &::before {
         height: 32px;
-        width: 5px;
+        width: 4px;
       }
 
       mat-icon {
-        color: var(--accent-color);
+        color: #667eea;
       }
 
       span {
-        color: var(--primary-color);
+        color: #374151;
         font-weight: 700;
       }
     }
 
     mat-icon {
-      color: var(--text-secondary);
+      color: #64748b;
       margin-right: 16px;
       font-size: 22px;
       width: 22px;
       height: 22px;
+      transition: all 0.3s ease;
+    }
+
+    span {
+      color: #475569;
+      font-weight: 500;
+      font-size: 14px;
       transition: all 0.3s ease;
     }
 
@@ -265,7 +311,7 @@
   }
 }
 
-// Sidebar Footer - 
+// Sidebar Footer - Design moderne
 .sidenav-footer {
   margin-top: auto;
   padding: 20px 16px 24px;
@@ -281,7 +327,7 @@
     height: 1px;
     background: linear-gradient(90deg, 
       transparent, 
-      var(--border-color), 
+      #e2e8f0, 
       transparent
     );
     opacity: 0.8;
@@ -294,8 +340,8 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    background: rgba(244, 67, 54, 0.05);
-    border: 1px solid rgba(244, 67, 54, 0.1);
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.1);
 
     // Indicateur de danger à gauche
     &::before {
@@ -304,21 +350,21 @@
       left: 0;
       top: 50%;
       transform: translateY(-50%);
-      width: 4px;
+      width: 3px;
       height: 0;
-      background: var(--error-color);
-      border-radius: 0 4px 4px 0;
+      background: #ef4444;
+      border-radius: 0 3px 3px 0;
       transition: all 0.3s ease;
     }
 
     &:hover {
       background: linear-gradient(135deg, 
-        rgba(244, 67, 54, 0.12), 
-        rgba(239, 68, 68, 0.08)
+        rgba(239, 68, 68, 0.1), 
+        rgba(239, 68, 68, 0.06)
       );
-      transform: translateX(8px);
-      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
-      border-color: rgba(244, 67, 54, 0.25);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.25);
 
       &::before {
         height: 24px;
@@ -326,7 +372,7 @@
 
       mat-icon {
         color: #dc2626;
-        transform: scale(1.1) rotate(-5deg);
+        transform: scale(1.05) rotate(-3deg);
       }
 
       span {
@@ -337,12 +383,12 @@
 
     // Style au focus pour l'accessibilité
     &:focus {
-      outline: 2px solid rgba(244, 67, 54, 0.3);
+      outline: 2px solid rgba(239, 68, 68, 0.3);
       outline-offset: 2px;
     }
 
     mat-icon {
-      color: var(--error-color);
+      color: #ef4444;
       margin-right: 16px;
       font-size: 22px;
       width: 22px;
@@ -351,9 +397,9 @@
     }
 
     span {
-      color: var(--error-color);
+      color: #ef4444;
       font-weight: 500;
-      font-size: 15px;
+      font-size: 14px;
       transition: all 0.3s ease;
     }
 
@@ -585,7 +631,7 @@
 .main-content {
   padding: 24px;
   background: var(--background-color);
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 90px);
   overflow-y: auto;
 }
 
@@ -635,7 +681,11 @@
   box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   gap: 32px;
   min-height: 90px;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1002;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   // Effet de superposition très subtil
   &::before {
@@ -646,6 +696,33 @@
     right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.15) 50%, transparent 100%);
+  }
+
+  // Bouton menu burger
+  .menu-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(241, 245, 249, 0.8);
+    color: #475569;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(241, 245, 249, 0.9);
+      color: #334155;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
   }
 
   .store-info {

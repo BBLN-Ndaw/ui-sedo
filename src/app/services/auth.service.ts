@@ -74,7 +74,6 @@ export class AuthService {
   logout(): Observable<LoginResponse> {
     this.accessTokenSubject.next(null);
     this.initializedSubject.next(true);
-    localStorage.removeItem(this.CART_STORAGE_KEY);
     return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {}, {withCredentials: true})
   }
 
