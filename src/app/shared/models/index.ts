@@ -2,7 +2,7 @@
 
 export interface User {
   id: number;
-  username: string;
+  userName: string;
   firstName: string;
   lastName: string;
   address: Address;
@@ -84,57 +84,6 @@ export interface ProductWithCategoryDto {
   isOnPromotion: boolean;
   promotionPrice?: number | null;
   promotionEndDate?: Date | null; 
-}
-
-export interface Order {
-  id: number;
-  orderNumber: string;
-  customerId?: number;
-  customerName: string;
-  customerEmail: string;
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  discount: number;
-  total: number;
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  paymentMethod: string;
-  deliveryType: DeliveryType;
-  deliveryAddress?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface OrderItem {
-  id: number;
-  productId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-}
-
-export enum OrderStatus {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  PREPARING = 'PREPARING',
-  READY = 'READY',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED'
-}
-
-export enum PaymentStatus {
-  PENDING = 'PENDING',
-  PAID = 'PAID',
-  FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED'
-}
-
-export enum DeliveryType {
-  PICKUP = 'PICKUP',
-  DELIVERY = 'DELIVERY',
-  IN_STORE = 'IN_STORE'
 }
 
 export interface StockMovement {
@@ -248,4 +197,66 @@ export interface UpdateCartItemRequest {
 export interface CartSummary {
   itemCount: number;
   total: number;
+}
+
+//ORDERS
+export interface OrderItem {
+  productId: number;
+  productName: string;
+  image: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface Order {
+  id?: string;
+  orderNumber: string;
+  customerName: string;
+  status: OrderStatus;
+  totalAmount: number;
+  subTotal: number;
+  shippingAmount: number;
+  taxAmount: number;
+  shippingAddress: Address;
+  billingAddress?: Address;
+  estimatedDeliveryDate?: Date;
+  note?: string;
+  items: OrderItem[];
+  pickupDate?: Date;
+  processedByUser?: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  createdAt?: Date;
+
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  READY_FOR_PICKUP = 'READY_FOR_PICKUP',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED'
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED'
+}
+
+export enum DeliveryType {
+  PICKUP = 'PICKUP',
+  DELIVERY = 'DELIVERY',
+  IN_STORE = 'IN_STORE'
+}
+
+export enum PaymentMethod {
+  CREDIT_CARD = 'CREDIT_CARD',
+  PAYPAL = 'PAYPAL',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  CASH_ON_DELIVERY = 'CASH_ON_DELIVERY'
 }

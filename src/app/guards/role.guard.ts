@@ -47,7 +47,6 @@ function jwt_decode<T>(token: string): T {
     // Simple JWT decode (without verification)
     const payload = token.split('.')[1];
     if (!payload) throw new Error('Invalid token format');
-    console.log("yaya ",JSON.parse(atob(payload)))
     return JSON.parse(atob(payload));
 }
 

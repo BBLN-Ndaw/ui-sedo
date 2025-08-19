@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,8 +10,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Order, OrderService } from '../../../services/order.service';
+import { OrderService } from '../../../services/order.service';
 import { CartService } from '../../../services/cart.service';
+import { Order, OrderStatus } from '../../models';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-order-details-dialog',
@@ -30,10 +32,12 @@ import { CartService } from '../../../services/cart.service';
   templateUrl: './order-details-dialog.component.html',
   styleUrls: ['./order-details-dialog.component.scss']
 })
-export class OrderDetailsDialogComponent implements OnInit {
+export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
   order: Order | null = null;
   isLoading = true;
   isProcessing = false;
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     public dialogRef: MatDialogRef<OrderDetailsDialogComponent>,
@@ -47,11 +51,20 @@ export class OrderDetailsDialogComponent implements OnInit {
     this.loadOrderDetails();
   }
 
+  /* unsubscribe from all observables */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadOrderDetails() {
     this.isLoading = true;
-    this.orderService.getOrderById(this.data.orderId).subscribe({
+    this.orderService.getOrderById(this.data.orderId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (order) => {
         this.order = order;
+        console.log('Order details loaded:', this.order);
         this.isLoading = false;
       },
       error: (error) => {
@@ -72,17 +85,26 @@ export class OrderDetailsDialogComponent implements OnInit {
   }
 
   onCancelOrder() {
-    if (!this.order || !['pending', 'processing'].includes(this.order.status)) {
+    if (!this.order || ![OrderStatus.PENDING, OrderStatus.PROCESSING].includes(this.order.status)) {
       return;
     }
 
     this.isProcessing = true;
-    this.orderService.cancelOrder(this.order.id).subscribe({
+    const orderId = this.order.id;
+    if (!orderId) {
+      this.isProcessing = false;
+      this.snackBar.open('ID de commande manquant', 'Fermer', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+    this.orderService.cancelOrder(orderId).subscribe({
       next: (success) => {
         this.isProcessing = false;
         if (success) {
           if (this.order) {
-            this.order.status = 'cancelled';
+            this.order.status = OrderStatus.CANCELLED;
           }
           this.snackBar.open('Commande annulée avec succès', 'Fermer', {
             duration: 3000,
@@ -107,7 +129,7 @@ export class OrderDetailsDialogComponent implements OnInit {
   }
 
   onReorder() {
-    if (!this.order || this.order.status !== 'delivered') {
+    if (!this.order || this.order.status !== OrderStatus.DELIVERED || !this.order.id) {
       return;
     }
 
@@ -144,10 +166,10 @@ export class OrderDetailsDialogComponent implements OnInit {
   }
 
   canCancel(): boolean {
-    return this.order !== null && ['pending', 'processing'].includes(this.order.status);
+    return this.order !== null && [OrderStatus.PENDING, OrderStatus.PROCESSING].includes(this.order.status);
   }
 
   canReorder(): boolean {
-    return this.order !== null && this.order.status === 'delivered';
+    return this.order !== null && this.order.status === OrderStatus.DELIVERED;
   }
 }

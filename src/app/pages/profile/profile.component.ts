@@ -21,18 +21,11 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { OrderService, Order as OrderModel } from '../../services/order.service';
-import { User } from '../../shared/models';
+import { OrderService} from '../../services/order.service';
+import { Order, OrderStatus, User } from '../../shared/models';
 import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
-import { Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 
-interface Order {
-  id: string;
-  date: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
-  items: number;
-}
 
 interface Wishlist {
   id: number;
@@ -91,28 +84,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isChangingPassword = false;
 
   // Données de démonstration pour la wishlist
-  recentOrders: Order[] = [];
+  recentOrders: any[] = [];
 
   wishlistItems: Wishlist[] = [
     {
       id: 1,
       name: 'Smartphone Premium XR',
       price: 899.99,
-      image: 'assets/images/phone.jpg',
+      image: 'assets/images/placeholder.svg',
       availability: 'in-stock'
     },
     {
       id: 2,
       name: 'Casque Audio Bluetooth',
       price: 199.99,
-      image: 'assets/images/headphones.jpg',
+      image: 'assets/images/placeholder.svg',
       availability: 'low-stock'
     },
     {
       id: 3,
       name: 'Tablette Graphique Pro',
       price: 349.99,
-      image: 'assets/images/tablet.jpg',
+      image: 'assets/images/placeholder.svg',
       availability: 'out-of-stock'
     }
   ];
@@ -187,18 +180,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
             });
         }
         });
-    }
+  }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
+    this.orderService.getUserOrders()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (orders) => {
+        console.log('Orders loaded:', orders);
         // Convertir les OrderModel en Order (interface locale simplifiée)
         this.recentOrders = orders.map(order => ({
+          orderNumber: order.orderNumber,
           id: order.id,
-          date: order.date,
+          createdAt: order.createdAt,
           status: order.status,
-          total: order.total,
-          items: order.itemCount
+          total: order.totalAmount,
+          numberOfItems: order.items.length
         }));
       },
       error: (error) => {
@@ -230,27 +227,48 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return 'U';
   }
 
-  getOrderStatusIcon(status: string): string {
-    const icons = {
-      'pending': 'schedule',
-      'processing': 'autorenew',
-      'shipped': 'local_shipping',
-      'delivered': 'check_circle',
-      'cancelled': 'cancel'
-    };
-    return icons[status as keyof typeof icons] || 'help';
-  }
+  getOrderStatusColor(status: OrderStatus): string {
+  const colors: Record<string, string> = {
+    pending: 'warn',
+    processing: 'accent',
+    shipped: 'primary',
+    delivered: 'primary',
+    confirmed: 'primary',
+    cancelled: 'warn',
+    ready_for_pickup: 'accent'
+  };
 
-  getOrderStatusColor(status: string): string {
-    const colors = {
-      'pending': 'warn',
-      'processing': 'accent',
-      'shipped': 'primary',
-      'delivered': '',
-      'cancelled': 'warn'
-    };
-    return colors[status as keyof typeof colors] || '';
-  }
+  return colors[String(status).toLowerCase()] || 'primary';
+}
+
+ getOrderStatusTitle(status: OrderStatus): string {
+  const titles: Record<string, string> = {
+    pending: 'En attente',
+    processing: 'En cours de traitement',
+    shipped: 'Expédié',
+    delivered: 'Livré',
+    confirmed: 'Confirmé',
+    cancelled: 'Annulé',
+    ready_for_pickup: 'Prêt pour le retrait'
+  };
+
+  return titles[String(status).toLowerCase()] || 'Inconnu';
+}
+
+getOrderStatusIcon(status: OrderStatus): string {
+  const icons: Record<string, string> = {
+    pending: 'schedule',
+    processing: 'autorenew',
+    shipped: 'local_shipping',
+    delivered: 'done_all',
+    confirmed: 'check_circle',
+    cancelled: 'cancel',
+    ready_for_pickup: 'store_mall_directory'
+  };
+
+  return icons[String(status).toLowerCase()] || 'help';
+}
+
 
   getAvailabilityIcon(availability: string): string {
     const icons = {
@@ -327,8 +345,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   onChangePassword() {
     if (this.passwordForm.valid && this.currentUser) {
-      // Ici vous pourriez appeler un service pour changer le mot de passe
-      console.log('Changing password');
       const changePasswordRequest = { ...this.passwordForm.value };
       this.userService.updatePassword(String(this.currentUser.id), changePasswordRequest)
       .pipe(takeUntil(this.destroy$))
@@ -375,7 +391,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Nouvelle méthode pour ouvrir le dialog des détails de commande
+  // Méthode pour ouvrir le dialog des détails de commande
   openOrderDetails(orderId: string) {
     const dialogRef = this.dialog.open(OrderDetailsDialogComponent, {
       width: '800px',
@@ -385,10 +401,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
       panelClass: 'order-details-dialog-container'
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+    // .pipe(takeUntil(this.destroy$))
+    .subscribe(result => {
       if (result === 'reorder') {
-        // Optionnel: actualiser les données si nécessaire
-        this.loadOrders();
+        //Mettre à jours ke panier
+        // this.loadOrders();
       }
     });
   }

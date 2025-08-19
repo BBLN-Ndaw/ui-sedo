@@ -8,7 +8,7 @@
       <div class="user-info">
         <h1 class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
         <p class="user-email">{{ currentUser?.email }}</p>
-        <p class="user-email">Vous êtes parmis nous depuis {{ currentUser?.createdAt | date: 'longDate' }}</p>
+        <p class="user-email">Vous êtes parmis nous depuis {{ currentUser?.createdAt | date:'dd/MM/yyyy' }}</p>
         <div class="user-status">
           <mat-chip-set>
             <mat-chip>
@@ -273,10 +273,10 @@
                   <div class="order-header">
                     <div class="order-id">
                       <mat-icon>receipt</mat-icon>
-                      <span>{{ order.id }}</span>
+                      <span>{{ order.orderNumber }}</span>
                     </div>
                     <div class="order-date">
-                      {{ order.date | date:'dd/MM/yyyy' }}
+                      {{ order.createdAt | date:'dd/MM/yyyy' }}
                     </div>
                   </div>
                   
@@ -284,10 +284,10 @@
                     <div class="order-info">
                       <div class="order-items">
                         <mat-icon>inventory</mat-icon>
-                        <span>{{ order.items }} article{{ order.items > 1 ? 's' : '' }}</span>
+                        <span>{{ order.numberOfItems }} article{{ order.numberOfItems > 1 ? 's' : '' }}</span>
                       </div>
                       <div class="order-total">
-                        <span class="total-amount">{{ order.total | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+                        <span class="total-amount">{{ order.total | currency:'EUR':'symbol':'1.2-2'}}</span>
                       </div>
                     </div>
                     
@@ -296,7 +296,7 @@
                         [color]="getOrderStatusColor(order.status)"
                         class="status-chip">
                         <mat-icon matChipAvatar>{{ getOrderStatusIcon(order.status) }}</mat-icon>
-                        {{ order.status | titlecase }}
+                        {{ getOrderStatusTitle(order.status) | titlecase }}
                       </mat-chip>
                     </div>
                   </div>
@@ -306,11 +306,11 @@
                       <mat-icon>visibility</mat-icon>
                       Voir détails
                     </button>
-                    <button mat-button *ngIf="order.status === 'delivered'" (click)="reorderItems(order.id, $event)">
+                    <button mat-button *ngIf="order.status === 'DELIVERED'" (click)="reorderItems(order.id, $event)">
                       <mat-icon>refresh</mat-icon>
                       Racheter
                     </button>
-                    <button mat-button color="warn" *ngIf="order.status === 'pending' || order.status === 'processing'" (click)="cancelOrder(order.id, $event)">
+                    <button mat-button color="warn" *ngIf="order.status === 'PENDING' || order.status === 'PROCESSING'" (click)="cancelOrder(order.id, $event)">
                       <mat-icon>cancel</mat-icon>
                       Annuler
                     </button>
@@ -351,7 +351,7 @@
               <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else noWishlistItems">
                 <div class="wishlist-item" *ngFor="let item of wishlistItems">
                   <div class="item-image">
-                    <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/images/placeholder.jpg'">
+                    <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/images/placeholder.svg'">
                     <div class="item-overlay">
                       <button mat-icon-button 
                         matTooltip="Retirer de la liste" 
@@ -365,7 +365,7 @@
                   <div class="item-content">
                     <h4 class="item-name">{{ item.name }}</h4>
                     <div class="item-price">
-                      {{ item.price | currency:'EUR':'symbol':'1.2-2':'fr' }}
+                      {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
                     </div>
                     
                     <div class="item-availability">

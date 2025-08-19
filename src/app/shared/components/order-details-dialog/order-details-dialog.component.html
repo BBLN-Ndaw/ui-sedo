@@ -36,18 +36,23 @@
           <div class="order-meta">
             <div class="meta-item">
               <mat-icon>event</mat-icon>
-              <span>Commandé le {{ order.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+              <span>Commandé le {{ order.createdAt | date:'dd/MM/yyyy' }}</span>
             </div>
             
-            <div class="meta-item" *ngIf="order.trackingNumber">
+            <!-- <div class="meta-item" *ngIf="order.trackingNumber">
               <mat-icon>local_shipping</mat-icon>
-              <span>Suivi: {{ order.trackingNumber }}</span>
+              <span>Numéro Suivi: {{ order.trackingNumber }}</span>
+            </div> -->
+            <div class="meta-item" *ngIf="order.pickupDate">
+              <mat-icon>done_all</mat-icon>
+              <span>Livré le {{ order.pickupDate | date:'dd/MM/yyyy' }}</span>
             </div>
-            
-            <div class="meta-item" *ngIf="order.estimatedDelivery">
+
+            <div class="meta-item" *ngIf="order.estimatedDeliveryDate && !order.pickupDate && getStatusInfo()?.label !== 'Annulée'">
               <mat-icon>schedule</mat-icon>
-              <span>Livraison estimée: {{ order.estimatedDelivery | date:'dd/MM/yyyy' }}</span>
+              <span>Livraison estimée: {{ order.estimatedDeliveryDate | date:'dd/MM/yyyy' }}</span>
             </div>
+
           </div>
         </div>
       </mat-card-content>
@@ -67,16 +72,16 @@
         <div class="items-list">
           <div class="item-row" *ngFor="let item of order.items">
             <div class="item-image">
-              <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/images/placeholder.jpg'">
+              <img [src]="item.image" [alt]="item.productName" onerror="this.src='assets/images/placeholder.svg'">
             </div>
             
             <div class="item-details">
-              <h4 class="item-name">{{ item.name }}</h4>
-              <p class="item-sku">SKU: {{ item.sku }}</p>
+              <h4 class="item-name">{{ item.productName }}</h4>
+              <!-- <p class="item-sku">SKU: {{ item.sku }}</p> -->
               <div class="item-pricing">
-                <span class="item-price">{{ item.price | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+                <span class="item-price">{{ item.unitPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
                 <span class="item-quantity">× {{ item.quantity }}</span>
-                <span class="item-total">{{ item.total | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+                <span class="item-total">{{ item.totalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
               </div>
             </div>
           </div>
@@ -97,24 +102,24 @@
         <div class="summary-details">
           <div class="summary-row">
             <span>Sous-total</span>
-            <span>{{ order.subtotal | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+            <span>{{ order.subTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
           
           <div class="summary-row">
             <span>Frais de livraison</span>
-            <span>{{ order.shipping | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+            <span>{{ order.shippingAmount | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
           
           <div class="summary-row">
             <span>TVA</span>
-            <span>{{ order.tax | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+            <span>{{ order.taxAmount | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
           
           <mat-divider></mat-divider>
           
           <div class="summary-row total-row">
             <span>Total</span>
-            <span>{{ order.total | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+            <span>{{ order.totalAmount | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
         </div>
 
@@ -139,21 +144,23 @@
           <div class="address-section">
             <h4>Adresse de livraison</h4>
             <div class="address">
-              <p class="address-name">{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}</p>
               <p>{{ order.shippingAddress.street }}</p>
               <p>{{ order.shippingAddress.postalCode }} {{ order.shippingAddress.city }}</p>
               <p>{{ order.shippingAddress.country }}</p>
-              <p *ngIf="order.shippingAddress.phone" class="address-phone">
+              <!-- <p *ngIf="order.shippingAddress.phone" class="address-phone">
                 <mat-icon>phone</mat-icon>
                 {{ order.shippingAddress.phone }}
+              </p> -->
+              <p  class="address-phone">
+                <mat-icon>phone</mat-icon>
+                07 12 34 56 78
               </p>
             </div>
           </div>
           
           <div class="address-section">
             <h4>Adresse de facturation</h4>
-            <div class="address">
-              <p class="address-name">{{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}</p>
+            <div *ngIf="order.billingAddress" class="address">
               <p>{{ order.billingAddress.street }}</p>
               <p>{{ order.billingAddress.postalCode }} {{ order.billingAddress.city }}</p>
               <p>{{ order.billingAddress.country }}</p>
@@ -164,7 +171,7 @@
     </mat-card>
 
     <!-- Notes -->
-    <mat-card class="notes-card" *ngIf="order.notes">
+    <mat-card class="notes-card" *ngIf="order.note">
       <mat-card-header>
         <div mat-card-avatar>
           <mat-icon>note</mat-icon>
@@ -173,7 +180,7 @@
       </mat-card-header>
       
       <mat-card-content>
-        <p>{{ order.notes }}</p>
+        <p>{{ order.note }}</p>
       </mat-card-content>
     </mat-card>
   </div>

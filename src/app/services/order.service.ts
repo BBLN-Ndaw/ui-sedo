@@ -1,213 +1,230 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { delay, shareReplay, tap } from 'rxjs/operators';
+import { Order, OrderStatus, PaymentMethod, PaymentStatus } from '../shared/models';
 
-export interface OrderItem {
-  id: number;
-  productId: number;
-  name: string;
-  image: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  total: number;
-}
-
-export interface OrderAddress {
-  street: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-}
-
-export interface Order {
-  id: string;
-  date: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  items: OrderItem[];
-  itemCount: number;
-  shippingAddress: OrderAddress;
-  billingAddress: OrderAddress;
-  paymentMethod: string;
-  trackingNumber?: string;
-  estimatedDelivery?: Date;
-  notes?: string;
-}
+const ORDER_API_CONFIG = {
+  BASE_URL: 'http://localhost:8080/api/orders',
+  ENDPOINTS: {
+    CUSTOMER: '/customer',
+  }
+} as const;
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
+  
+  private ordersSubject = new BehaviorSubject<Order[]>([]);
+  orders$ = this.ordersSubject.asObservable();
 
   // Données de démonstration
   private mockOrders: Order[] = [
-    {
-      id: '#ORD-001',
-      date: new Date('2024-01-15'),
-      status: 'delivered',
-      subtotal: 79.99,
-      shipping: 7.50,
-      tax: 2.50,
-      total: 89.99,
-      itemCount: 3,
-      paymentMethod: 'Carte bancaire **** 1234',
-      trackingNumber: 'FR123456789',
-      items: [
-        {
-          id: 1,
-          productId: 101,
-          name: 'Smartphone Premium XR',
-          image: 'assets/images/phone.jpg',
-          sku: 'SPH-XR-001',
-          price: 29.99,
-          quantity: 1,
-          total: 29.99
-        },
-        {
-          id: 2,
-          productId: 102,
-          name: 'Casque Audio Bluetooth',
-          image: 'assets/images/headphones.jpg',
-          sku: 'AUD-BT-002',
-          price: 25.00,
-          quantity: 2,
-          total: 50.00
-        }
-      ],
-      shippingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France',
-        phone: '+33 1 23 45 67 89'
-      },
-      billingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France'
-      }
+  {
+    id: "1",
+    orderNumber: "ORD-20230801-001",
+    customerName: "Alice Martin",
+    status: OrderStatus.PENDING,
+    totalAmount: 120.50,
+    subTotal: 100.00,
+    shippingAmount: 15.00,
+    taxAmount: 5.50,
+    shippingAddress: {
+      street: "12 Rue Lafayette",
+      city: "Paris",
+      postalCode: "75009",
+      country: "France"
     },
-    {
-      id: '#ORD-002',
-      date: new Date('2024-01-10'),
-      status: 'shipped',
-      subtotal: 140.00,
-      shipping: 12.50,
-      tax: 4.00,
-      total: 156.50,
-      itemCount: 5,
-      paymentMethod: 'PayPal',
-      trackingNumber: 'FR987654321',
-      estimatedDelivery: new Date('2024-01-18'),
-      items: [
-        {
-          id: 3,
-          productId: 103,
-          name: 'Tablette Graphique Pro',
-          image: 'assets/images/tablet.jpg',
-          sku: 'TAB-GP-003',
-          price: 60.00,
-          quantity: 1,
-          total: 60.00
-        },
-        {
-          id: 4,
-          productId: 104,
-          name: 'Clavier Mécanique RGB',
-          image: 'assets/images/keyboard.jpg',
-          sku: 'KEY-RGB-004',
-          price: 20.00,
-          quantity: 4,
-          total: 80.00
-        }
-      ],
-      shippingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France',
-        phone: '+33 1 23 45 67 89'
-      },
-      billingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France'
-      }
+    items: [
+      { productId: 101, productName: "Chaussures", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 100.00, totalPrice: 100.00 }
+    ],
+    paymentMethod: PaymentMethod.CREDIT_CARD,
+    paymentStatus: PaymentStatus.PENDING
+  },
+  {
+    id: "2",
+    orderNumber: "ORD-20230801-002",
+    customerName: "Bob Dupont",
+    status: OrderStatus.CONFIRMED,
+    totalAmount: 75.00,
+    subTotal: 70.00,
+    shippingAmount: 5.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "5 Avenue Victor Hugo",
+      city: "Lyon",
+      postalCode: "69002",
+      country: "France"
     },
-    {
-      id: '#ORD-003',
-      date: new Date('2024-01-05'),
-      status: 'processing',
-      subtotal: 40.00,
-      shipping: 3.75,
-      tax: 1.50,
-      total: 45.25,
-      itemCount: 2,
-      paymentMethod: 'Carte bancaire **** 5678',
-      items: [
-        {
-          id: 5,
-          productId: 105,
-          name: 'Souris Gaming Wireless',
-          image: 'assets/images/mouse.jpg',
-          sku: 'MSE-GW-005',
-          price: 20.00,
-          quantity: 2,
-          total: 40.00
-        }
-      ],
-      shippingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France',
-        phone: '+33 1 23 45 67 89'
-      },
-      billingAddress: {
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        street: '123 Avenue de la République',
-        city: 'Paris',
-        postalCode: '75011',
-        country: 'France'
-      }
-    }
-  ];
+    items: [
+      { productId: 102, productName: "T-shirt", image: "assets/images/placeholder.svg", quantity: 2, unitPrice: 35.00, totalPrice: 70.00 }
+    ],
+    paymentMethod: PaymentMethod.PAYPAL,
+    paymentStatus: PaymentStatus.COMPLETED
+  },
+  {
+    id: "3",
+    orderNumber: "ORD-20230801-003",
+    customerName: "Claire Bernard",
+    status: OrderStatus.PROCESSING,
+    totalAmount: 200.00,
+    subTotal: 190.00,
+    shippingAmount: 10.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "8 Boulevard Haussmann",
+      city: "Paris",
+      postalCode: "75009",
+      country: "France"
+    },
+    items: [
+      { productId: 103, productName: "Sac à main", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 190.00, totalPrice: 190.00 }
+    ],
+    paymentMethod: PaymentMethod.BANK_TRANSFER,
+    paymentStatus: PaymentStatus.PENDING
+  },
+  {
+    id: "4",
+    orderNumber: "ORD-20230801-004",
+    customerName: "David Leroy",
+    status: OrderStatus.READY_FOR_PICKUP,
+    totalAmount: 45.00,
+    subTotal: 45.00,
+    shippingAmount: 0.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "3 Rue Nationale",
+      city: "Marseille",
+      postalCode: "13001",
+      country: "France"
+    },
+    items: [
+      { productId: 104, productName: "Casquette", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 45.00, totalPrice: 45.00 }
+    ],
+    paymentMethod: PaymentMethod.CASH_ON_DELIVERY,
+    paymentStatus: PaymentStatus.PENDING
+  },
+  {
+    id: "5",
+    orderNumber: "ORD-20230801-005",
+    customerName: "Emma Dubois",
+    status: OrderStatus.SHIPPED,
+    totalAmount: 300.00,
+    subTotal: 280.00,
+    shippingAmount: 20.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "10 Rue de la République",
+      city: "Toulouse",
+      postalCode: "31000",
+      country: "France"
+    },
+    items: [
+      { productId: 105, productName: "Montre", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 280.00, totalPrice: 280.00 }
+    ],
+    paymentMethod: PaymentMethod.CREDIT_CARD,
+    paymentStatus: PaymentStatus.COMPLETED
+  },
+  {
+    id: "6",
+    orderNumber: "ORD-20230801-006",
+    customerName: "François Petit",
+    status: OrderStatus.DELIVERED,
+    totalAmount: 50.00,
+    subTotal: 45.00,
+    shippingAmount: 5.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "25 Rue Saint-Pierre",
+      city: "Bordeaux",
+      postalCode: "33000",
+      country: "France"
+    },
+    items: [
+      { productId: 106, productName: "Livre", image: "assets/images/placeholder.svg", quantity: 3, unitPrice: 15.00, totalPrice: 45.00 }
+    ],
+    paymentMethod: PaymentMethod.PAYPAL,
+    paymentStatus: PaymentStatus.COMPLETED
+  },
+  {
+    id: "7",
+    orderNumber: "ORD-20230801-007",
+    customerName: "Gabriel Morel",
+    status: OrderStatus.CANCELLED,
+    totalAmount: 150.00,
+    subTotal: 150.00,
+    shippingAmount: 0.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "4 Rue du Commerce",
+      city: "Nice",
+      postalCode: "06000",
+      country: "France"
+    },
+    items: [
+      { productId: 107, productName: "Écouteurs Bluetooth", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 150.00, totalPrice: 150.00 }
+    ],
+    paymentMethod: PaymentMethod.BANK_TRANSFER,
+    paymentStatus: PaymentStatus.REFUNDED
+  },
+  {
+    id: "8",
+    orderNumber: "ORD-20230801-008",
+    customerName: "Hélène Rousseau",
+    status: OrderStatus.PENDING,
+    totalAmount: 220.00,
+    subTotal: 200.00,
+    shippingAmount: 20.00,
+    taxAmount: 0.00,
+    shippingAddress: {
+      street: "18 Place Bellecour",
+      city: "Lyon",
+      postalCode: "69002",
+      country: "France"
+    },
+    items: [
+      { productId: 108, productName: "Tablette", image: "assets/images/placeholder.svg", quantity: 1, unitPrice: 200.00, totalPrice: 200.00 }
+    ],
+    paymentMethod: PaymentMethod.CASH_ON_DELIVERY,
+    paymentStatus: PaymentStatus.PENDING
+  }
+];
 
-  constructor() { }
+
+  constructor( private readonly http: HttpClient,) { }
 
   /**
    * Récupère toutes les commandes de l'utilisateur
    */
-  getOrders(): Observable<Order[]> {
-    return of(this.mockOrders).pipe(delay(500));
+  getUserOrders(): Observable<Array<Order>> {
+    const orders = this.ordersSubject.getValue();
+    if (orders.length > 0) {
+      return of(orders);
+    }
+    return this.http.get<Array<Order>>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CUSTOMER}`, {
+      withCredentials: true
+    }).pipe(
+      tap(orders => this.ordersSubject.next(orders))
+      );
+      console.log("Yaya User orders loaded:", orders);
   }
 
   /**
    * Récupère une commande par son ID
    */
   getOrderById(orderId: string): Observable<Order | null> {
-    const order = this.mockOrders.find(o => o.id === orderId);
-    return of(order || null).pipe(delay(300));
+    const orders = this.ordersSubject.getValue();
+    const localOrder = orders.find(order => order.id === orderId);
+
+  if (localOrder) {
+    return of(localOrder); 
+  }
+  else{
+     return this.http.get<Order>(`${ORDER_API_CONFIG.BASE_URL}/${orderId}`, {
+      withCredentials: true
+    });
+  }
   }
 
   /**
@@ -216,7 +233,7 @@ export class OrderService {
   cancelOrder(orderId: string): Observable<boolean> {
     const orderIndex = this.mockOrders.findIndex(o => o.id === orderId);
     if (orderIndex !== -1 && ['pending', 'processing'].includes(this.mockOrders[orderIndex].status)) {
-      this.mockOrders[orderIndex].status = 'cancelled';
+      this.mockOrders[orderIndex].status = OrderStatus.CANCELLED;
       return of(true).pipe(delay(500));
     }
     return of(false).pipe(delay(500));
@@ -227,7 +244,7 @@ export class OrderService {
    */
   reorderItems(orderId: string): Observable<boolean> {
     const order = this.mockOrders.find(o => o.id === orderId);
-    if (order && order.status === 'delivered') {
+    if (order && order.status === OrderStatus.DELIVERED) {
       // Ici vous pourriez ajouter les articles au panier
       console.log('Ajout des articles au panier:', order.items);
       return of(true).pipe(delay(500));
@@ -240,35 +257,47 @@ export class OrderService {
    */
   getOrderStatusInfo() {
     return {
-      'pending': {
+      [OrderStatus.PENDING]: {
         label: 'En attente',
         icon: 'schedule',
         color: 'warn',
         description: 'Votre commande est en cours de traitement'
       },
-      'processing': {
+      [OrderStatus.PROCESSING]: {
         label: 'En préparation',
         icon: 'autorenew',
         color: 'accent',
         description: 'Votre commande est en cours de préparation'
       },
-      'shipped': {
+      [OrderStatus.SHIPPED]: {
         label: 'Expédiée',
         icon: 'local_shipping',
         color: 'primary',
         description: 'Votre commande a été expédiée'
       },
-      'delivered': {
+      [OrderStatus.DELIVERED]: {
         label: 'Livrée',
         icon: 'check_circle',
         color: '',
         description: 'Votre commande a été livrée'
       },
-      'cancelled': {
+      [OrderStatus.CANCELLED]: {
         label: 'Annulée',
         icon: 'cancel',
         color: 'warn',
         description: 'Votre commande a été annulée'
+      },
+      [OrderStatus.CONFIRMED]: {
+        label: 'Confirmée',
+        icon: 'check_circle',
+        color: '',
+        description: 'Votre commande a été confirmée'
+      },
+      [OrderStatus.READY_FOR_PICKUP]: {
+        label: 'Prête pour le retrait',
+        icon: 'check_circle',
+        color: '',
+        description: 'Votre commande est prête pour le retrait'
       }
     };
   }
