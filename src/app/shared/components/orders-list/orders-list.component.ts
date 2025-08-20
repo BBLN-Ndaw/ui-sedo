@@ -150,9 +150,11 @@ export class OrdersListComponent implements OnDestroy {
     event.stopPropagation();
     
     if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
-      this.orderService.cancelOrder(orderId).subscribe({
-        next: (success) => {
-          if (success) {
+      this.orderService.cancelOrder(orderId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (order) => {
+          if (order) {
             this.snackBar.open('Commande annulée avec succès', 'Fermer', {
               duration: 3000,
               panelClass: ['success-snackbar']
@@ -160,7 +162,7 @@ export class OrdersListComponent implements OnDestroy {
             // Mettre à jour la commande dans la liste locale
             const order = this.orders.find(order => order.id === orderId);
             if (order) {
-              order.status = 'CANCELLED' as OrderStatus;
+              order.status = OrderStatus.CANCELLED;
             }
           } else {
             this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {

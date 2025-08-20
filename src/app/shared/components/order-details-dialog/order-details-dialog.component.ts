@@ -93,16 +93,18 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
     const orderId = this.order.id;
     if (!orderId) {
       this.isProcessing = false;
-      this.snackBar.open('ID de commande manquant', 'Fermer', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
+      this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
       });
       return;
     }
-    this.orderService.cancelOrder(orderId).subscribe({
-      next: (success) => {
+    this.orderService.cancelOrder(orderId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (order) => {
         this.isProcessing = false;
-        if (success) {
+        if (order) {
           if (this.order) {
             this.order.status = OrderStatus.CANCELLED;
           }

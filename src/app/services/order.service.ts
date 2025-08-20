@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
-import { delay, shareReplay, tap, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, forkJoin, throwError } from 'rxjs';
+import { delay, shareReplay, tap, map, catchError } from 'rxjs/operators';
 import { Order, OrderStatus, PaymentMethod, PaymentStatus } from '../shared/models';
 import { ProductService } from './product.service';
 import { NotificationService } from './notification.service';
@@ -10,6 +10,8 @@ const ORDER_API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api/orders',
   ENDPOINTS: {
     CUSTOMER: '/customer',
+    UPDATE: '/update',
+    CANCEL: '/cancel'
   }
 } as const;
 
@@ -232,19 +234,7 @@ export class OrderService {
   }
   }
 
-  /**
-   * Annule une commande
-   */
-  cancelOrder(orderId: string): Observable<boolean> {
-    const orderIndex = this.mockOrders.findIndex(o => o.id === orderId);
-    if (orderIndex !== -1 && ['pending', 'processing'].includes(this.mockOrders[orderIndex].status)) {
-      this.mockOrders[orderIndex].status = OrderStatus.CANCELLED;
-      return of(true).pipe(delay(500));
-    }
-    return of(false).pipe(delay(500));
-  }
-
-  /**
+    /**
    * Recommande les articles d'une commande précédente
    */
   reorderItems(orderId: string): Observable<boolean> {
@@ -263,7 +253,81 @@ export class OrderService {
   console.error('Erreur lors de l\'ajout au panier:');
   this.notificationService.showError('Erreur lors de l\'ajout au panier');
   return of(false);
+  }
+
+changeOrderStatus(orderId: string, newStatus: OrderStatus): Observable<Order | null> {
+  console.log(`Changement du statut de la commande ${orderId} vers ${newStatus}`);
+
+  const orders = this.ordersSubject.getValue();
+
+  const updatedOrders = orders.map(order =>
+    order.id === orderId
+      ? { ...order, status: newStatus } // copie modifiée
+      : order
+  );
+
+  const updatedOrder = updatedOrders.find(order => order.id === orderId) ?? null;
+  if (!updatedOrder) {
+    return throwError(() => new Error(`Commande ${orderId} introuvable`));
+  }
+
+  return this.http.put<Order>(
+    `${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.UPDATE}/${orderId}`,
+    updatedOrder,
+    { withCredentials: true }
+  ).pipe(
+    tap(() => {
+      // on met à jour uniquement si le serveur a confirmé
+      this.ordersSubject.next(updatedOrders);
+    }),
+    catchError(err => {
+      console.error('Erreur lors de la mise à jour de la commande', err);
+      return throwError(() => new Error('Erreur lors de la mise à jour de la commande'));
+    })
+  );
 }
+
+
+/**
+ * Annuler une commande
+ */
+cancelOrder(orderId: string): Observable<Order | null> {
+  console.log(`Annulation de la commande ${orderId}`);
+
+  const orders = this.ordersSubject.getValue();
+
+  const updatedOrders = orders.map(order =>
+    order.id === orderId
+      ? { ...order, status: OrderStatus.CANCELLED } // copie modifiée
+      : order
+  );
+
+  const updatedOrder = updatedOrders.find(order => order.id === orderId) ?? null;
+  if (!updatedOrder) {
+    return throwError(() => new Error(`Commande ${orderId} introuvable`));
+  }
+
+  return this.http.put<Order>(
+    `${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CANCEL}/${orderId}`,
+    { withCredentials: true }
+  ).pipe(
+    tap(() => {
+      // on met à jour uniquement si le serveur a confirmé
+      this.ordersSubject.next(updatedOrders);
+    }),
+    catchError(err => {
+      console.error('Erreur lors de l\'annulation de la commande', err);
+      return throwError(() => new Error('Erreur lors de l\'annulation de la commande'));
+    })
+  );
+}
+
+
+  updateOrderStatus(orderId: string, status:OrderStatus): Observable<Order | null> {
+    return this.changeOrderStatus(orderId, status);
+  }
+
+
 
 
   /**
