@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Order, OrderStatus } from '../../models';
 import { OrderService } from '../../../services/order.service';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
+import { Subject } from 'rxjs/internal/Subject';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 
 
 @Component({
@@ -26,7 +28,7 @@ import { OrderDetailsDialogComponent } from '../order-details-dialog/order-detai
   templateUrl: './orders-list.component.html',
   styleUrls: ['./orders-list.component.scss']
 })
-export class OrdersListComponent {
+export class OrdersListComponent implements OnDestroy {
   private dialog = inject(MatDialog);
   private orderService = inject(OrderService);
   private snackBar = inject(MatSnackBar);
@@ -42,6 +44,13 @@ export class OrdersListComponent {
   @Output() orderDetails = new EventEmitter<string>();
   @Output() reorderItems = new EventEmitter<{ orderId: string, event: Event }>();
   @Output() cancelOrder = new EventEmitter<{ orderId: string, event: Event }>();
+
+  private destroy$ = new Subject<void>();
+    /* unsubscribe from all observables */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   getOrderStatusColor(status: OrderStatus): string {
     const colors: Record<string, string> = {
@@ -132,28 +141,9 @@ export class OrdersListComponent {
   private handleReorder(orderId: string, event: Event) {
     event.stopPropagation();
     
-    this.orderService.reorderItems(orderId).subscribe({
-      next: (success) => {
-        if (success) {
-          this.snackBar.open('Articles ajoutés au panier', 'Fermer', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-        } else {
-          this.snackBar.open('Erreur lors de l\'ajout au panier', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error reordering:', error);
-        this.snackBar.open('Erreur lors de la reommande', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+    this.orderService.reorderItems(orderId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   private handleCancel(orderId: string, event: Event) {

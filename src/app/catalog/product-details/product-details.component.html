@@ -92,10 +92,10 @@
           <h1 class="product-title">{{ product.name }}</h1>
           
           <!-- Statut stock -->
-          <div class="stock-status" [ngClass]="this.productUtilities.getStockStatus(product)">
+          <div class="stock-status" [ngClass]="this.productService.getStockStatus(product)">
             <mat-icon class="stock-icon">{{ getStockStatusIcon(product) }}</mat-icon>
             <span class="stock-text">{{ getStockStatusText(product) }}</span>
-            <span class="stock-quantity" *ngIf="this.productUtilities.getStockStatus(product) !== 'out-of-stock'">
+            <span class="stock-quantity" *ngIf="this.productService.getStockStatus(product) !== 'out-of-stock'">
               ({{ product.stockQuantity }} disponible{{ product.stockQuantity > 1 ? 's' : '' }})
             </span>
           </div>
@@ -129,22 +129,22 @@
               mat-raised-button 
               color="accent"
               class="add-cart-btn"
-              [disabled]="this.productUtilities.getStockStatus(product) === 'out-of-stock'"
+              [disabled]="this.productService.getStockStatus(product) === 'out-of-stock'"
               (click)="onProductSelect(product)">
               <div class="btn-content">
                 <div class="btn-icon-wrapper">
                   <mat-icon class="btn-icon">
-                    {{ this.productUtilities.getStockStatus(product) === 'out-of-stock' ? 'block' : 'shopping_cart' }}
+                    {{ this.productService.getStockStatus(product) === 'out-of-stock' ? 'block' : 'shopping_cart' }}
                   </mat-icon>
                 </div>
                 <div class="btn-text">
-                  <span class="btn-label" *ngIf="this.productUtilities.getStockStatus(product) !== 'out-of-stock'; else outOfStockText">
+                  <span class="btn-label" *ngIf="this.productService.getStockStatus(product) !== 'out-of-stock'; else outOfStockText">
                     Ajouter au panier
                   </span>
                   <ng-template #outOfStockText>
                     <span class="btn-label">Produit indisponible</span>
                   </ng-template>
-                  <span class="btn-sublabel" *ngIf="this.productUtilities.getStockStatus(product) !== 'out-of-stock'">
+                  <span class="btn-sublabel" *ngIf="this.productService.getStockStatus(product) !== 'out-of-stock'">
                     Livraison gratuite dès 50€
                   </span>
                 </div>
@@ -209,7 +209,7 @@
               </div>
               <div class="spec-row">
                 <span class="spec-label">Disponibilité</span>
-                <span class="spec-value" [ngClass]="this.productUtilities.getStockStatus(product)">
+                <span class="spec-value" [ngClass]="this.productService.getStockStatus(product)">
                   {{ getStockStatusText(product) }}
                 </span>
               </div>

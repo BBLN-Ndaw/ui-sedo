@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Product, ProductCategory, ProductWithCategoryDto } from '../shared/models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ProductService } from './product.service';
 
 
 
@@ -18,13 +19,9 @@ const USER_API_CONFIG = {
   providedIn: 'root'
 })
 export class CatalogService {
-  constructor( private readonly http: HttpClient,) { }
-
-   getProductWithCategory(): Observable<Array<ProductWithCategoryDto>> {
-      return this.http.get<Array<ProductWithCategoryDto>>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.CATALOG}`, {
-        withCredentials: true
-      });
-    }
+  constructor( private readonly http: HttpClient,
+    private readonly productService: ProductService
+  ) { }
 
   getCategories(): Observable<ProductCategory[]> {
 

@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay, shareReplay, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
+import { delay, shareReplay, tap, map } from 'rxjs/operators';
 import { Order, OrderStatus, PaymentMethod, PaymentStatus } from '../shared/models';
+import { ProductService } from './product.service';
+import { NotificationService } from './notification.service';
 
 const ORDER_API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api/orders',
@@ -192,7 +194,11 @@ export class OrderService {
 ];
 
 
-  constructor( private readonly http: HttpClient,) { }
+  constructor( private readonly http: HttpClient,
+    private readonly productService: ProductService,
+    private readonly notificationService: NotificationService,
+    
+  ) { }
 
   /**
    * Récupère toutes les commandes de l'utilisateur
@@ -239,17 +245,26 @@ export class OrderService {
   }
 
   /**
-   * Reommande les articles d'une commande précédente
+   * Recommande les articles d'une commande précédente
    */
   reorderItems(orderId: string): Observable<boolean> {
-    const order = this.mockOrders.find(o => o.id === orderId);
-    if (order && order.status === OrderStatus.DELIVERED) {
-      // Ici vous pourriez ajouter les articles au panier
-      console.log('Ajout des articles au panier:', order.items);
-      return of(true).pipe(delay(500));
-    }
-    return of(false).pipe(delay(500));
+    console.log(`Recommandation des articles de la commande ${orderId}`);
+  const order: Order | undefined = this.ordersSubject.getValue().find(o => o.id === orderId);
+    console.log('Order found:', order);
+  if (order && (order.status === OrderStatus.DELIVERED || order.status === OrderStatus.READY_FOR_PICKUP)) {
+    const tasks$ = order.items.map(item =>
+      this.productService.orderProductById(item.productId.toString())
+    );
+
+    return forkJoin(tasks$).pipe(
+      map(results => results.every(r => r === true)) // retourne true si tous réussissent
+    );
   }
+  console.error('Erreur lors de l\'ajout au panier:');
+  this.notificationService.showError('Erreur lors de l\'ajout au panier');
+  return of(false);
+}
+
 
   /**
    * Obtient les statuts de commande disponibles avec leurs informations
@@ -300,4 +315,13 @@ export class OrderService {
       }
     };
   }
+
+  orderProduct(productId: number, quantity: number): Observable<boolean> {
+    const product = this.ordersSubject.getValue().find(p => p.items.some(item => item.productId === productId));
+    // Implémentez la logique pour commander un produit
+    console.log(`Commande du produit ${productId} avec la quantité ${quantity}`);
+    return of(true).pipe(delay(500));
+  }
 }
+// Removed local forkJoin stub, using rxjs forkJoin instead.
+

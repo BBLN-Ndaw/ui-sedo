@@ -134,31 +134,9 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessing = true;
-    this.orderService.reorderItems(this.order?.id!).subscribe({
-      next: (success) => {
-        this.isProcessing = false;
-        if (success) {
-          this.snackBar.open('Articles ajoutés au panier', 'Fermer', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.dialogRef.close('reorder');
-        } else {
-          this.snackBar.open('Erreur lors de l\'ajout au panier', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      },
-      error: (error) => {
-        this.isProcessing = false;
-        console.error('Error reordering:', error);
-        this.snackBar.open('Erreur lors de la reommande', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+    this.orderService.reorderItems(this.order?.id!)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   onClose() {

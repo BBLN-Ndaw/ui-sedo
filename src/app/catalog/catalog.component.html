@@ -67,7 +67,7 @@
                   color="primary" 
                   class="quick-add-btn view-btn"
                   (click)="onProductView(product)"
-                  [disabled]="this.productUtilities.getStockStatus(product) === 'out-of-stock'"
+                  [disabled]="this.productService.getStockStatus(product) === 'out-of-stock'"
                   matTooltip="Voir les détails">
                   <mat-icon>visibility</mat-icon>
                 </button>
@@ -77,9 +77,9 @@
                   color="accent" 
                   class="quick-add-btn"
                   (click)="onProductSelect(product)"
-                  [disabled]="this.productUtilities.getStockStatus(product) === 'out-of-stock'"
-                  [matTooltip]="this.productUtilities.getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
-                  <mat-icon>{{ this.productUtilities.getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
+                  [disabled]="this.productService.getStockStatus(product) === 'out-of-stock'"
+                  [matTooltip]="this.productService.getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
+                  <mat-icon>{{ this.productService.getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
                 </button>
                 
               </div>
@@ -94,7 +94,7 @@
                 <span class="promo-price">{{ getPromotionalPrice(product) }}</span>
               </div>
 
-              <div class="promo-stock" [ngClass]="this.productUtilities.getStockStatus(product)">
+              <div class="promo-stock" [ngClass]="this.productService.getStockStatus(product)">
                 {{ getStockStatusText(product) }}
               </div>
             </div>
@@ -118,8 +118,8 @@
       <mat-card 
         *ngFor="let product of productWithCategorys; trackBy: trackByProductId" 
         class="product-showcase-card"
-        [class.low-stock]="this.productUtilities.getStockStatus(product) === 'low-stock'"
-        [class.out-of-stock]="this.productUtilities.getStockStatus(product) === 'out-of-stock'"
+        [class.low-stock]="this.productService.getStockStatus(product) === 'low-stock'"
+        [class.out-of-stock]="this.productService.getStockStatus(product) === 'out-of-stock'"
         matRipple>
         
         <!-- Image du produit avec overlay -->
@@ -147,15 +147,15 @@
                 color="accent" 
                 class="action-btn add-btn"
                 (click)="onProductSelect(product)"
-                [disabled]="this.productUtilities.getStockStatus(product) === 'out-of-stock'"
-                [matTooltip]="this.productUtilities.getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
-                <mat-icon>{{ this.productUtilities.getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
+                [disabled]="this.productService.getStockStatus(product) === 'out-of-stock'"
+                [matTooltip]="this.productService.getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
+                <mat-icon>{{ this.productService.getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
               </button>
             </div>
           </div>
 
           <!-- Badge de statut -->
-          <div class="status-badge" [ngClass]="this.productUtilities.getStockStatus(product)">
+          <div class="status-badge" [ngClass]="this.productService.getStockStatus(product)">
             <mat-icon class="status-icon">{{ getStockStatusIcon(product) }}</mat-icon>
           </div>
 
@@ -169,7 +169,7 @@
             <h3 class="product-name" [title]="product.name">{{ product.name }}</h3>
             <div class="product-meta">
               <span class="product-sku">{{ product.sku }}</span>
-              <span class="stock-count" [ngClass]="this.productUtilities.getStockStatus(product)">
+              <span class="stock-count" [ngClass]="this.productService.getStockStatus(product)">
                 {{ product.stockQuantity }} en stock
               </span>
             </div>
@@ -183,7 +183,7 @@
             <div class="price-section">
               <span class="price">{{ formatCurrency(product.sellingPrice) }}</span>
             </div>
-            <div class="status-text" [ngClass]="this.productUtilities.getStockStatus(product)">
+            <div class="status-text" [ngClass]="this.productService.getStockStatus(product)">
               {{ getStockStatusText(product) }}
             </div>
           </div>

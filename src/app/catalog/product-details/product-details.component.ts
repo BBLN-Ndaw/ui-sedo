@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -13,7 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
 import { CatalogService } from '../../services/catalog.service';
@@ -21,7 +21,7 @@ import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import { ProductWithCategoryDto } from '../../shared/models';
 import { PathNames } from '../../constant/path-names.enum';
-import { ProductUtilities } from '../../utilities/product.utilities';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-product-details',
@@ -45,13 +45,16 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: ProductWithCategoryDto | null = null;
   isLoading = false;
   currentImageIndex = 0;
+
+    private snackBar = inject(MatSnackBar);
+
   
   // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
-    public productUtilities: ProductUtilities
+    public productService: ProductService
   ) {
     this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
   }
@@ -71,19 +74,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
-      this.productUtilities.handleaddingToCart(product);
+    this.productService.orderProduct(product)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    return this.productUtilities.getStockStatusText(product);
+    return this.productService.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    return this.productUtilities.getStockStatusIcon(product);
+    return this.productService.getStockStatusIcon(product);
   }
 
   formatCurrency(price: number): string {
-    return this.productUtilities.formatCurrency(price);
+    return this.productService.formatCurrency(price);
   }
 
   isPromotional(product: ProductWithCategoryDto): boolean {

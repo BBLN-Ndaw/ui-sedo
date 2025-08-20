@@ -20,7 +20,7 @@ import { CartService } from '../services/cart.service';
 import { NotificationService } from '../services/notification.service';
 import {ProductCategory, ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
-import { ProductUtilities } from '../utilities/product.utilities';
+import { ProductService } from '../services/product.service';
 
 @Component({
   selector: 'app-catalog',
@@ -55,7 +55,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     private catalogService: CatalogService,
     private notificationService: NotificationService,
     private router: Router,
-    public productUtilities: ProductUtilities
+    public productService: ProductService
   ) {}
 
   ngOnInit(): void {
@@ -78,7 +78,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   private loadProductsWithCategory(): void {
     this.isLoading = true;
-    this.catalogService.getProductWithCategory()
+    this.productService.getAllProductWithCategory()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: (productWithCategory) => {
@@ -97,19 +97,21 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(price: number): string {
-    return this.productUtilities.formatCurrency(price);
+    return this.productService.formatCurrency(price);
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    return this.productUtilities.getStockStatusText(product);
+    return this.productService.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    return this.productUtilities.getStockStatusIcon(product);
+    return this.productService.getStockStatusIcon(product);
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
-    this.productUtilities.handleaddingToCart(product);
+    this.productService.orderProduct(product)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   onProductView(product: ProductWithCategoryDto): void {
@@ -122,7 +124,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   getInStockCount(): number {
-    return this.productWithCategorys.filter(product => this.productUtilities.getStockStatus(product) === 'in-stock').length;
+    return this.productWithCategorys.filter(product => this.productService.getStockStatus(product) === 'in-stock').length;
   }
 
   getPromotionalProducts(): ProductWithCategoryDto[] {
@@ -130,7 +132,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   getPromotionalPrice(product: ProductWithCategoryDto): string {
-    return this.catalogService.formatCurrency(product.promotionPrice || product.sellingPrice);
+    return this.productService.formatCurrency(product.promotionPrice || product.sellingPrice);
   }
 
   getDiscountPercentage(product: ProductWithCategoryDto): number {
