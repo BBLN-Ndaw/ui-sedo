@@ -1,0 +1,87 @@
+<div class="my-orders-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>
+      <mat-icon>shopping_bag</mat-icon>
+      Mes commandes
+    </h1>
+    <p class="page-description">Consultez l'historique complet de vos commandes</p>
+  </div>
+
+  <!-- Filtres et actions -->
+  <div class="filters-section" *ngIf="orders.length > 0">
+    <mat-card class="filters-card">
+      <mat-card-content>
+        <div class="filters-content">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filtrer par statut</mat-label>
+            <mat-select [(value)]="selectedStatus" (selectionChange)="filterOrders()">
+              <mat-option value="">Tous les statuts</mat-option>
+              <mat-option value="PENDING">En attente</mat-option>
+              <mat-option value="PROCESSING">En cours</mat-option>
+              <mat-option value="SHIPPED">Expédié</mat-option>
+              <mat-option value="DELIVERED">Livré</mat-option>
+              <mat-option value="CANCELLED">Annulé</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Période</mat-label>
+            <mat-select [(value)]="selectedPeriod" (selectionChange)="filterOrders()">
+              <mat-option value="">Toutes les périodes</mat-option>
+              <mat-option value="week">Cette semaine</mat-option>
+              <mat-option value="month">Ce mois</mat-option>
+              <mat-option value="quarter">Ce trimestre</mat-option>
+              <mat-option value="year">Cette année</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="refreshOrders()" class="refresh-btn">
+            <mat-icon>refresh</mat-icon>
+            Actualiser
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Liste des commandes -->
+  <app-orders-list 
+    [orders]="filteredOrders"
+    title="Historique des commandes"
+    [emptyStateTitle]="getEmptyStateTitle()"
+    [emptyStateMessage]="getEmptyStateMessage()">
+  </app-orders-list>
+
+  <!-- Statistiques -->
+  <div class="stats-section" *ngIf="orders.length > 0">
+    <mat-card class="stats-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>bar_chart</mat-icon>
+          Statistiques
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">{{ orders.length }}</div>
+            <div class="stat-label">Commandes totales</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getTotalSpent() | currency:'EUR':'symbol':'1.0-0' }}</div>
+            <div class="stat-label">Total dépensé</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getAverageOrderValue() | currency:'EUR':'symbol':'1.0-0' }}</div>
+            <div class="stat-label">Panier moyen</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getDeliveredOrders() }}</div>
+            <div class="stat-label">Commandes livrées</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

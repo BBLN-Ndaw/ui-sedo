@@ -24,6 +24,7 @@ import { UserService } from '../../services/user.service';
 import { OrderService} from '../../services/order.service';
 import { Order, OrderStatus, User } from '../../shared/models';
 import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
+import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 
 
@@ -62,7 +63,8 @@ interface LoyaltyProgram {
     MatProgressBarModule,
     MatListModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    OrdersListComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
@@ -83,8 +85,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isEditingProfile = false;
   isChangingPassword = false;
 
-  // Données de démonstration pour la wishlist
-  recentOrders: any[] = [];
+  // Données pour les composants
+  recentOrders: Order[] = [];
 
   wishlistItems: Wishlist[] = [
     {
@@ -187,16 +189,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (orders) => {
-        console.log('Orders loaded:', orders);
-        // Convertir les OrderModel en Order (interface locale simplifiée)
-        this.recentOrders = orders.map(order => ({
-          orderNumber: order.orderNumber,
-          id: order.id,
-          createdAt: order.createdAt,
-          status: order.status,
-          total: order.totalAmount,
-          numberOfItems: order.items.length
-        }));
+        console.log('profile component : Orders loaded:', orders);
+        // Convertir les OrderModel en OrderItem pour le composant
+        this.recentOrders = orders;
       },
       error: (error) => {
         console.error('Error loading orders:', error);
@@ -226,49 +221,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
     return 'U';
   }
-
-  getOrderStatusColor(status: OrderStatus): string {
-  const colors: Record<string, string> = {
-    pending: 'warn',
-    processing: 'accent',
-    shipped: 'primary',
-    delivered: 'primary',
-    confirmed: 'primary',
-    cancelled: 'warn',
-    ready_for_pickup: 'accent'
-  };
-
-  return colors[String(status).toLowerCase()] || 'primary';
-}
-
- getOrderStatusTitle(status: OrderStatus): string {
-  const titles: Record<string, string> = {
-    pending: 'En attente',
-    processing: 'En cours de traitement',
-    shipped: 'Expédié',
-    delivered: 'Livré',
-    confirmed: 'Confirmé',
-    cancelled: 'Annulé',
-    ready_for_pickup: 'Prêt pour le retrait'
-  };
-
-  return titles[String(status).toLowerCase()] || 'Inconnu';
-}
-
-getOrderStatusIcon(status: OrderStatus): string {
-  const icons: Record<string, string> = {
-    pending: 'schedule',
-    processing: 'autorenew',
-    shipped: 'local_shipping',
-    delivered: 'done_all',
-    confirmed: 'check_circle',
-    cancelled: 'cancel',
-    ready_for_pickup: 'store_mall_directory'
-  };
-
-  return icons[String(status).toLowerCase()] || 'help';
-}
-
 
   getAvailabilityIcon(availability: string): string {
     const icons = {

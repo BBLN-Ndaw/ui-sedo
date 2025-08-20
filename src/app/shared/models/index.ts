@@ -215,7 +215,7 @@ export interface Order {
   customerName: string;
   status: OrderStatus;
   totalAmount: number;
-  subTotal: number;
+  subtotal: number;
   shippingAmount: number;
   taxAmount: number;
   shippingAddress: Address;

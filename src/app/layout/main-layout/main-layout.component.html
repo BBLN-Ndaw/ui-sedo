@@ -117,11 +117,11 @@
         </div>
         <mat-divider></mat-divider>
         <div class="user-menu-actions">
-          <button mat-menu-item class="menu-action-item">
+          <button mat-menu-item class="menu-action-item" [routerLink]="['/profile']">
             <mat-icon>person</mat-icon>
             <span>Mon Profil</span>
           </button>
-          <button mat-menu-item class="menu-action-item">
+          <button mat-menu-item class="menu-action-item" [routerLink]="['/orders']">
             <mat-icon>shopping_bag</mat-icon>
             <span>Mes Commandes</span>
           </button>

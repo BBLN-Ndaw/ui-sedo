@@ -1,0 +1,192 @@
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Order, OrderStatus } from '../../models';
+import { OrderService } from '../../../services/order.service';
+import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
+
+
+@Component({
+  selector: 'app-orders-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule
+  ],
+  templateUrl: './orders-list.component.html',
+  styleUrls: ['./orders-list.component.scss']
+})
+export class OrdersListComponent {
+  private dialog = inject(MatDialog);
+  private orderService = inject(OrderService);
+  private snackBar = inject(MatSnackBar);
+
+  @Input() orders: Order[] = [];
+  @Input() title?: string;
+  @Input() emptyStateTitle?: string;
+  @Input() emptyStateMessage?: string;
+  @Input() showCatalogButton: boolean = true;
+  @Input() catalogButtonText?: string;
+
+  // Événements optionnels pour override du comportement par défaut
+  @Output() orderDetails = new EventEmitter<string>();
+  @Output() reorderItems = new EventEmitter<{ orderId: string, event: Event }>();
+  @Output() cancelOrder = new EventEmitter<{ orderId: string, event: Event }>();
+
+  getOrderStatusColor(status: OrderStatus): string {
+    const colors: Record<string, string> = {
+      pending: 'warn',
+      processing: 'accent',
+      shipped: 'primary',
+      delivered: 'primary',
+      confirmed: 'primary',
+      cancelled: 'warn',
+      ready_for_pickup: 'accent'
+    };
+
+    return colors[String(status).toLowerCase()] || 'primary';
+  }
+
+  getOrderStatusTitle(status: OrderStatus): string {
+    const titles: Record<string, string> = {
+      pending: 'En attente',
+      processing: 'En cours de traitement',
+      shipped: 'Expédié',
+      delivered: 'Livré',
+      confirmed: 'Confirmé',
+      cancelled: 'Annulé',
+      ready_for_pickup: 'Prêt pour le retrait'
+    };
+
+    return titles[String(status).toLowerCase()] || 'Inconnu';
+  }
+
+  getOrderStatusIcon(status: OrderStatus): string {
+    const icons: Record<string, string> = {
+      pending: 'schedule',
+      processing: 'autorenew',
+      shipped: 'local_shipping',
+      delivered: 'done_all',
+      confirmed: 'check_circle',
+      cancelled: 'cancel',
+      ready_for_pickup: 'store_mall_directory'
+    };
+
+    return icons[String(status).toLowerCase()] || 'help';
+  }
+
+  onOrderDetails(orderId: string) {
+    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    if (this.orderDetails.observed) {
+      this.orderDetails.emit(orderId);
+    } else {
+      this.openOrderDetailsDialog(orderId);
+    }
+  }
+
+  onReorderItems(orderId: string, event: Event) {
+    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    if (this.reorderItems.observed) {
+      this.reorderItems.emit({ orderId, event });
+    } else {
+      this.handleReorder(orderId, event);
+    }
+  }
+
+  onCancelOrder(orderId: string, event: Event) {
+    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    if (this.cancelOrder.observed) {
+      this.cancelOrder.emit({ orderId, event });
+    } else {
+      this.handleCancel(orderId, event);
+    }
+  }
+
+  // Méthodes par défaut pour gérer les actions
+  private openOrderDetailsDialog(orderId: string) {
+    const dialogRef = this.dialog.open(OrderDetailsDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { orderId },
+      panelClass: 'order-details-dialog-container'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'reorder') {
+        // Optionnel: recharger les commandes ou notifier le parent
+      }
+    });
+  }
+
+  private handleReorder(orderId: string, event: Event) {
+    event.stopPropagation();
+    
+    this.orderService.reorderItems(orderId).subscribe({
+      next: (success) => {
+        if (success) {
+          this.snackBar.open('Articles ajoutés au panier', 'Fermer', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        } else {
+          this.snackBar.open('Erreur lors de l\'ajout au panier', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error reordering:', error);
+        this.snackBar.open('Erreur lors de la reommande', 'Fermer', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  private handleCancel(orderId: string, event: Event) {
+    event.stopPropagation();
+    
+    if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
+      this.orderService.cancelOrder(orderId).subscribe({
+        next: (success) => {
+          if (success) {
+            this.snackBar.open('Commande annulée avec succès', 'Fermer', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            // Mettre à jour la commande dans la liste locale
+            const order = this.orders.find(order => order.id === orderId);
+            if (order) {
+              order.status = 'CANCELLED' as OrderStatus;
+            }
+          } else {
+            this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error cancelling order:', error);
+          this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    }
+  }
+}

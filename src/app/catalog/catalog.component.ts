@@ -85,7 +85,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
         console.log('Produits avec catégorie chargés:', productWithCategory);
         this.productWithCategorys = productWithCategory;
         this.promotionalProductWithCategorys = productWithCategory.filter(p => p.isOnPromotion);
-        console.log('Produits avec catégorie chargés:', this.promotionalProductWithCategorys);
+        console.log('Produits en promotion avec catégorie chargés:', this.promotionalProductWithCategorys);
         this.isLoading = false;
       },
       error: (error: any) => {

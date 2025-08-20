@@ -129,12 +129,12 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
   }
 
   onReorder() {
-    if (!this.order || this.order.status !== OrderStatus.DELIVERED || !this.order.id) {
+    if (!this.canReorder()) {
       return;
     }
 
     this.isProcessing = true;
-    this.orderService.reorderItems(this.order.id).subscribe({
+    this.orderService.reorderItems(this.order?.id!).subscribe({
       next: (success) => {
         this.isProcessing = false;
         if (success) {
@@ -170,6 +170,6 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
   }
 
   canReorder(): boolean {
-    return this.order !== null && this.order.status === OrderStatus.DELIVERED;
+    return this.order !== null && (this.order.status === OrderStatus.DELIVERED || this.order.status === OrderStatus.READY_FOR_PICKUP);
   }
 }

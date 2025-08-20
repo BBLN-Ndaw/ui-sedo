@@ -123,18 +123,17 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       route: PathNames.catalog,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
     },
-    // Menu spécifique aux client
     {
       icon: 'shopping_bag',
       label: 'Mes Commandes',
       route: PathNames.orders,
-      roles: [UserRole.CUSTOMER]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
     },
     {
       icon: 'account_circle',
       label: 'Mon Espace Client',
       route: PathNames.profile,
-      roles: [UserRole.CUSTOMER]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
     }
   ];
 

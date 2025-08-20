@@ -10,6 +10,7 @@ import { LoginGuard } from './guards/login.guard';
 import { RoleGuard } from './guards/role.guard';
 import { UserRole } from './shared/models';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
 
 export const routes: Routes = [
   { 
@@ -44,6 +45,10 @@ export const routes: Routes = [
       {
          path: 'profile',
          component: ProfileComponent
+      },
+      {
+         path: 'orders',
+         component: MyOrdersComponent
       },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       

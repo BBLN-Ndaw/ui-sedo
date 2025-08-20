@@ -27,7 +27,7 @@ export class OrderService {
     customerName: "Alice Martin",
     status: OrderStatus.PENDING,
     totalAmount: 120.50,
-    subTotal: 100.00,
+    subtotal: 100.00,
     shippingAmount: 15.00,
     taxAmount: 5.50,
     shippingAddress: {
@@ -48,7 +48,7 @@ export class OrderService {
     customerName: "Bob Dupont",
     status: OrderStatus.CONFIRMED,
     totalAmount: 75.00,
-    subTotal: 70.00,
+    subtotal: 70.00,
     shippingAmount: 5.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -69,7 +69,7 @@ export class OrderService {
     customerName: "Claire Bernard",
     status: OrderStatus.PROCESSING,
     totalAmount: 200.00,
-    subTotal: 190.00,
+    subtotal: 190.00,
     shippingAmount: 10.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -90,7 +90,7 @@ export class OrderService {
     customerName: "David Leroy",
     status: OrderStatus.READY_FOR_PICKUP,
     totalAmount: 45.00,
-    subTotal: 45.00,
+    subtotal: 45.00,
     shippingAmount: 0.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -111,7 +111,7 @@ export class OrderService {
     customerName: "Emma Dubois",
     status: OrderStatus.SHIPPED,
     totalAmount: 300.00,
-    subTotal: 280.00,
+    subtotal: 280.00,
     shippingAmount: 20.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -132,7 +132,7 @@ export class OrderService {
     customerName: "François Petit",
     status: OrderStatus.DELIVERED,
     totalAmount: 50.00,
-    subTotal: 45.00,
+    subtotal: 45.00,
     shippingAmount: 5.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -153,7 +153,7 @@ export class OrderService {
     customerName: "Gabriel Morel",
     status: OrderStatus.CANCELLED,
     totalAmount: 150.00,
-    subTotal: 150.00,
+    subtotal: 150.00,
     shippingAmount: 0.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -174,7 +174,7 @@ export class OrderService {
     customerName: "Hélène Rousseau",
     status: OrderStatus.PENDING,
     totalAmount: 220.00,
-    subTotal: 200.00,
+    subtotal: 200.00,
     shippingAmount: 20.00,
     taxAmount: 0.00,
     shippingAddress: {
@@ -207,7 +207,6 @@ export class OrderService {
     }).pipe(
       tap(orders => this.ordersSubject.next(orders))
       );
-      console.log("Yaya User orders loaded:", orders);
   }
 
   /**
