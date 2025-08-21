@@ -37,7 +37,7 @@ export interface Product {
   description: string;
   sku: string;
   barcode?: string;
-  category: ProductCategory;
+  category: Category;
   price: number;
   costPrice: number;
   stock: number;
@@ -51,13 +51,6 @@ export interface Product {
   promotionEndDate?: Date;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface ProductCategory {
-  id: number;
-  name: string;
-  description?: string;
-  isActive: boolean;
 }
 
 export interface Category {
@@ -259,4 +252,15 @@ export enum PaymentMethod {
   PAYPAL = 'PAYPAL',
   BANK_TRANSFER = 'BANK_TRANSFER',
   CASH_ON_DELIVERY = 'CASH_ON_DELIVERY'
+}
+
+
+// Favoris
+export interface FavoriteItem {
+  productId: number;
+  name: string;
+  imageUrl?: string;
+  price: number;
+  availability: 'in-stock' | 'out-of-stock' | 'low-stock';
+
 }

@@ -15,12 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
-import { CatalogService } from '../services/catalog.service';
-import { CartService } from '../services/cart.service';
 import { NotificationService } from '../services/notification.service';
-import {ProductCategory, ProductWithCategoryDto } from '../shared/models';
+import {Category, ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
 import { ProductService } from '../services/product.service';
+import { CategoryService} from '../services/category.service';
 
 @Component({
   selector: 'app-catalog',
@@ -46,13 +45,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
   isLoading = false;
   productWithCategorys: ProductWithCategoryDto[] = [];
   promotionalProductWithCategorys: ProductWithCategoryDto[] = [];
-  categories: ProductCategory[] = [];
+  categories: Category[] = [];
   
   // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   constructor(
-    private catalogService: CatalogService,
+    private categoryService: CategoryService,
     private notificationService: NotificationService,
     private router: Router,
     public productService: ProductService
@@ -69,7 +68,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   private loadCategories(): void {
-    this.catalogService.getCategories()
+    this.categoryService.getAllCategories()
       .pipe(takeUntil(this.destroy$))
       .subscribe(categories => {
         this.categories = categories;

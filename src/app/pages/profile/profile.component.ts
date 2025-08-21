@@ -19,23 +19,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
-import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { OrderService} from '../../services/order.service';
-import { Order, OrderStatus, User } from '../../shared/models';
+import { FavoriteItem, Order, User } from '../../shared/models';
 import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
 import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
-import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
+import {  Subject, takeUntil } from 'rxjs';
 import { PathNames } from '../../constant/path-names.enum';
-
-
-interface Wishlist {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  availability: 'in-stock' | 'out-of-stock' | 'low-stock';
-}
+import { FavoritesService } from '../../services/favorites.service';
+import { ProductService } from '../../services/product.service';
 
 interface LoyaltyProgram {
   level: string;
@@ -73,6 +65,8 @@ interface LoyaltyProgram {
 export class ProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
+  private productService = inject(ProductService);
+  private favoriteService = inject(FavoritesService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -89,30 +83,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // Données pour les composants
   recentOrders: Order[] = [];
-
-  wishlistItems: Wishlist[] = [
-    {
-      id: 1,
-      name: 'Smartphone Premium XR',
-      price: 899.99,
-      image: 'assets/images/placeholder.svg',
-      availability: 'in-stock'
-    },
-    {
-      id: 2,
-      name: 'Casque Audio Bluetooth',
-      price: 199.99,
-      image: 'assets/images/placeholder.svg',
-      availability: 'low-stock'
-    },
-    {
-      id: 3,
-      name: 'Tablette Graphique Pro',
-      price: 349.99,
-      image: 'assets/images/placeholder.svg',
-      availability: 'out-of-stock'
-    }
-  ];
+  wishlistItems: FavoriteItem[] = [];
 
   loyaltyProgram: LoyaltyProgram = {
     level: 'Gold',
@@ -149,6 +120,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.loadUserProfile();
     this.loadOrders();
+    this.loadWishlist();
   }
 
   /* unsubscribe from all observables */
@@ -203,6 +175,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  loadWishlist() {
+    this.favoriteService.favorites$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items) => {
+          console.log('profile component : Wishlist loaded:', items);
+          this.wishlistItems = items;
+        },
+        error: (error) => {
+          console.error('Error loading wishlist:', error);
+          this.snackBar.open('Erreur lors du chargement de la liste de souhaits', 'Fermer', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -330,19 +320,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   removeFromWishlist(itemId: number) {
-    this.wishlistItems = this.wishlistItems.filter(item => item.id !== itemId);
+  this.favoriteService.removeFromFavorites(itemId);
+  this.wishlistItems = this.favoriteService.getCurrentFavorites();
     this.snackBar.open('Article retiré de la liste de souhaits', 'Fermer', {
       duration: 2000
     });
   }
 
-  addToCart(item: Wishlist) {
-    // Ici vous pourriez appeler le service cart pour ajouter l'article
+  addToCart(item: FavoriteItem) {
     console.log('Adding to cart:', item);
-    this.snackBar.open(`${item.name} ajouté au panier`, 'Fermer', {
-      duration: 2000,
-      panelClass: ['success-snackbar']
-    });
+    this.productService.orderProductById(String(item.productId))
+    .pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   // Méthode pour ouvrir le dialog des détails de commande

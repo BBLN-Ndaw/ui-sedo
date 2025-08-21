@@ -4,8 +4,6 @@ import { map } from 'rxjs/operators';
 import { 
   Cart, 
   CartItem, 
-  AddToCartRequest, 
-  UpdateCartItemRequest, 
   CartSummary,
   ProductWithCategoryDto 
 } from '../shared/models';
@@ -18,7 +16,7 @@ export class CartService {
   private readonly TAX_RATE = 0.20; // 20% TVA
   
   // État du panier avec BehaviorSubject pour la réactivité
-  private cartSubject = new BehaviorSubject<Cart>(this.initializeCart());
+  private cartSubject = new BehaviorSubject<Cart>(this.loadCartFromStorage());
   
   // Observables publics
   public cart$ = this.cartSubject.asObservable();
@@ -28,11 +26,6 @@ export class CartService {
       total: cart.total
     }))
   );
-
-  constructor() {
-    // Charger le panier depuis le localStorage au démarrage
-    this.loadCartFromStorage();
-  }
 
   /**
    * Obtient le panier actuel
@@ -206,7 +199,7 @@ export class CartService {
   /**
    * Charge le panier depuis le localStorage
    */
-  private loadCartFromStorage(): void {
+  private loadCartFromStorage(): Cart {
     try {
       const storedCart = localStorage.getItem(this.CART_STORAGE_KEY);
       if (storedCart) {
@@ -214,12 +207,13 @@ export class CartService {
         // Reconvertir les dates
         cart.createdAt = new Date(cart.createdAt);
         cart.updatedAt = new Date(cart.updatedAt);
-        this.cartSubject.next(cart);
+        return cart;
       }
+      return this.initializeCart();
     } catch (error) {
       console.error('Erreur lors du chargement du panier:', error);
       // En cas d'erreur, initialiser un panier vide
-      this.cartSubject.next(this.initializeCart());
+      return this.initializeCart();
     }
   }
 

@@ -290,11 +290,11 @@
               <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else noWishlistItems">
                 <div class="wishlist-item" *ngFor="let item of wishlistItems">
                   <div class="item-image">
-                    <img [src]="item.image" [alt]="item.name" onerror="this.src='assets/images/placeholder.svg'">
+                    <img [src]="item.imageUrl" [alt]="item.name" onerror="this.src='assets/images/placeholder.svg'">
                     <div class="item-overlay">
                       <button mat-icon-button 
                         matTooltip="Retirer de la liste" 
-                        (click)="removeFromWishlist(item.id)"
+                        (click)="removeFromWishlist(item.productId)"
                         class="remove-btn">
                         <mat-icon>close</mat-icon>
                       </button>

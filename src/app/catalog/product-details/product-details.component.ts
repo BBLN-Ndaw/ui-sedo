@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -13,15 +13,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
-import { CatalogService } from '../../services/catalog.service';
-import { CartService } from '../../services/cart.service';
-import { NotificationService } from '../../services/notification.service';
 import { ProductWithCategoryDto } from '../../shared/models';
 import { PathNames } from '../../constant/path-names.enum';
 import { ProductService } from '../../services/product.service';
+import { FavoritesService } from '../../services/favorites.service';
 
 @Component({
   selector: 'app-product-details',
@@ -41,25 +39,24 @@ import { ProductService } from '../../services/product.service';
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss'
 })
-export class ProductDetailsComponent implements OnInit, OnDestroy {  
+export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: ProductWithCategoryDto | null = null;
   isLoading = false;
   currentImageIndex = 0;
+  isFavorite = false;
 
-    private snackBar = inject(MatSnackBar);
-
-  
-  // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private router: Router,
-    public productService: ProductService
-  ) {
-    this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
-  }
+  constructor(private router: Router,
+     private productService: ProductService,
+     private favoritesService: FavoritesService) {
+          this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
+     }
 
   ngOnInit(): void {
+    if (this.product) {
+      this.isFavorite = this.favoritesService.isFavorite(this.product.id);
+    }
   }
 
   ngOnDestroy(): void {
@@ -85,6 +82,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
     return this.productService.getStockStatusIcon(product);
+  }
+
+  getStockStatus(product: ProductWithCategoryDto): string {
+    return this.productService.getStockStatus(product);
   }
 
   formatCurrency(price: number): string {
@@ -135,8 +136,19 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   toggleWishlist(): void {
     if (this.product) {
-      console.log('Ajout/suppression des favoris pour le produit:', this.product.name);
-      // TODO: Implémenter la logique des favoris
+      if (this.isFavorite) {
+        this.favoritesService.removeFromFavorites(this.product.id);
+        this.isFavorite = false;
+      } else {
+        this.favoritesService.addToFavorites({
+          productId: this.product.id,
+          name: this.product.name,
+          imageUrl: this.product.imageUrls[0],
+          price: this.product.sellingPrice,
+          availability: this.productService.getStockStatus(this.product)
+        });
+        this.isFavorite = true;
+      }
     }
   }
 }
