@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -26,6 +26,7 @@ import { Order, OrderStatus, User } from '../../shared/models';
 import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
 import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
+import { PathNames } from '../../constant/path-names.enum';
 
 
 interface Wishlist {
@@ -75,6 +76,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
 
     // Sujet pour gérer la désinscription des observables
     private destroy$ = new Subject<void>();
@@ -361,5 +363,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
         // this.loadOrders();
       }
     });
+  }
+
+
+  goBack(): void {
+    this.router.navigate([PathNames.catalog]);
   }
 }

@@ -106,7 +106,7 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
         this.isProcessing = false;
         if (order) {
           if (this.order) {
-            this.order.status = OrderStatus.CANCELLED;
+            this.order.status = OrderStatus.CANCELLED; // Mise à jour de l'état de la commande courante
           }
           this.snackBar.open('Commande annulée avec succès', 'Fermer', {
             duration: 3000,

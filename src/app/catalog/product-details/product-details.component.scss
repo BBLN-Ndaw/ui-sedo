@@ -24,39 +24,7 @@
     }
   }
 
-  // Breadcrumb navigation
-  .breadcrumb-nav {
-    background: white;
-    padding: 16px 24px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 
-    .nav-link {
-      color: #3b82f6;
-      font-weight: 500;
-      
-      mat-icon {
-        margin-right: 8px;
-      }
-    }
-
-    .breadcrumb-separator {
-      color: #94a3b8;
-      font-size: 18px;
-    }
-
-    .current-page {
-      color: #64748b;
-      font-weight: 600;
-      font-size: 0.875rem;
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
 
   // Main product showcase
   .product-showcase {

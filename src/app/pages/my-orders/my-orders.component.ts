@@ -11,6 +11,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
 import { OrderStatus, Order } from '../../shared/models';
+import { PathNames } from '../../constant/path-names.enum';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-my-orders',
@@ -31,6 +33,7 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
   private orderService = inject(OrderService);
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
+  private router = inject(Router);
 
   orders: Order[] = [];
   filteredOrders: Order[] = [];
@@ -141,4 +144,8 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
   getDeliveredOrders(): number {
     return this.orders.filter(order => order.status === 'DELIVERED').length;
   }
+
+    goBack(): void {
+      this.router.navigate([PathNames.catalog]);
+    }
 }

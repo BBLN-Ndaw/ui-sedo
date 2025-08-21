@@ -162,7 +162,7 @@ export class OrdersListComponent implements OnDestroy {
             // Mettre à jour la commande dans la liste locale
             const order = this.orders.find(order => order.id === orderId);
             if (order) {
-              order.status = OrderStatus.CANCELLED;
+              order.status = OrderStatus.CANCELLED; // Mise à jour de l'état de la commande trouvée
             }
           } else {
             this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {
