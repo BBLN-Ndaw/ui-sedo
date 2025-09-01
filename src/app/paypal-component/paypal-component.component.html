@@ -1,0 +1,21 @@
+  <!-- Navigation breadcrumb -->
+<div class="breadcrumb-nav">
+    <button 
+      mat-button 
+      class="nav-link"
+      (click)="goBack()">
+      <mat-icon>home</mat-icon>
+      Catalogue
+    </button>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="current-page">Paiement</span>
+</div>
+<div class="paypal-payment-container mat-elevation-z4">
+  <h2 class="payment-title">Paiement sécurisé avec PayPal</h2>
+  <p class="payment-desc">
+    Finalisez votre commande en toute sécurité. Cliquez sur le bouton ci-dessous pour procéder au paiement.
+  </p>
+  <div class="paypal-widget">
+    <ngx-paypal [config]="payPalConfig"></ngx-paypal>
+  </div>
+</div>

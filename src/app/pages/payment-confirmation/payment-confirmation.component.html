@@ -1,0 +1,78 @@
+<div class="confirmation-showcase">
+  <div class="confirmation-container">
+    
+    <!-- Header avec icône de succès -->
+    <div class="confirmation-header">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h1 class="confirmation-title">Paiement confirmé !</h1>
+      <p class="confirmation-subtitle">Merci pour votre commande. Votre paiement a été traité avec succès.</p>
+    </div>
+
+    <!-- Détails de la commande -->
+    <mat-card class="order-details-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>receipt_long</mat-icon>
+          Détails de votre commande
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="order-info-grid">
+          
+          <div class="info-item">
+            <span class="info-label">Numéro de commande</span>
+            <span class="info-value order-number">{{ orderDetails.orderNumber }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Date</span>
+            <span class="info-value">{{ orderDetails.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Montant</span>
+            <span class="info-value amount">{{ orderDetails.amount }} {{ orderDetails.currency }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Méthode de paiement</span>
+            <span class="info-value payment-method">
+              <mat-icon>account_balance_wallet</mat-icon>
+              {{ orderDetails.paymentMethod }}
+            </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Statut</span>
+            <span class="info-value status-confirmed">
+              <mat-icon>verified</mat-icon>
+              {{ orderDetails.status }}
+            </span>
+          </div>
+          
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Message informatif -->
+    <div class="info-message">
+      <mat-icon>info</mat-icon>
+      <p>Un email de confirmation contenant tous les détails de votre commande vous a été envoyé.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="confirmation-actions">
+      <button mat-raised-button color="primary" class="primary-action" (click)="continueShopping()">
+        <mat-icon>shopping_cart</mat-icon>
+        Continuer mes achats
+      </button>
+      
+      <button mat-stroked-button color="accent" class="secondary-action" (click)="goToOrders()">
+        <mat-icon>list_alt</mat-icon>
+        Voir mes commandes
+      </button>
+    </div>
+
+  </div>
+</div>

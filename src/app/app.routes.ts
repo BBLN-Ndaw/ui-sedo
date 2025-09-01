@@ -11,6 +11,8 @@ import { RoleGuard } from './guards/role.guard';
 import { UserRole } from './shared/models';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
+import { PaypalComponentComponent } from './paypal-component/paypal-component.component';
+import { PaymentConfirmationComponent } from './pages/payment-confirmation/payment-confirmation.component';
 
 export const routes: Routes = [
   { 
@@ -49,6 +51,14 @@ export const routes: Routes = [
       {
          path: 'orders',
          component: MyOrdersComponent
+      },
+      {
+         path: 'payment',
+         component: PaypalComponentComponent
+      },
+      {
+         path: 'payment-confirmation',
+         component: PaymentConfirmationComponent
       },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       
