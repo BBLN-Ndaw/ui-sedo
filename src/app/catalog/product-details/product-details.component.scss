@@ -297,6 +297,19 @@
           font-weight: 700;
           color: #1e293b;
         }
+
+        .price-note {
+          margin-top: 8px;
+          
+          small {
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+          }
+        }
       }
     }
 

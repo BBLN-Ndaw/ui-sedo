@@ -13,6 +13,7 @@ import { OrdersListComponent } from '../../shared/components/orders-list/orders-
 import { OrderStatus, Order } from '../../shared/models';
 import { PathNames } from '../../constant/path-names.enum';
 import { Router } from '@angular/router';
+import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
 
 @Component({
   selector: 'app-my-orders',
@@ -34,6 +35,7 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
   private router = inject(Router);
+  private errorHandlingUtilities = inject(ErrorHandlingUtilities);
 
   orders: Order[] = [];
   filteredOrders: Order[] = [];
@@ -52,24 +54,22 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
 
   loadOrders() {
     this.isLoading = true;
-    this.orderService.getUserOrders()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (orders) => {
-          console.log('my orders component : Orders loaded:', orders);
-          this.orders = orders;
-          this.filteredOrders = [...this.orders];
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading orders:', error);
-          this.snackBar.open('Erreur lors du chargement des commandes', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-          this.isLoading = false;
-        }
-      });
+    this.errorHandlingUtilities.wrapOperation(
+      this.orderService.getUserOrders(),
+      'chargement des commandes'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (orders) => {
+        console.log('my orders component : Orders loaded:', orders);
+        this.orders = orders;
+        this.filteredOrders = [...this.orders];
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   filterOrders() {

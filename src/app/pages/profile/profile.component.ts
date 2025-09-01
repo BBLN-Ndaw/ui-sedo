@@ -28,6 +28,7 @@ import {  Subject, takeUntil } from 'rxjs';
 import { PathNames } from '../../constant/path-names.enum';
 import { FavoritesService } from '../../services/favorites.service';
 import { ProductService } from '../../services/product.service';
+import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
 
 interface LoyaltyProgram {
   level: string;
@@ -71,6 +72,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private errorHandlingUtilities = inject(ErrorHandlingUtilities);
 
     // Sujet pour gérer la désinscription des observables
     private destroy$ = new Subject<void>();
@@ -130,69 +132,57 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   loadUserProfile() {
-    this.userService.currentUser$
-        .pipe(takeUntil(this.destroy$)) // unsubscribe when component is destroyed
-        .subscribe({
-        next: (user: User | null) => {
-            this.currentUser = user;
-            if (user) {
-            this.profileForm.patchValue({
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                address: user.address.street,
-                city: user.address.city,
-                postalCode: user.address.postalCode,
-                country: user.address.country,
-                phone: user.numTel
-            });
-            }
-        },
-        error: (error) => {
-            console.error('Error loading user profile:', error);
-            this.snackBar.open('Erreur lors du chargement du profil', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-            });
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.currentUser$,
+      'chargement du profil utilisateur'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user: User | null) => {
+        this.currentUser = user;
+        if (user) {
+          this.profileForm.patchValue({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            address: user.address.street,
+            city: user.address.city,
+            postalCode: user.address.postalCode,
+            country: user.address.country,
+            phone: user.numTel
+          });
         }
-        });
+      }
+    });
   }
 
   loadOrders() {
-    this.orderService.getUserOrders()
+    this.errorHandlingUtilities.wrapOperation(
+      this.orderService.getUserOrders(),
+      'chargement des commandes'
+    )
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (orders) => {
         console.log('profile component : Orders loaded:', orders);
         // Convertir les OrderModel en OrderItem pour le composant
         this.recentOrders = orders;
-      },
-      error: (error) => {
-        console.error('Error loading orders:', error);
-        this.snackBar.open('Erreur lors du chargement des commandes', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
       }
     });
   }
 
   loadWishlist() {
-    this.favoriteService.favorites$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (items) => {
-          console.log('profile component : Wishlist loaded:', items);
-          this.wishlistItems = items;
-        },
-        error: (error) => {
-          console.error('Error loading wishlist:', error);
-          this.snackBar.open('Erreur lors du chargement de la liste de souhaits', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
+    this.errorHandlingUtilities.wrapOperation(
+      this.favoriteService.favorites$,
+      'chargement de la liste de souhaits'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (items) => {
+        console.log('profile component : Wishlist loaded:', items);
+        this.wishlistItems = items;
+      }
+    });
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -245,30 +235,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onSaveProfile() {
-  if (this.profileForm.valid && this.currentUser) {
-    const updatedUser: User = { ...this.currentUser, ...this.profileForm.value };
-    console.log('Updating profile with:', updatedUser);
-    this.userService.updateUser(String(this.currentUser.id), updatedUser)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (user) => {
-        console.log('Profile updated successfully:', user);
-        this.currentUser = user;
-        this.isEditingProfile = false;
-        this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
-      },
-      error: (error) => {
-        console.error('Error updating profile:', error);
-        this.snackBar.open('Erreur lors de la mise à jour du profil', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
-  }
+    if (this.profileForm.valid && this.currentUser) {
+      const updatedUser: User = { ...this.currentUser, ...this.profileForm.value };
+      console.log('Updating profile with:', updatedUser);
+      
+      this.errorHandlingUtilities.wrapOperation(
+        this.userService.updateUser(String(this.currentUser.id), updatedUser),
+        'mise à jour du profil',
+        'Profil mis à jour avec succès'
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          console.log('Profile updated successfully:', user);
+          this.currentUser = user;
+          this.isEditingProfile = false;
+        }
+      });
+    }
   }
 
   onCancelEdit() {

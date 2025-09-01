@@ -14,6 +14,8 @@ import { OrderService } from '../../../services/order.service';
 import { CartService } from '../../../services/cart.service';
 import { Order, OrderStatus } from '../../models';
 import { Subject, takeUntil } from 'rxjs';
+import { FormatUtilities } from '../../../services/format.utilities';
+import { ErrorHandlingUtilities } from '../../../services/error-handling.utilities';
 
 @Component({
   selector: 'app-order-details-dialog',
@@ -44,7 +46,9 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: { orderId: string },
     private orderService: OrderService,
     private cartService: CartService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private formatUtilities: FormatUtilities,
+    private errorHandlingUtilities: ErrorHandlingUtilities
   ) {}
 
   ngOnInit() {
@@ -59,7 +63,10 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
 
   loadOrderDetails() {
     this.isLoading = true;
-    this.orderService.getOrderById(this.data.orderId)
+    this.errorHandlingUtilities.wrapOperation(
+      this.orderService.getOrderById(this.data.orderId),
+      'chargement des détails de commande'
+    )
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (order) => {
@@ -67,13 +74,8 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
         console.log('Order details loaded:', this.order);
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Error loading order details:', error);
+      error: () => {
         this.isLoading = false;
-        this.snackBar.open('Erreur lors du chargement des détails', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
       }
     });
   }
@@ -99,7 +101,11 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
       });
       return;
     }
-    this.orderService.cancelOrder(orderId)
+    
+    this.errorHandlingUtilities.wrapOperation(
+      this.orderService.cancelOrder(orderId),
+      'annulation de commande'
+    )
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (order) => {
@@ -119,13 +125,8 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
           });
         }
       },
-      error: (error) => {
+      error: () => {
         this.isProcessing = false;
-        console.error('Error cancelling order:', error);
-        this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
       }
     });
   }
@@ -136,13 +137,45 @@ export class OrderDetailsDialogComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessing = true;
-    this.orderService.reorderItems(this.order?.id!)
+    this.errorHandlingUtilities.wrapOperation(
+      this.orderService.reorderItems(this.order?.id!),
+      'renouvellement de commande',
+      'Articles ajoutés au panier avec succès !'
+    )
     .pipe(takeUntil(this.destroy$))
-    .subscribe();
+    .subscribe({
+      next: () => {
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+      }
+    });
   }
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  /**
+   * Calcule le prix unitaire TTC d'un item de commande
+   */
+  getItemUnitPriceTTC(item: any): number {
+    return item.productUnitPrice * (1 + item.productTaxRate);
+  }
+
+  /**
+   * Calcule le prix total TTC d'un item de commande
+   */
+  getItemTotalPriceTTC(item: any): number {
+    return this.getItemUnitPriceTTC(item) * item.quantity;
+  }
+
+  /**
+   * Formate un prix pour l'affichage
+   */
+  formatPrice(price: number): string {
+    return this.formatUtilities.formatCurrency(price);
   }
 
   canCancel(): boolean {

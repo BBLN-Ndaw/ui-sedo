@@ -20,6 +20,11 @@ import {Category, ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
 import { ProductService } from '../services/product.service';
 import { CategoryService} from '../services/category.service';
+import { PromotionUtilities } from '../services/promotion.utilities';
+import { StockUtilities } from '../services/stock.utilities';
+import { FormatUtilities } from '../services/format.utilities';
+import { NavigationUtilities } from '../services/navigation.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 @Component({
   selector: 'app-catalog',
@@ -54,7 +59,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private notificationService: NotificationService,
     private router: Router,
-    public productService: ProductService
+    public productService: ProductService,
+    private promotionUtilities: PromotionUtilities,
+    private stockUtilities: StockUtilities,
+    private formatUtilities: FormatUtilities,
+    private navigationUtilities: NavigationUtilities,
+    private errorHandlingUtilities: ErrorHandlingUtilities
   ) {}
 
   ngOnInit(): void {
@@ -77,34 +87,55 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   private loadProductsWithCategory(): void {
     this.isLoading = true;
-    this.productService.getAllProductWithCategory()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+    this.errorHandlingUtilities.wrapOperation(
+      this.productService.getAllProductWithCategory(),
+      'chargement des produits'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (productWithCategory) => {
         console.log('Produits avec catégorie chargés:', productWithCategory);
         this.productWithCategorys = productWithCategory;
-        this.promotionalProductWithCategorys = productWithCategory.filter(p => p.isOnPromotion);
+        this.promotionalProductWithCategorys = productWithCategory.filter(p => 
+          this.promotionUtilities.isValidPromotion(p)
+        );
         console.log('Produits en promotion avec catégorie chargés:', this.promotionalProductWithCategorys);
         this.isLoading = false;
       },
-      error: (error: any) => {
+      error: () => {
         this.isLoading = false;
-        console.error('Erreur lors du chargement du produit avec catégorie:', error);
-        this.notificationService.showError('Erreur lors du chargement des produits');
       }
     });
   }
 
   formatCurrency(price: number): string {
-    return this.productService.formatCurrency(price);
+    return this.formatUtilities.formatCurrency(price);
+  }
+
+  /**
+   * Formate le prix TTC d'un produit
+   */
+  formatProductPriceTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.formatApplicablePriceTTC(product);
+  }
+
+  /**
+   * Obtient le prix TTC normal (pour affichage barré dans les promotions)
+   */
+  getNormalPriceTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.getNormalPriceTTC(product);
+  }
+
+  getStockStatus(product: ProductWithCategoryDto): 'in-stock' | 'low-stock' | 'out-of-stock' {
+    return this.stockUtilities.getStockStatus(product);
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    return this.productService.getStockStatusText(product);
+    return this.stockUtilities.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    return this.productService.getStockStatusIcon(product);
+    return this.stockUtilities.getStockStatusIcon(product);
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
@@ -115,7 +146,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onProductView(product: ProductWithCategoryDto): void {
     console.log('Voir détails du produit:', product);
-    this.router.navigate([PathNames.productDetails], { state: { currentProduct: product } });
+    this.navigationUtilities.goToProductDetails(product);
   }
 
   trackByProductId(index: number, product: ProductWithCategoryDto): number {
@@ -123,20 +154,21 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   getInStockCount(): number {
-    return this.productWithCategorys.filter(product => this.productService.getStockStatus(product) === 'in-stock').length;
+    return this.stockUtilities.getInStockCount(this.productWithCategorys);
   }
 
   getPromotionalProducts(): ProductWithCategoryDto[] {
-    return this.productWithCategorys.filter(product => product.isOnPromotion);
+    return this.productWithCategorys.filter(product => 
+      this.promotionUtilities.isValidPromotion(product)
+    );
   }
 
   getPromotionalPrice(product: ProductWithCategoryDto): string {
-    return this.productService.formatCurrency(product.promotionPrice || product.sellingPrice);
+    return this.promotionUtilities.getPromotionalPriceTTC(product);
   }
 
   getDiscountPercentage(product: ProductWithCategoryDto): number {
-    if (!product.promotionPrice) return 0;
-    return Math.round((1 - product.promotionPrice / product.sellingPrice) * 100);
+    return this.promotionUtilities.getDiscountPercentage(product);
   }
 
   scrollPromos(direction: 'left' | 'right'): void {
@@ -154,11 +186,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   isPromotionExpiringSoon(product: ProductWithCategoryDto): boolean {
-    if (!product.promotionEndDate) return false;
-    const now = new Date();
-    const endDate = new Date(product.promotionEndDate);
-    const diffTime = endDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 3 && diffDays > 0;
+    return this.promotionUtilities.isPromotionExpiringSoon(product);
   }
 }

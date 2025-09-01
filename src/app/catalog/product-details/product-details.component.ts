@@ -20,6 +20,11 @@ import { ProductWithCategoryDto } from '../../shared/models';
 import { PathNames } from '../../constant/path-names.enum';
 import { ProductService } from '../../services/product.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { PromotionUtilities } from '../../services/promotion.utilities';
+import { StockUtilities } from '../../services/stock.utilities';
+import { FormatUtilities } from '../../services/format.utilities';
+import { NavigationUtilities } from '../../services/navigation.utilities';
+import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
 
 @Component({
   selector: 'app-product-details',
@@ -49,7 +54,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   constructor(private router: Router,
      private productService: ProductService,
-     private favoritesService: FavoritesService) {
+     private favoritesService: FavoritesService,
+    private promotionUtilities: PromotionUtilities,
+    private stockUtilities: StockUtilities,
+    private formatUtilities: FormatUtilities,
+    private navigationUtilities: NavigationUtilities,
+    private errorHandlingUtilities: ErrorHandlingUtilities) {
           this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
      }
 
@@ -67,53 +77,77 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   
 
   goBack(): void {
-    this.router.navigate([PathNames.catalog]);
+    this.navigationUtilities.goToCatalog();
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {
-    this.productService.orderProduct(product)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+    this.errorHandlingUtilities.wrapOperation(
+      this.productService.orderProduct(product),
+      'ajout au panier',
+      'Produit ajouté au panier avec succès !'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   getStockStatusText(product: ProductWithCategoryDto): string {
-    return this.productService.getStockStatusText(product);
+    return this.stockUtilities.getStockStatusText(product);
   }
 
   getStockStatusIcon(product: ProductWithCategoryDto): string {
-    return this.productService.getStockStatusIcon(product);
+    return this.stockUtilities.getStockStatusIcon(product);
   }
 
   getStockStatus(product: ProductWithCategoryDto): string {
-    return this.productService.getStockStatus(product);
+    return this.stockUtilities.getStockStatus(product);
   }
 
   formatCurrency(price: number): string {
-    return this.productService.formatCurrency(price);
+    return this.formatUtilities.formatCurrency(price);
+  }
+
+  /**
+   * Formate le prix TTC d'un produit
+   */
+  formatProductPriceTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.formatApplicablePriceTTC(product);
+  }
+
+  /**
+   * Obtient le prix TTC promotionnel d'un produit
+   */
+  getPromotionalPriceTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.getPromotionalPriceTTC(product);
+  }
+
+  /**
+   * Obtient le prix TTC normal (pour affichage barré dans les promotions)
+   */
+  getNormalPriceTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.getNormalPriceTTC(product);
   }
 
   isPromotional(product: ProductWithCategoryDto): boolean {
-    return (product.promotionPrice ?? 0) > 0 && 
-           product.promotionEndDate != null && 
-           new Date(product.promotionEndDate) > new Date();
+    return this.promotionUtilities.isValidPromotion(product);
   }
 
   getPromotionalPrice(product: ProductWithCategoryDto): string {
-    return this.formatCurrency(product.promotionPrice ?? 0);
+    return this.getPromotionalPriceTTC(product);
   }
 
   getDiscountPercentage(product: ProductWithCategoryDto): number {
-    if (!this.isPromotional(product) || !product.promotionPrice) return 0;
-    return Math.round((1 - product.promotionPrice / product.sellingPrice) * 100);
+    return this.promotionUtilities.getDiscountPercentage(product);
+  }
+
+  /**
+   * Calcule le montant d'économies en TTC
+   */
+  getSavingsAmountTTC(product: ProductWithCategoryDto): string {
+    return this.promotionUtilities.getSavingsAmountTTC(product);
   }
 
   isPromotionExpiringSoon(product: ProductWithCategoryDto): boolean {
-    if (!product.promotionEndDate) return false;
-    const now = new Date();
-    const endDate = new Date(product.promotionEndDate);
-    const diffTime = endDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 3 && diffDays > 0;
+    return this.promotionUtilities.isPromotionExpiringSoon(product);
   }
 
   nextImage(): void {
@@ -140,12 +174,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         this.favoritesService.removeFromFavorites(this.product.id);
         this.isFavorite = false;
       } else {
+        const priceTTC = this.promotionUtilities.getApplicablePriceTTC(this.product);
         this.favoritesService.addToFavorites({
           productId: this.product.id,
           name: this.product.name,
           imageUrl: this.product.imageUrls[0],
-          price: this.product.sellingPrice,
-          availability: this.productService.getStockStatus(this.product)
+          price: priceTTC,
+          availability: this.stockUtilities.getStockStatus(this.product)
         });
         this.isFavorite = true;
       }

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -17,7 +17,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // Services et Modèles
 import { CartService } from '../services/cart.service';
 import { NotificationService } from '../services/notification.service';
+import { FormatUtilities } from '../services/format.utilities';
+import { NavigationUtilities } from '../services/navigation.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 import { Cart, CartItem } from '../shared/models';
+import { OrderService } from '../services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -46,7 +50,10 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
-    private notificationService: NotificationService
+    private router: Router,
+    private formatUtilities: FormatUtilities,
+    private navigationUtilities: NavigationUtilities,
+    private errorHandlingUtilities: ErrorHandlingUtilities
   ) {}
 
   ngOnInit(): void {
@@ -73,61 +80,38 @@ export class CartComponent implements OnInit, OnDestroy {
    * Augmente la quantité d'un article
    */
   increaseQuantity(item: CartItem): void {
-    try {
-      this.cartService.updateCartItem(item.id, item.quantity + 1)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.notificationService.showSuccess('Quantité mise à jour');
-          },
-          error: (error) => {
-            this.notificationService.showError(error.message || 'Erreur lors de la mise à jour');
-          }
-        });
-    } catch (error: any) {
-      this.notificationService.showError(error.message || 'Erreur lors de la mise à jour');
-    }
+    this.errorHandlingUtilities.wrapOperation(
+      this.cartService.updateCartItem(item.id, item.quantity + 1),
+      'mise à jour de la quantité',
+      'Quantité mise à jour'
+    ).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   /**
    * Diminue la quantité d'un article
    */
   decreaseQuantity(item: CartItem): void {
-    try {
-      if (item.quantity <= 1) {
-        this.removeItem(item);
-        return;
-      }
-
-      this.cartService.updateCartItem(item.id, item.quantity - 1)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.notificationService.showSuccess('Quantité mise à jour');
-          },
-          error: (error) => {
-            this.notificationService.showError(error.message || 'Erreur lors de la mise à jour');
-          }
-        });
-    } catch (error: any) {
-      this.notificationService.showError(error.message || 'Erreur lors de la mise à jour');
+    if (item.quantity <= 1) {
+      this.removeItem(item);
+      return;
     }
+
+    this.errorHandlingUtilities.wrapOperation(
+      this.cartService.updateCartItem(item.id, item.quantity - 1),
+      'mise à jour de la quantité',
+      'Quantité mise à jour'
+    ).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   /**
    * Supprime un article du panier
    */
   removeItem(item: CartItem): void {
-    this.cartService.removeFromCart(item.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.notificationService.showSuccess(`${item.productName} retiré du panier`);
-        },
-        error: (error) => {
-          this.notificationService.showError('Erreur lors de la suppression');
-        }
-      });
+    this.errorHandlingUtilities.wrapOperation(
+      this.cartService.removeFromCart(item.id),
+      'suppression de l\'article',
+      `${item.productName} retiré du panier`
+    ).pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   /**
@@ -135,16 +119,11 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   clearCart(): void {
     if (this.cart && this.cart.items.length > 0) {
-      this.cartService.clearCart()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.notificationService.showSuccess('Panier vidé');
-          },
-          error: (error) => {
-            this.notificationService.showError('Erreur lors de la vidange du panier');
-          }
-        });
+      this.errorHandlingUtilities.wrapOperation(
+        this.cartService.clearCart(),
+        'vidange du panier',
+        'Panier vidé'
+      ).pipe(takeUntil(this.destroy$)).subscribe();
     }
   }
 
@@ -153,8 +132,7 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   onProceedToPayment(): void {
     if (this.cart && this.cart.items.length > 0) {
-      this.notificationService.showInfo('Redirection vers le paiement...');
-      // TODO: Implémenter la redirection vers le paiement
+      this.navigationUtilities.goToPayment(this.cart);
     }
   }
 
@@ -162,7 +140,42 @@ export class CartComponent implements OnInit, OnDestroy {
    * Formate un prix en euros
    */
   formatCurrency(price: number): string {
-    return this.cartService.formatCurrency(price);
+    return this.formatUtilities.formatCurrency(price);
+  }
+
+  /**
+   * Calcule et formate le prix TTC d'un item
+   */
+  getItemPriceTTC(item: CartItem): string {
+    return this.formatCurrency(this.cartService.calculateItemPriceTTC(item));
+  }
+
+  /**
+   * Calcule et formate le total TTC d'un item
+   */
+  getItemTotalTTC(item: CartItem): string {
+    return this.formatCurrency(this.cartService.calculateItemTotalTTC(item));
+  }
+
+  /**
+   * Calcule et formate le sous-total HT du panier
+   */
+  getCartSubTotalHT(): string {
+    return this.cart ? this.formatCurrency(this.cartService.calculateCartSubTotalHT(this.cart)) : this.formatCurrency(0);
+  }
+
+  /**
+   * Calcule et formate le total des taxes du panier
+   */
+  getCartTotalTax(): string {
+    return this.cart ? this.formatCurrency(this.cartService.calculateCartTotalTax(this.cart)) : this.formatCurrency(0);
+  }
+
+  /**
+   * Calcule et formate le total TTC du panier
+   */
+  getCartTotalTTC(): string {
+    return this.cart ? this.formatCurrency(this.cartService.calculateCartTotalTTC(this.cart)) : this.formatCurrency(0);
   }
 
   /**

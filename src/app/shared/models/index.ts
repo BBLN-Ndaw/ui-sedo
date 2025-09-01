@@ -39,7 +39,8 @@ export interface Product {
   barcode?: string;
   category: Category;
   price: number;
-  costPrice: number;
+  sellingPrice: number;
+  taxRate: number
   stock: number;
   minStock: number;
   maxStock: number;
@@ -68,6 +69,7 @@ export interface ProductWithCategoryDto {
   category: Category;
   supplierId: string;
   sellingPrice: number;
+  taxRate: number
   stockQuantity: number;
   minStock: number;
   expirationDate: Date;
@@ -153,26 +155,23 @@ export interface ApiResponse<T> {
 // ===== INTERFACES PANIER =====
 
 export interface CartItem {
-  id: string; // ID unique pour l'item dans le panier
+  id: string;
   productId: number;
   productName: string;
   productSku: string;
-  unitPrice: number;
+  productUnitPriceHT: number; // Prix unitaire HT
+  productTaxRate: number; // Taux de TVA du produit
   quantity: number;
-  maxQuantity: number; // Stock disponible
+  productMaxQuantity: number; // Stock disponible
   imageUrl?: string;
-  category: string;
-  total: number; // quantity * unitPrice
+  categoryName: string;
 }
 
 export interface Cart {
   id: string;
   items: CartItem[];
   itemCount: number; // Nombre total d'articles
-  subtotal: number; // Sous-total avant taxes et remises
-  tax: number; // Montant des taxes
   discount: number; // Montant des remises
-  total: number; // Total final
   createdAt: Date;
   updatedAt: Date;
 }
@@ -189,37 +188,38 @@ export interface UpdateCartItemRequest {
 
 export interface CartSummary {
   itemCount: number;
-  total: number;
+  totalTTC: number;
 }
 
 //ORDERS
 export interface OrderItem {
   productId: number;
   productName: string;
-  image: string;
+  image?: string;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  productUnitPrice: number;
+  productTaxRate: number;
 }
 
 export interface Order {
   id?: string;
-  orderNumber: string;
-  customerName: string;
+  orderNumber?: string;
+  customerName?: string;
   status: OrderStatus;
   totalAmount: number;
   subtotal: number;
   shippingAmount: number;
   taxAmount: number;
-  shippingAddress: Address;
-  billingAddress?: Address;
-  estimatedDeliveryDate?: Date;
+  shippingAddress?: Address; //a remplir apres le capture de paypal
+  billingAddress?: Address; //a remplir apres le capture de paypal
+  estimatedDeliveryDate?: Date; //a remplir apres le capture de paypal
   note?: string;
   items: OrderItem[];
+  paymentOrderId?: string, //ID de la transaction de paiement associée
   pickupDate?: Date;
   processedByUser?: string;
-  paymentMethod: PaymentMethod;
-  paymentStatus: PaymentStatus;
+  paymentMethod?: PaymentMethod;//a remplir apres le capture de paypal
+  paymentStatus: PaymentStatus;//a update apres le capture de paypal
   createdAt?: Date;
 
 }
@@ -263,4 +263,66 @@ export interface FavoriteItem {
   price: number;
   availability: 'in-stock' | 'out-of-stock' | 'low-stock';
 
+}
+
+//Paypal
+
+export interface PaypalCapturedResponse {
+  id: string;
+  status: string;
+  payment_source: PaymentSource;
+  purchase_units: PurchaseUnit[];
+  payer: Payer;
+}
+
+export interface PaymentSource {
+  paypal: PaypalAccount;
+}
+
+export interface PaypalAccount {
+  email_address: string;
+  name: Name;
+  address: PaypalCustomerAddress;
+}
+
+export interface Name {
+  given_name?: string;
+  surname?: string;
+  full_name?: string;
+}
+
+export interface PaypalCustomerAddress {
+  address_line_1?: string;
+  admin_area_2?: string;
+  postal_code?: string;
+  country_code: string;
+}
+
+export interface PurchaseUnit {
+  shipping: Shipping;
+  payments: Payments;
+}
+
+export interface Shipping {
+  name: Name;
+  address: PaypalCustomerAddress;
+}
+
+export interface Payments {
+  captures: Capture[];
+}
+
+export interface Capture {
+  amount: Amount;
+}
+
+export interface Amount {
+  currency_code: string;
+  value: string;
+}
+
+export interface Payer {
+  name: Name;
+  email_address: string;
+  address: PaypalCustomerAddress;
 }

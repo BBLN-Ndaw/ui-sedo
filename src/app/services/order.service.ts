@@ -11,7 +11,8 @@ const ORDER_API_CONFIG = {
   ENDPOINTS: {
     CUSTOMER: '/customer',
     UPDATE: '/update',
-    CANCEL: '/cancel'
+    CANCEL: '/cancel',
+    CREATE: '/create'
   }
 } as const;
 

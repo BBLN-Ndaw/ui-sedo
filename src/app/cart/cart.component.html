@@ -8,7 +8,7 @@
       </h1>
       <div class="cart-summary" *ngIf="!isCartEmpty">
         <span class="item-count">{{ totalItems }} article{{ totalItems > 1 ? 's' : '' }}</span>
-        <span class="total-amount">{{ formatCurrency(cart?.total || 0) }}</span>
+        <span class="total-amount">{{ getCartTotalTTC() }}</span>
       </div>
     </div>
     
@@ -61,7 +61,7 @@
                   [src]="item.imageUrl || 'assets/images/no-image.png'" 
                   [alt]="item.productName"
                   loading="lazy">
-                <div class="category-badge">{{ item.category }}</div>
+                <div class="category-badge">{{ item.categoryName }}</div>
               </div>
 
               <!-- Informations du produit -->
@@ -69,12 +69,12 @@
                 <h3 class="item-name">{{ item.productName }}</h3>
                 <p class="item-sku">Référence: {{ item.productSku }}</p>
                 <div class="item-pricing">
-                  <span class="unit-price">{{ formatCurrency(item.unitPrice) }} / unité</span>
-                  <span class="total-price">{{ formatCurrency(item.total) }}</span>
+                  <span class="unit-price">{{ getItemPriceTTC(item) }} TTC / unité</span>
+                  <span class="total-price">{{ getItemTotalTTC(item) }}</span>
                 </div>
                 <div class="stock-info">
                   <mat-icon class="stock-icon">inventory</mat-icon>
-                  <span>{{ item.maxQuantity }} disponible{{ item.maxQuantity > 1 ? 's' : '' }}</span>
+                  <span>{{ item.productMaxQuantity }} disponible{{ item.productMaxQuantity > 1 ? 's' : '' }}</span>
                 </div>
               </div>
 
@@ -94,7 +94,7 @@
                   <button 
                     mat-icon-button 
                     (click)="increaseQuantity(item)"
-                    [disabled]="item.quantity >= item.maxQuantity"
+                    [disabled]="item.quantity >= item.productMaxQuantity"
                     matTooltip="Augmenter la quantité">
                     <mat-icon>add</mat-icon>
                   </button>
@@ -123,13 +123,13 @@
             <mat-card-content>
               <div class="summary-lines">
                 <div class="summary-line">
-                  <span class="label">Sous-total ({{ totalItems }} article{{ totalItems > 1 ? 's' : '' }})</span>
-                  <span class="value">{{ formatCurrency(cart?.subtotal || 0) }}</span>
+                  <span class="label">Sous-total HT ({{ totalItems }} article{{ totalItems > 1 ? 's' : '' }})</span>
+                  <span class="value">{{ getCartSubTotalHT() }}</span>
                 </div>
                 
                 <div class="summary-line">
-                  <span class="label">TVA (20%)</span>
-                  <span class="value">{{ formatCurrency(cart?.tax || 0) }}</span>
+                  <span class="label">TVA</span>
+                  <span class="value">{{ getCartTotalTax() }}</span>
                 </div>
                 
                 <div class="summary-line discount" *ngIf="(cart?.discount || 0) > 0">
@@ -140,8 +140,8 @@
                 <mat-divider></mat-divider>
                 
                 <div class="summary-line total">
-                  <span class="label">Total</span>
-                  <span class="value">{{ formatCurrency(cart?.total || 0) }}</span>
+                  <span class="label">Total TTC</span>
+                  <span class="value">{{ getCartTotalTTC() }}</span>
                 </div>
               </div>
 

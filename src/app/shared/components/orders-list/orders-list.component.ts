@@ -12,6 +12,7 @@ import { OrderService } from '../../../services/order.service';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ErrorHandlingUtilities } from '../../../services/error-handling.utilities';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class OrdersListComponent implements OnDestroy {
   private dialog = inject(MatDialog);
   private orderService = inject(OrderService);
   private snackBar = inject(MatSnackBar);
+  private errorHandlingUtilities = inject(ErrorHandlingUtilities);
 
   @Input() orders: Order[] = [];
   @Input() title?: string;
@@ -150,7 +152,10 @@ export class OrdersListComponent implements OnDestroy {
     event.stopPropagation();
     
     if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
-      this.orderService.cancelOrder(orderId)
+      this.errorHandlingUtilities.wrapOperation(
+        this.orderService.cancelOrder(orderId),
+        'annulation de commande'
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (order) => {
@@ -160,9 +165,9 @@ export class OrdersListComponent implements OnDestroy {
               panelClass: ['success-snackbar']
             });
             // Mettre à jour la commande dans la liste locale
-            const order = this.orders.find(order => order.id === orderId);
-            if (order) {
-              order.status = OrderStatus.CANCELLED; // Mise à jour de l'état de la commande trouvée
+            const orderToUpdate = this.orders.find(o => o.id === orderId);
+            if (orderToUpdate) {
+              orderToUpdate.status = OrderStatus.CANCELLED; // Mise à jour de l'état de la commande trouvée
             }
           } else {
             this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {
@@ -170,13 +175,6 @@ export class OrdersListComponent implements OnDestroy {
               panelClass: ['error-snackbar']
             });
           }
-        },
-        error: (error) => {
-          console.error('Error cancelling order:', error);
-          this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
         }
       });
     }

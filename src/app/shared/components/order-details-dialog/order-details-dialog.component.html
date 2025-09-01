@@ -74,9 +74,9 @@
               <h4 class="item-name">{{ item.productName }}</h4>
               <!-- <p class="item-sku">SKU: {{ item.sku }}</p> -->
               <div class="item-pricing">
-                <span class="item-price">{{ item.unitPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+                <span class="item-price">{{ formatPrice(getItemUnitPriceTTC(item)) }}</span>
                 <span class="item-quantity">× {{ item.quantity }}</span>
-                <span class="item-total">{{ item.totalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+                <span class="item-total">{{ formatPrice(getItemTotalPriceTTC(item)) }}</span>
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@
       
       <mat-card-content>
         <div class="address-grid">
-          <div class="address-section">
+          <div class="address-section" *ngIf="order.shippingAddress">
             <h4>Adresse de livraison</h4>
             <div class="address">
               <p>{{ order.shippingAddress.street }}</p>

@@ -107,17 +107,20 @@
             <div class="price-display">
               <div class="price-main" *ngIf="isPromotional(product); else normalPriceTemplate">
                 <div class="promo-prices">
-                  <span class="old-price">{{ formatCurrency(product.sellingPrice) }}</span>
+                  <span class="old-price">{{ getNormalPriceTTC(product) }}</span>
                   <span class="current-price-promo">{{ getPromotionalPrice(product) }}</span>
                 </div>
                 <div class="savings-info">
                   <mat-icon>trending_down</mat-icon>
-                  <span>Vous économisez {{ formatCurrency(product.sellingPrice - (product.promotionPrice || 0)) }}</span>
+                  <span>Vous économisez {{ getSavingsAmountTTC(product) }}</span>
                 </div>
               </div>
               <ng-template #normalPriceTemplate>
-                <span class="current-price">{{ formatCurrency(product.sellingPrice) }}</span>
+                <span class="current-price">{{ formatProductPriceTTC(product) }}</span>
               </ng-template>
+              <div class="price-note">
+                <small>Prix TTC</small>
+              </div>
             </div>
           </mat-card-content>
         </mat-card>

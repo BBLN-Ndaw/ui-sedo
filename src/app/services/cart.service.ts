@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { 
@@ -7,13 +7,13 @@ import {
   CartSummary,
   ProductWithCategoryDto 
 } from '../shared/models';
+import { PromotionUtilities } from './promotion.utilities';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
   private readonly CART_STORAGE_KEY = 'shopping_cart';
-  private readonly TAX_RATE = 0.20; // 20% TVA
   
   // État du panier avec BehaviorSubject pour la réactivité
   private cartSubject = new BehaviorSubject<Cart>(this.loadCartFromStorage());
@@ -23,15 +23,66 @@ export class CartService {
   public cartSummary$: Observable<CartSummary> = this.cart$.pipe(
     map(cart => ({
       itemCount: cart.itemCount,
-      total: cart.total
+      totalTTC: this.calculateCartTotalTTC(cart)
     }))
   );
+
+  private promotionUtilities = inject(PromotionUtilities);
 
   /**
    * Obtient le panier actuel
    */
   getCurrentCart(): Cart {
     return this.cartSubject.value;
+  }
+
+  /**
+   * Calcule le prix TTC d'un item
+   */
+  calculateItemPriceTTC(item: CartItem): number {
+    return item.productUnitPriceHT * (1 + item.productTaxRate);
+  }
+
+  /**
+   * Calcule le total HT d'un item
+   */
+  calculateItemTotalHT(item: CartItem): number {
+    return item.quantity * item.productUnitPriceHT;
+  }
+
+  /**
+   * Calcule le total TTC d'un item
+   */
+  calculateItemTotalTTC(item: CartItem): number {
+    return item.quantity * this.calculateItemPriceTTC(item);
+  }
+
+  /**
+   * Calcule le montant de TVA d'un item
+   */
+  calculateItemTaxAmount(item: CartItem): number {
+    return this.calculateItemTotalTTC(item) - this.calculateItemTotalHT(item);
+  }
+
+  /**
+   * Calcule le sous-total HT du panier
+   */
+  calculateCartSubTotalHT(cart: Cart): number {
+    return cart.items.reduce((total, item) => total + this.calculateItemTotalHT(item), 0);
+  }
+
+  /**
+   * Calcule le total des taxes du panier
+   */
+  calculateCartTotalTax(cart: Cart): number {
+    return cart.items.reduce((total, item) => total + this.calculateItemTaxAmount(item), 0);
+  }
+
+  /**
+   * Calcule le total TTC du panier
+   */
+  calculateCartTotalTTC(cart: Cart): number {
+    return this.calculateCartSubTotalHT(cart) + this.calculateCartTotalTax(cart) - cart.discount;
   }
 
   /**
@@ -50,24 +101,25 @@ export class CartService {
       
       if (newQuantity <= product.stockQuantity) {
         existingItem.quantity = newQuantity;
-        existingItem.total = existingItem.quantity * existingItem.unitPrice;
       } else {
         throw new Error(`Quantité demandée (${newQuantity}) supérieure au stock disponible (${product.stockQuantity})`);
       }
     } else {
       // Nouveau produit
       if (quantity <= product.stockQuantity) {
+        const priceHT = this.promotionUtilities.isValidPromotion(product) ? product.promotionPrice! : product.sellingPrice;
+        
         const newCartItem: CartItem = {
           id: this.generateCartItemId(),
           productId: product.id,
           productName: product.name,
           productSku: product.sku,
-          unitPrice: product.promotionPrice && product.isOnPromotion ? product.promotionPrice : product.sellingPrice,
+          productUnitPriceHT: priceHT,
+          productTaxRate: product.taxRate,
           quantity: quantity,
-          maxQuantity: product.stockQuantity,
+          productMaxQuantity: product.stockQuantity,
           imageUrl: product.imageUrls[0],
-          category: product.category.name,
-          total: quantity * (product.promotionPrice && product.isOnPromotion ? product.promotionPrice : product.sellingPrice)
+          categoryName: product.category.name
         };
         
         currentCart.items.push(newCartItem);
@@ -97,12 +149,11 @@ export class CartService {
       if (quantity <= 0) {
         // Supprimer l'article si quantité <= 0
         currentCart.items.splice(itemIndex, 1);
-      } else if (quantity <= item.maxQuantity) {
+      } else if (quantity <= item.productMaxQuantity) {
         // Mettre à jour la quantité
         item.quantity = quantity;
-        item.total = item.quantity * item.unitPrice;
       } else {
-        throw new Error(`Quantité demandée (${quantity}) supérieure au stock disponible (${item.maxQuantity})`);
+        throw new Error(`Quantité demandée (${quantity}) supérieure au stock disponible (${item.productMaxQuantity})`);
       }
       
       this.recalculateCart(currentCart);
@@ -165,23 +216,17 @@ export class CartService {
       id: this.generateCartId(),
       items: [],
       itemCount: 0,
-      subtotal: 0,
-      tax: 0,
       discount: 0,
-      total: 0,
       createdAt: new Date(),
       updatedAt: new Date()
     };
   }
 
   /**
-   * Recalcule tous les totaux du panier
+   * Recalcule tous les totaux du panier (seul itemCount a besoin d'être mis à jour)
    */
   private recalculateCart(cart: Cart): void {
     cart.itemCount = cart.items.reduce((total, item) => total + item.quantity, 0);
-    cart.subtotal = cart.items.reduce((total, item) => total + item.total, 0);
-    cart.tax = cart.subtotal * this.TAX_RATE;
-    cart.total = cart.subtotal + cart.tax - cart.discount;
     cart.updatedAt = new Date();
   }
 
@@ -205,7 +250,6 @@ export class CartService {
       if (storedCart) {
         const cart: Cart = JSON.parse(storedCart);
         // Reconvertir les dates
-        cart.createdAt = new Date(cart.createdAt);
         cart.updatedAt = new Date(cart.updatedAt);
         return cart;
       }
