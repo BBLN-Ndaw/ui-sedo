@@ -24,6 +24,7 @@ import { OrderService} from '../services/order.service';
 import { FavoriteItem, Order, User } from '../shared/models';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { OrdersListComponent } from '../orders-list/orders-list.component';
+import { WishlistComponent } from '../wishlist/wishlist.component';
 import {  Subject, takeUntil } from 'rxjs';
 import { PathNames } from '../constant/path-names.enum';
 import { FavoritesService } from '../services/favorites.service';
@@ -58,7 +59,8 @@ interface LoyaltyProgram {
     MatListModule,
     MatMenuModule,
     MatDialogModule,
-    OrdersListComponent
+    OrdersListComponent,
+    WishlistComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
@@ -66,7 +68,6 @@ interface LoyaltyProgram {
 export class ProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
-  private productService = inject(ProductService);
   private favoriteService = inject(FavoritesService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
@@ -85,7 +86,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // Données pour les composants
   recentOrders: Order[] = [];
-  wishlistItems: FavoriteItem[] = [];
 
   loyaltyProgram: LoyaltyProgram = {
     level: 'Gold',
@@ -122,7 +122,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.loadUserProfile();
     this.loadOrders();
-    this.loadWishlist();
   }
 
   /* unsubscribe from all observables */
@@ -171,20 +170,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadWishlist() {
-    this.errorHandlingUtilities.wrapOperation(
-      this.favoriteService.favorites$,
-      'chargement de la liste de souhaits'
-    )
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (items) => {
-        console.log('profile component : Wishlist loaded:', items);
-        this.wishlistItems = items;
-      }
-    });
-  }
-
   passwordMatchValidator(form: FormGroup) {
     const newPassword = form.get('newPassword');
     const confirmPassword = form.get('confirmPassword');
@@ -202,24 +187,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return `${this.currentUser.firstName.charAt(0)}${this.currentUser.lastName.charAt(0)}`.toUpperCase();
     }
     return 'U';
-  }
-
-  getAvailabilityIcon(availability: string): string {
-    const icons = {
-      'in-stock': 'check_circle',
-      'low-stock': 'warning',
-      'out-of-stock': 'error'
-    };
-    return icons[availability as keyof typeof icons] || 'help';
-  }
-
-  getAvailabilityColor(availability: string): string {
-    const colors = {
-      'in-stock': 'primary',
-      'low-stock': 'warn',
-      'out-of-stock': 'warn'
-    };
-    return colors[availability as keyof typeof colors] || '';
   }
 
   getLoyaltyProgress(): number {
@@ -301,21 +268,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       });
     }
-  }
-
-  removeFromWishlist(itemId: number) {
-  this.favoriteService.removeFromFavorites(itemId);
-  this.wishlistItems = this.favoriteService.getCurrentFavorites();
-    this.snackBar.open('Article retiré de la liste de souhaits', 'Fermer', {
-      duration: 2000
-    });
-  }
-
-  addToCart(item: FavoriteItem) {
-    console.log('Adding to cart:', item);
-    this.productService.orderProductById(String(item.productId))
-    .pipe(takeUntil(this.destroy$))
-    .subscribe();
   }
 
   // Méthode pour ouvrir le dialog des détails de commande

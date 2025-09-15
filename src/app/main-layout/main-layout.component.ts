@@ -19,11 +19,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { AuthService } from '../../services/auth.service';
-import { CartService } from '../../services/cart.service';
-import { User, UserRole, CartSummary } from '../../shared/models';
-import { UserService } from '../../services/user.service';
-import { PathNames } from '../../constant/path-names.enum';
+import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
+import { User, UserRole, CartSummary } from '../shared/models';
+import { UserService } from '../services/user.service';
+import { PathNames } from '../constant/path-names.enum';
 
 interface MenuItem {
   icon: string;

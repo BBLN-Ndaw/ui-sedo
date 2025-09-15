@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { MainLayoutComponent } from './main-layout/main-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatalogComponent } from './catalog/catalog.component';
-import { ProductDetailsComponent } from './catalog/product-details/product-details.component';
+import { ProductDetailsComponent } from './product-details/product-details.component';
 import { CartComponent } from './cart/cart.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
@@ -13,6 +13,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { MyOrdersComponent } from './my-orders/my-orders.component';
 import { PaypalComponentComponent } from './paypal-component/paypal-component.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
+import { WishlistComponent } from './wishlist/wishlist.component';
 
 export const routes: Routes = [
   { 
@@ -51,6 +52,10 @@ export const routes: Routes = [
       {
          path: 'orders',
          component: MyOrdersComponent
+      },
+      {
+         path: 'wishlist',
+         component: WishlistComponent
       },
       {
          path: 'payment',

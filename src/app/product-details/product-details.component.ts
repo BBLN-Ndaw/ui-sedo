@@ -16,15 +16,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
-import { ProductWithCategoryDto } from '../../shared/models';
-import { PathNames } from '../../constant/path-names.enum';
-import { ProductService } from '../../services/product.service';
-import { FavoritesService } from '../../services/favorites.service';
-import { PromotionUtilities } from '../../services/promotion.utilities';
-import { StockUtilities } from '../../services/stock.utilities';
-import { FormatUtilities } from '../../services/format.utilities';
-import { NavigationUtilities } from '../../services/navigation.utilities';
-import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
+import { ProductWithCategoryDto } from '../shared/models';
+import { PathNames } from '../constant/path-names.enum';
+import { ProductService } from '../services/product.service';
+import { FavoritesService } from '../services/favorites.service';
+import { PromotionUtilities } from '../services/promotion.utilities';
+import { StockUtilities } from '../services/stock.utilities';
+import { FormatUtilities } from '../services/format.utilities';
+import { NavigationUtilities } from '../services/navigation.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 @Component({
   selector: 'app-product-details',

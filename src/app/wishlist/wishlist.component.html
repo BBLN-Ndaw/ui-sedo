@@ -1,0 +1,76 @@
+<div [ngClass]="{'wishlist-content': !showCard}">
+  <mat-card class="wishlist-card" *ngIf="showCard">
+    <mat-card-header>
+      <div mat-card-avatar>
+        <mat-icon>favorite</mat-icon>
+      </div>
+      <mat-card-title>Ma liste de souhaits</mat-card-title>
+      <mat-card-subtitle>{{ wishlistItems.length }} article{{ wishlistItems.length > 1 ? 's' : '' }} sauvegardé{{ wishlistItems.length > 1 ? 's' : '' }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <ng-container [ngTemplateOutlet]="wishlistContent"></ng-container>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Content without card wrapper -->
+  <ng-container *ngIf="!showCard" [ngTemplateOutlet]="wishlistContent"></ng-container>
+</div>
+
+<!-- Template de contenu réutilisable -->
+<ng-template #wishlistContent>
+  <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else noWishlistItems">
+    <div class="wishlist-item" *ngFor="let item of wishlistItems">
+      <div class="item-image">
+        <img [src]="item.imageUrl" [alt]="item.name" onerror="this.src='assets/images/placeholder.svg'">
+        <div class="item-overlay">
+          <button mat-icon-button 
+            matTooltip="Retirer de la liste" 
+            (click)="onRemoveFromWishlist(item.productId)"
+            class="remove-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <div class="item-content">
+        <h4 class="item-name">{{ item.name }}</h4>
+        <div class="item-price">
+          {{ item.price | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+        
+        <div class="item-availability">
+          <mat-chip 
+            [color]="getAvailabilityColor(item.availability)"
+            class="availability-chip">
+            <mat-icon matChipAvatar>{{ getAvailabilityIcon(item.availability) }}</mat-icon>
+            {{ item.availability === 'in-stock' ? 'En stock' : 
+               item.availability === 'low-stock' ? 'Stock faible' : 'Rupture de stock' }}
+          </mat-chip>
+        </div>
+
+        <div class="item-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="onAddToCart(item)"
+            [disabled]="item.availability === 'out-of-stock'">
+            <mat-icon>shopping_cart</mat-icon>
+            Ajouter au panier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noWishlistItems>
+    <div class="empty-state">
+      <mat-icon class="empty-icon">favorite_border</mat-icon>
+      <h3>Votre liste de souhaits est vide</h3>
+      <p>Parcourez notre catalogue et ajoutez vos articles préférés</p>
+      <button mat-raised-button color="primary" routerLink="/catalog">
+        <mat-icon>explore</mat-icon>
+        Découvrir nos produits
+      </button>
+    </div>
+  </ng-template>
+</ng-template>
