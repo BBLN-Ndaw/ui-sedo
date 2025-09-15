@@ -10,12 +10,12 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { OrderService } from '../../../services/order.service';
-import { CartService } from '../../../services/cart.service';
-import { Order, OrderStatus } from '../../models';
+import { OrderService } from '../services/order.service';
+import { CartService } from '../services/cart.service';
+import { Order, OrderStatus } from '../shared/models';
 import { Subject, takeUntil } from 'rxjs';
-import { FormatUtilities } from '../../../services/format.utilities';
-import { ErrorHandlingUtilities } from '../../../services/error-handling.utilities';
+import { FormatUtilities } from '../services/format.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 @Component({
   selector: 'app-order-details-dialog',

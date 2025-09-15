@@ -19,16 +19,16 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
-import { UserService } from '../../services/user.service';
-import { OrderService} from '../../services/order.service';
-import { FavoriteItem, Order, User } from '../../shared/models';
-import { OrderDetailsDialogComponent } from '../../shared/components/order-details-dialog/order-details-dialog.component';
-import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
+import { UserService } from '../services/user.service';
+import { OrderService} from '../services/order.service';
+import { FavoriteItem, Order, User } from '../shared/models';
+import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
+import { OrdersListComponent } from '../orders-list/orders-list.component';
 import {  Subject, takeUntil } from 'rxjs';
-import { PathNames } from '../../constant/path-names.enum';
-import { FavoritesService } from '../../services/favorites.service';
-import { ProductService } from '../../services/product.service';
-import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
+import { PathNames } from '../constant/path-names.enum';
+import { FavoritesService } from '../services/favorites.service';
+import { ProductService } from '../services/product.service';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 interface LoyaltyProgram {
   level: string;

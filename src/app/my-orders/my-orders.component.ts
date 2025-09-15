@@ -8,12 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
-import { OrderService } from '../../services/order.service';
-import { OrdersListComponent } from '../../shared/components/orders-list/orders-list.component';
-import { OrderStatus, Order } from '../../shared/models';
-import { PathNames } from '../../constant/path-names.enum';
+import { OrderService } from '../services/order.service';
+import { OrdersListComponent } from '../orders-list/orders-list.component';
+import { OrderStatus, Order } from '../shared/models';
+import { PathNames } from '../constant/path-names.enum';
 import { Router } from '@angular/router';
-import { ErrorHandlingUtilities } from '../../services/error-handling.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 @Component({
   selector: 'app-my-orders',

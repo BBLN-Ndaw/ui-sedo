@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatalogComponent } from './catalog/catalog.component';
 import { ProductDetailsComponent } from './catalog/product-details/product-details.component';
 import { CartComponent } from './cart/cart.component';
@@ -9,10 +9,10 @@ import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 import { RoleGuard } from './guards/role.guard';
 import { UserRole } from './shared/models';
-import { ProfileComponent } from './pages/profile/profile.component';
-import { MyOrdersComponent } from './pages/my-orders/my-orders.component';
+import { ProfileComponent } from './profile/profile.component';
+import { MyOrdersComponent } from './my-orders/my-orders.component';
 import { PaypalComponentComponent } from './paypal-component/paypal-component.component';
-import { PaymentConfirmationComponent } from './pages/payment-confirmation/payment-confirmation.component';
+import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 
 export const routes: Routes = [
   { 

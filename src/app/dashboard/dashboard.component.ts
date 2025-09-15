@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 
 // Services
-import { DashboardService, DashboardStats, LowStockProduct, RecentActivity } from '../../services/dashboard.service';
+import { DashboardService, DashboardStats, LowStockProduct, RecentActivity } from '../services/dashboard.service';
 
 interface DashboardCard {
   title: string;

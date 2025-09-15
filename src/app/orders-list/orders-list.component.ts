@@ -7,12 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Order, OrderStatus } from '../../models';
-import { OrderService } from '../../../services/order.service';
+import { Order, OrderStatus } from '../shared/models';
+import { OrderService } from '../services/order.service';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { ErrorHandlingUtilities } from '../../../services/error-handling.utilities';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 
 @Component({
