@@ -5,7 +5,7 @@ export enum PathNames{
     cart = 'cart',
     profile = 'profile',
     pos = 'pos',
-    customers = 'customers',
+    users = 'users',
     reports = 'reports',
     admin = 'admin',
     settings = 'settings',

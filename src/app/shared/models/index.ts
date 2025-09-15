@@ -13,6 +13,29 @@ export interface User {
   roles: string[];
 }
 
+// ===== INTERFACES =====
+export interface UserListResponse {
+  content: User[];
+  totalElements: number;
+  pageSize: number;
+  size: number;
+}
+
+export interface UserFilterOptions {
+  search?: string;
+  isActive?: boolean;
+  hasOrders?: boolean;
+}
+
+export interface Client extends User {
+  totalOrders?: number;
+  totalSpent?: number;
+  lastOrderDate?: Date;
+  registrationDate: Date;
+  preferredPaymentMethod?: PaymentMethod;
+  loyaltyPoints?: number;
+}
+
 export interface Address {
   street: string;
   city: string;

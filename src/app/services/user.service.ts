@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { UpdatePasswordDto, User, UserRole } from '../shared/models';
+import { Client, UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
 import { AuthService } from './auth.service';
 
 // ===== INTERFACES =====
@@ -32,13 +32,6 @@ export interface ChangePasswordRequest {
 export interface UserResponse {
   user: User;
   message?: string;
-}
-
-export interface UsersListResponse {
-  users: User[];
-  total: number;
-  page: number;
-  size: number;
 }
 
 // ===== CONSTANTES =====
@@ -110,6 +103,57 @@ export class UserService {
         console.error('Erreur lors de la mise à jour du mot de passe:', error);
         return throwError(() => error);
       })
+    );
+  }
+
+    /**
+   * Récupère la liste des utilisateurs avec pagination et filtres
+   */
+  getUsers(
+    page: number = 0,
+    size: number = 20,
+    filters: UserFilterOptions = {}
+  ): Observable<UserListResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    // Ajouter les filtres de recherche EN PLUS des paramètres de pagination
+    params = this.addSearchParam(page, size, filters);
+
+    return this.http.get<UserListResponse>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}`,
+      { params: params, withCredentials: true }
+    );
+  }
+
+   addSearchParam(
+    page: number = 0,
+    size: number = 20,
+    filters: UserFilterOptions
+  ): HttpParams {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (filters.search) {
+      params = params.set('search', filters.search);
+    }
+    if (filters.isActive !== undefined) {
+      params = params.set('isActive', filters.isActive.toString());
+    }
+    if (filters.hasOrders !== undefined) {
+      params = params.set('hasOrders', filters.hasOrders.toString());
+    }
+    return params;
+  }
+
+  /**
+   * Récupère un client par son ID
+   */
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`,{ withCredentials: true }
     );
   }
 }

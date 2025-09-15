@@ -1,0 +1,282 @@
+<div class="users-container">
+  <!-- En-tête avec actions -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">people</mat-icon>
+        Gestion des Utilisateurs
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ totalUsers }} utilisateur(s) au total
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Barre de recherche -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Rechercher un utilisateur</mat-label>
+          <input matInput 
+                 [formControl]="searchControl"
+
+                 placeholder="Nom, prénom, email ">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtres -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Statut</mat-label>
+          <mat-select [formControl]="statusFilter">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Commandes</mat-label>
+          <mat-select [formControl]="ordersFilter">
+            <mat-option *ngFor="let option of ordersOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Actions -->
+        <div class="actions-container">
+          <button mat-stroked-button 
+                  (click)="onClearFilters()"
+                  matTooltip="Effacer tous les filtres">
+            <mat-icon>clear</mat-icon>
+            Effacer
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="onRefreshUsers()"
+                  matTooltip="Actualiser la liste">
+            <mat-icon>refresh</mat-icon>
+            Actualiser
+          </button>
+          
+          <button mat-raised-button 
+                  color="primary"
+                  (click)="onExportUsers()"
+                  matTooltip="Exporter en CSV">
+            <mat-icon>download</mat-icon>
+            Exporter
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tableau des utilisateurs -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <!-- Indicateur de chargement -->
+        <div *ngIf="loading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Chargement des utilisateurs...</p>
+        </div>
+
+        <!-- Tableau -->
+        <table mat-table 
+               [dataSource]="dataSource" 
+               matSort
+               *ngIf="!loading"
+               class="users-table">
+
+          <!-- Colonne Nom d'utilisateur -->
+          <ng-container matColumnDef="userName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Nom d'utilisateur
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="username-cell">
+                <mat-icon class="user-icon">account_circle</mat-icon>
+                <span class="username">{{ user.userName }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Nom complet -->
+          <ng-container matColumnDef="fullName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Nom complet
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="fullname-cell">
+                <span class="full-name">{{ getFullName(user) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Email -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Email
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="email-cell">
+                <mat-icon class="contact-icon">email</mat-icon>
+                <a [href]="'mailto:' + user.email" class="email-link">
+                  {{ user.email }}
+                </a>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Téléphone -->
+          <ng-container matColumnDef="numTel">
+            <th mat-header-cell *matHeaderCellDef>
+              Téléphone
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="phone-cell">
+                <mat-icon class="contact-icon">phone</mat-icon>
+                <a [href]="'tel:' + user.numTel" class="phone-link">
+                  {{ user.numTel }}
+                </a>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Nombre de commandes -->
+          <ng-container matColumnDef="totalOrders">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Commandes
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="orders-cell">
+                <mat-chip-listbox>
+                  <mat-chip-option 
+                    [color]="user.totalOrders && user.totalOrders > 0 ? 'accent' : 'basic'"
+                    (click)="onViewUserOrders(user)"
+                    class="clickable-chip">
+                    <mat-icon matChipAvatar>shopping_cart</mat-icon>
+                    {{ user.totalOrders || 0 }}
+                  </mat-chip-option>
+                </mat-chip-listbox>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Total dépensé -->
+          <ng-container matColumnDef="totalSpent">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Total dépensé
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="amount-cell">
+                <span class="amount" [class.high-value]="(user.totalSpent || 0) > 1000">
+                  {{ formatCurrency(user.totalSpent) }}
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Date d'inscription -->
+          <ng-container matColumnDef="registrationDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Inscription
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="date-cell">
+                <mat-icon class="date-icon">event</mat-icon>
+                <span class="date">{{ formatDate(user.createdAt) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Statut -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>
+              Statut
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip-listbox>
+                <mat-chip-option 
+                  [color]="getStatusChipColor(user.isActive)"
+                  class="status-chip">
+                  <mat-icon matChipAvatar>
+                    {{ user.isActive ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                  {{ getStatusText(user.isActive) }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>
+              Actions
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <div class="actions-cell">
+                <button mat-icon-button 
+                        [matMenuTriggerFor]="actionsMenu"
+                        matTooltip="Actions"
+                        aria-label="Actions pour l'utilisateur">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                
+                <mat-menu #actionsMenu="matMenu">
+                  <button mat-menu-item (click)="onViewUserDetails(user)">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Voir les détails</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onViewUserOrders(user)">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <span>Voir les commandes</span>
+                  </button>
+                  
+                  <mat-divider></mat-divider>
+                  
+                  <button mat-menu-item 
+                          *ngIf="!user.isActive">
+                    <mat-icon color="primary">check_circle</mat-icon>
+                    <span>Activer</span>
+                  </button>
+                  
+                  <button mat-menu-item 
+                          *ngIf="user.isActive">
+                    <mat-icon color="warn">cancel</mat-icon>
+                    <span>Désactiver</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- En-têtes et lignes du tableau -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- État vide -->
+        <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">people_outline</mat-icon>
+          <h3>Aucun utilisateur trouvé</h3>
+          <p>Aucun utilisateur ne correspond aux critères de recherche actuels.</p>
+          <button mat-raised-button color="primary" (click)="onClearFilters()">
+            Effacer les filtres
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator
+        *ngIf="!loading && dataSource.data.length > 0"
+        [length]="totalUsers"
+        [pageSize]="currentPageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="[10, 20, 40, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
