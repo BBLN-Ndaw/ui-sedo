@@ -25,6 +25,8 @@ import { User, UserFilterOptions } from '../shared/models';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 import { FormatUtilities } from '../services/format.utilities';
 import { UserService } from '../services/user.service';
+import { NavigationUtilities } from '../services/navigation.utilities';
+import { PathNames } from '../constant/path-names.enum';
 
 @Component({
   selector: 'app-users-list',
@@ -57,10 +59,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   private userService = inject(UserService);
   private errorHandlingUtilities = inject(ErrorHandlingUtilities);
+  private navigationUtilities = inject(NavigationUtilities);
   private formatUtilities = inject(FormatUtilities);
-  private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-  private router = inject(Router);
 
   // État du composant
   loading = false;
@@ -145,8 +145,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
     const filters = this.buildFilters();
     const page = this.currentPage;
     const size = this.currentPageSize;
-    
-    console.log("Loading users with pagination:", { page, size });
 
      this.errorHandlingUtilities.wrapOperation(
       this.userService.getUsers(page, size, filters),
@@ -200,11 +198,22 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   onViewUserDetails(user: User): void {
-    this.router.navigate(['/users/details', user.id]);
+    this.navigationUtilities.goToRouteWithState(PathNames.userDetails, {userDetails: user});
+  }
+ 
+  onUpdateStatus(user: User): void {
+    const newStatus = !user.isActive;
+    const action = newStatus ? 'activate' : 'deactivate';
+
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.updateUserStatus(user.id, action),
+      'Mise à jour du statut de l\'utilisateur'
+    ).pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   onViewUserOrders(user: User): void {
-    this.router.navigate(['/orders'], { queryParams: { userId: user.id } });
+    this.navigationUtilities.goToRouteWithState(PathNames.orders, user);
   }
 
   onPageChange(event: PageEvent): void {

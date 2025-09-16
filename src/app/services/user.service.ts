@@ -39,9 +39,8 @@ const USER_API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api',
   ENDPOINTS: {
     USERS: '/users',
+    STATUS: '/users/status',
     PROFILE: '/users/profile',
-    ACTIVATE: '/users/activate',
-    DEACTIVATE: '/users/deactivate'
   }
 } as const;
 
@@ -154,6 +153,13 @@ export class UserService {
   getUserById(id: number): Observable<User> {
     return this.http.get<User>(
       `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`,{ withCredentials: true }
+    );
+  }
+
+  updateUserStatus(id: number, action: 'activate' | 'deactivate'): Observable<User> {
+    const statusAction = {value: action};
+    return this.http.put<User>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.STATUS}/${id}`, statusAction, { withCredentials: true }
     );
   }
 }

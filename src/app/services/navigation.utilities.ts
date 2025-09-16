@@ -80,8 +80,16 @@ export class NavigationUtilities {
   /**
    * Navigation vers une route spécifique
    */
-  goToRoute(route: string, state?: any): void {
+  goToRouteWithState(route: string, state?: any): void {
     this.router.navigate([route], state ? { state } : {});
+  }
+
+  goToRouteWithQueryParams(route: string, queryParams?: any): void {
+    this.router.navigate([route], queryParams ? { queryParams } : {});
+  }
+
+  getStateData(key: string): any {
+    return this.router.getCurrentNavigation()?.extras?.state?.[key];
   }
 
   /**

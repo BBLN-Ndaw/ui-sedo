@@ -94,7 +94,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     },
     {
       icon: 'people',
-      label: 'Users Management',
+      label: 'Gestion Clients',
       route: PathNames.users,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },

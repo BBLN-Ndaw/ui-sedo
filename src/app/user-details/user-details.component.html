@@ -1,0 +1,359 @@
+<div class="user-details-container">
+  <!-- Navigation breadcrumb -->
+  <div class="breadcrumb-nav">
+    <button 
+      mat-button 
+      class="nav-link"
+      (click)="goBackToUsersList()">
+      <mat-icon>arrow_back</mat-icon>
+      Liste des utilisateurs
+    </button>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="current-page">Détails utilisateur</span>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement des détails utilisateur...</p>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!loading && user" class="user-content">
+    
+    <!-- Header Section -->
+    <div class="user-header">
+      <div class="header-content">
+        <div class="user-avatar-large">
+          {{ getUserInitials() }}
+        </div>
+        <div class="user-info">
+          <h1 class="user-name">{{ getFullName() }}</h1>
+          <p class="user-email">{{ user.email }}</p>
+          <p class="user-phone">{{ user.numTel }}</p>
+          <div class="user-meta">
+            <span class="registration-date">
+              <mat-icon>event</mat-icon>
+              Inscrit le {{ formatDate(userStatistics?.registrationDate) }}
+            </span>
+            <span class="account-age">
+              <mat-icon>schedule</mat-icon>
+              {{ getAccountAge() }} d'ancienneté
+            </span>
+          </div>
+          <div class="user-status">
+            <mat-chip-set>
+              <mat-chip [color]="getStatusColor()">
+                <mat-icon matChipAvatar>{{ getStatusIcon() }}</mat-icon>
+                {{ getStatusText() }}
+              </mat-chip>
+              <mat-chip [color]="getLoyaltyColor()">
+                <mat-icon matChipAvatar>star</mat-icon>
+                Niveau {{ getUserLoyaltyLevel() }}
+              </mat-chip>
+              <mat-chip [color]="getActivityColor()">
+                <mat-icon matChipAvatar>trending_up</mat-icon>
+                {{ getActivityLevel() }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button 
+            mat-fab 
+            extended 
+            color="primary" 
+            *ngIf="!user.isActive"
+            (click)="onUpdateStatus()">
+            <mat-icon>check_circle</mat-icon>
+            Activer
+          </button>
+          <button 
+            mat-fab 
+            extended 
+            color="warn" 
+            *ngIf="user.isActive"
+            (click)="onUpdateStatus()">
+            <mat-icon>cancel</mat-icon>
+            Désactiver
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="statistics-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>shopping_cart</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ userStatistics?.totalOrders || 0 }}</div>
+              <div class="stat-label">Commandes totales</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>euro</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ formatCurrency(userStatistics?.totalSpent || 0) }}</div>
+              <div class="stat-label">Total dépensé</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>analytics</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ formatCurrency(userStatistics?.averageOrderValue || 0) }}</div>
+              <div class="stat-label">Panier moyen</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon">
+              <mat-icon>calendar_today</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ formatDate(userStatistics?.lastOrderDate) }}</div>
+              <div class="stat-label">Dernière commande</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <mat-tab-group class="user-tabs" mat-stretch-tabs="true" animationDuration="300ms">
+      
+      <!-- Personal Information Tab -->
+      <mat-tab label="Informations personnelles">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <mat-card class="info-card">
+              <mat-card-header>
+                <div mat-card-avatar>
+                  <mat-icon>person</mat-icon>
+                </div>
+                <mat-card-title>Informations personnelles</mat-card-title>
+                <mat-card-subtitle>Détails du compte utilisateur</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <mat-icon class="info-icon">account_circle</mat-icon>
+                    <div class="info-details">
+                      <label>Nom d'utilisateur</label>
+                      <span>{{ user.userName }}</span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <mat-icon class="info-icon">person</mat-icon>
+                    <div class="info-details">
+                      <label>Prénom</label>
+                      <span>{{ user.firstName }}</span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <mat-icon class="info-icon">person_outline</mat-icon>
+                    <div class="info-details">
+                      <label>Nom de famille</label>
+                      <span>{{ user.lastName }}</span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <mat-icon class="info-icon">email</mat-icon>
+                    <div class="info-details">
+                      <label>Email</label>
+                      <span>{{ user.email }}</span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <mat-icon class="info-icon">phone</mat-icon>
+                    <div class="info-details">
+                      <label>Téléphone</label>
+                      <span>{{ user.numTel }}</span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <mat-icon class="info-icon">verified_user</mat-icon>
+                    <div class="info-details">
+                      <label>Statut</label>
+                      <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
+                        {{ getStatusText() }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Address Information -->
+            <mat-card class="info-card" *ngIf="user.address">
+              <mat-card-header>
+                <div mat-card-avatar>
+                  <mat-icon>location_on</mat-icon>
+                </div>
+                <mat-card-title>Adresse</mat-card-title>
+                <mat-card-subtitle>Informations de livraison</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="address-info">
+                  <div class="address-line">
+                    <mat-icon>home</mat-icon>
+                    <span>{{ user.address.street }}</span>
+                  </div>
+                  <div class="address-line">
+                    <mat-icon>location_city</mat-icon>
+                    <span>{{ user.address.postalCode }} {{ user.address.city }}</span>
+                  </div>
+                  <div class="address-line">
+                    <mat-icon>public</mat-icon>
+                    <span>{{ user.address.country }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Orders History Tab -->
+      <mat-tab label="Historique des commandes">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <mat-card class="orders-card">
+              <mat-card-header>
+                <div mat-card-avatar>
+                  <mat-icon>shopping_bag</mat-icon>
+                </div>
+                <mat-card-title>Commandes récentes</mat-card-title>
+                <mat-card-subtitle>{{ userOrders.length }} commande(s) affichée(s)</mat-card-subtitle>
+                <div class="card-actions">
+                  <button mat-button color="primary" (click)="onViewAllOrders()">
+                    Voir toutes les commandes
+                  </button>
+                </div>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="userOrders.length === 0" class="empty-orders">
+                  <mat-icon class="empty-icon">shopping_cart</mat-icon>
+                  <h3>Aucune commande</h3>
+                  <p>Cet utilisateur n'a pas encore passé de commande.</p>
+                </div>
+
+                <div *ngIf="userOrders.length > 0" class="orders-list">
+                  <div 
+                    *ngFor="let order of userOrders" 
+                    class="order-item"
+                    (click)="onOrderDetails(order.id || '')">
+                    <div class="order-header">
+                      <span class="order-number">{{ order.orderNumber }}</span>
+                      <mat-chip [color]="order.status === 'DELIVERED' ? 'primary' : 'basic'">
+                        {{ order.status }}
+                      </mat-chip>
+                    </div>
+                    <div class="order-details">
+                      <span class="order-date">{{ formatDate(order.createdAt) }}</span>
+                      <span class="order-amount">{{ formatCurrency(order.totalAmount) }}</span>
+                    </div>
+                    <div class="order-items">
+                      {{ order.items.length }} article(s)
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Statistics Tab -->
+      <mat-tab label="Statistiques">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <div class="stats-grid">
+              <mat-card class="detailed-stat-card">
+                <mat-card-header>
+                  <div mat-card-avatar>
+                    <mat-icon>trending_up</mat-icon>
+                  </div>
+                  <mat-card-title>Activité récente</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="stat-row">
+                    <span class="stat-label">Commandes ce mois</span>
+                    <span class="stat-value">{{ userStatistics?.ordersThisMonth || 0 }}</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">Commandes cette année</span>
+                    <span class="stat-value">{{ userStatistics?.ordersThisYear || 0 }}</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">Dernière connexion</span>
+                    <span class="stat-value">{{ formatDate(userStatistics?.lastLoginDate) }}</span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card class="detailed-stat-card">
+                <mat-card-header>
+                  <div mat-card-avatar>
+                    <mat-icon>favorite</mat-icon>
+                  </div>
+                  <mat-card-title>Préférences</mat-card-title>
+                </mat-card-header>
+                <!-- <mat-card-content>
+                  <div *ngIf="userStatistics?.favoriteCategories && userStatistics.favoriteCategories.length > 0">
+                    <div class="categories-list">
+                      <mat-chip 
+                        *ngFor="let category of userStatistics.favoriteCategories"
+                        class="category-chip">
+                        {{ category }}
+                      </mat-chip>
+                    </div>
+                  </div>
+                  <div *ngIf="!userStatistics?.favoriteCategories || userStatistics.favoriteCategories.length === 0">
+                    <p class="no-preferences">Aucune préférence définie</p>
+                  </div>
+                </mat-card-content> -->
+              </mat-card>
+            </div>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Utilisateur non trouvé -->
+  <div *ngIf="!loading && !user" class="user-not-found">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Utilisateur non trouvé</h2>
+    <p>L'utilisateur demandé n'existe pas ou n'est plus accessible.</p>
+    <button mat-raised-button color="primary" (click)="goBackToUsersList()">
+      Retour à la liste
+    </button>
+  </div>
+</div>

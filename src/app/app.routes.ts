@@ -15,6 +15,7 @@ import { PaypalComponentComponent } from './paypal-component/paypal-component.co
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { UsersListComponent } from './users-list/users-list.component';
+import { UserDetailsComponent } from './user-details/user-details.component';
 
 export const routes: Routes = [
   { 
@@ -59,6 +60,12 @@ export const routes: Routes = [
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UsersListComponent
+      },
+      {
+         path: 'users/details',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: UserDetailsComponent
       },
       {
          path: 'wishlist',

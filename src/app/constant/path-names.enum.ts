@@ -6,6 +6,7 @@ export enum PathNames{
     profile = 'profile',
     pos = 'pos',
     users = 'users',
+    userDetails = 'users/details',
     reports = 'reports',
     admin = 'admin',
     settings = 'settings',
