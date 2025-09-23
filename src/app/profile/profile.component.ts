@@ -207,7 +207,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       console.log('Updating profile with:', updatedUser);
       
       this.errorHandlingUtilities.wrapOperation(
-        this.userService.updateUser(String(this.currentUser.id), updatedUser),
+        this.userService.updateUserById(String(this.currentUser.id), updatedUser),
         'mise à jour du profil',
         'Profil mis à jour avec succès'
       )
@@ -241,30 +241,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   onChangePassword() {
     if (this.passwordForm.valid && this.currentUser) {
       const changePasswordRequest = { ...this.passwordForm.value };
-      this.userService.updatePassword(String(this.currentUser.id), changePasswordRequest)
+      this.errorHandlingUtilities.wrapOperation(
+        this.userService.updatePassword(String(this.currentUser.id), changePasswordRequest),
+        "Modification du mot de passe",
+        "Mot de passe modifié avec succès"
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.passwordForm.reset();
           this.isChangingPassword = false;
-          this.snackBar.open('Mot de passe modifié avec succès', 'Fermer', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-        },
-        error: (error) => {
-          console.error('Error changing password:', error);
-          if(error.status === 400) {
-            this.snackBar.open('L\'ancien mot de passe est incorrect.', 'Fermer', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
-          } else {
-            this.snackBar.open('Erreur lors du changement de mot de passe', 'Fermer', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
-          }
         }
       });
     }

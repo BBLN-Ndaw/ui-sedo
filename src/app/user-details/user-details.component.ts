@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,12 +16,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { Subject, takeUntil, switchMap, of } from 'rxjs';
+import { Subject, takeUntil} from 'rxjs';
 
 import { User, Order } from '../shared/models';
 import { UserService } from '../services/user.service';
 import { OrderService } from '../services/order.service';
-import { OrdersListComponent } from '../orders-list/orders-list.component';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { FormatUtilities } from '../services/format.utilities';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
@@ -65,7 +64,6 @@ interface UserStatistics {
 })
 export class UserDetailsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private userService = inject(UserService);
   private orderService = inject(OrderService);
   private formatUtilities = inject(FormatUtilities);
@@ -74,7 +72,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   // État du composant
   loading = true;
-  userId!: number;
+  userId!: string;
   user: User | null = null;
   userStatistics: UserStatistics | null = null;
   userOrders: Order[] = [];
@@ -82,15 +80,16 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private navigationUtilities: NavigationUtilities,
     private errorHandlingUtilities: ErrorHandlingUtilities
-  ) {
-    this.user = this.navigationUtilities.getStateData('userDetails');
+  ) 
+  {
+     this.userId = this.route.snapshot.paramMap.get('id')!;
   }
   
   // Gestion des abonnements
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    // this.loadUserDetails();
+    this.loadUserDetails();
     this.loadUserStatistics();
     this.loadUserOrders();
   }
@@ -99,36 +98,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  // private loadUserDetails(): void {
-  //   this.loading = true;
-    
-  //   this.route.params.pipe(
-  //     switchMap(params => {
-  //       this.userId = +params['id'];
-  //       if (!this.userId) {
-  //         this.router.navigate(['/users']);
-  //         return of(null);
-  //       }
-  //       return this.userService.getUserById(this.userId);
-  //     }),
-  //     takeUntil(this.destroy$)
-  //   ).subscribe({
-  //     next: (user) => {
-  //       if (user) {
-  //         this.user = user;
-  //         this.loadUserStatistics();
-  //         this.loadUserOrders();
-  //       }
-  //     },
-  //     error: (error) => {
-  //       console.error('Erreur lors du chargement des détails utilisateur:', error);
-  //       this.snackBar.open('Erreur lors du chargement des détails utilisateur', 'Fermer', { duration: 5000 });
-  //       this.router.navigate(['/users']);
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
 
   private loadUserStatistics(): void {
     if (!this.user) return;
@@ -150,14 +119,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   }
 
   private loadUserOrders(): void {
-    if (!this.user) return;
-
-    // Utiliser getUserOrders() du service existant
+    this.loading = true;
     this.orderService.getUserOrders().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (orders: Order[]) => {
-        this.userOrders = orders.slice(0, 10); // Limiter à 10 commandes
+        this.userOrders = orders.slice(0, 10); // Limiter à 10 commandes récentes
         this.loading = false;
       },
       error: (error: any) => {
@@ -175,7 +142,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     return this.userStatistics.totalSpent / this.userStatistics.totalOrders;
   }
 
-  // Navigation
   goBackToUsersList(): void {
     this.navigationUtilities.goToRouteWithState(PathNames.users);
   }
@@ -186,10 +152,14 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     const action = newStatus ? 'activate' : 'deactivate';
 
     this.errorHandlingUtilities.wrapOperation(
-      this.userService.updateUserStatus(this.user.id, action),
+      this.userService.updateUserStatus(this.user.id!, action),
       'Mise à jour du statut de l\'utilisateur'
     ).pipe(takeUntil(this.destroy$))
-    .subscribe();
+    .subscribe({
+        next: () => {
+          this.loadUserDetails();
+        }
+      });
  }
 
   onViewAllOrders(): void {
@@ -203,7 +173,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Utilitaires d'affichage
   getUserInitials(): string {
     if (!this.user) return '';
     return `${this.user.firstName[0]}${this.user.lastName[0]}`;
@@ -280,5 +249,71 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     if (ordersThisMonth >= 2) return 'accent';
     if (ordersThisMonth >= 1) return 'warn';
     return 'basic';
+  }
+
+  private loadUserDetails(): void {
+
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.getUserById(this.userId),
+      'Récupération de l\'utilisateur'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (user) => {
+          this.user = user;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        }
+      });
+  }
+
+
+  onEditUser(): void {
+    if (this.user) {
+      this.navigationUtilities.goToRouteWithQueryParams(PathNames.userForm, { id: this.user.id });
+    }
+  }
+
+  onDeleteUser(): void {
+    if (!this.user) return;
+
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer l'utilisateur ${this.user.firstName} ${this.user.lastName} ?`;
+    
+    if (confirm(confirmMessage)) {
+      this.errorHandlingUtilities.wrapOperation(
+        this.userService.deleteUser(this.user.id!),
+        'Suppression de l\'utilisateur'
+      ).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.navigationUtilities.goToUsersList();
+        }
+      });
+    }
+  }
+
+
+  onToggleUserStatus(): void {
+    if (!this.user) return;
+
+    const action = this.user.isActive ? 'deactivate' : 'activate';
+    const actionText = this.user.isActive ? 'désactivé' : 'activé';
+
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.updateUserStatus(this.user.id!, action),
+      `${actionText} l'utilisateur`
+    ).pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser;
+        this.snackBar.open(`Utilisateur ${actionText} avec succès!`, 'Fermer', {
+          duration: 3000
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de la mise à jour du statut:', error);
+      }
+    });
   }
 }

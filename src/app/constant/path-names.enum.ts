@@ -7,6 +7,7 @@ export enum PathNames{
     pos = 'pos',
     users = 'users',
     userDetails = 'users/details',
+    userForm = 'user-form',
     reports = 'reports',
     admin = 'admin',
     settings = 'settings',

@@ -16,6 +16,7 @@ import { PaymentConfirmationComponent } from './payment-confirmation/payment-con
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { UsersListComponent } from './users-list/users-list.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
+import { UserFormComponent } from './user-form/user-form.component';
 
 export const routes: Routes = [
   { 
@@ -62,10 +63,16 @@ export const routes: Routes = [
          component: UsersListComponent
       },
       {
-         path: 'users/details',
+         path: 'users/details/:id',
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UserDetailsComponent
+      },
+      {
+         path: 'user-form',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: UserFormComponent
       },
       {
          path: 'wishlist',

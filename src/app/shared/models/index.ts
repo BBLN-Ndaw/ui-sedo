@@ -1,7 +1,7 @@
 // Core interfaces pour le système de gestion de magasin
 
 export interface User {
-  id: number;
+  id?: number;
   userName: string;
   firstName: string;
   lastName: string;

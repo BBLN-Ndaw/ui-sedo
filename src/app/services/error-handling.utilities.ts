@@ -22,8 +22,7 @@ export class ErrorHandlingUtilities {
       console.error(`${operation} failed:`, error);
       
       if (showNotification) {
-        this.notificationService.showError(
-          error.message || `Erreur lors de ${operation}`
+        this.notificationService.showError(`Erreur lors de ${operation}`
         );
       }
 

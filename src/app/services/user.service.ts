@@ -1,27 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { Client, UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
-import { AuthService } from './auth.service';
+import { UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
 
 // ===== INTERFACES =====
-export interface CreateUserRequest {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  roles: string[];
-}
-
-export interface UpdateUserRequest {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  isActive?: boolean;
-  roles?: string[];
-}
 
 export interface ChangePasswordRequest {
   currentPassword: string;
@@ -80,29 +63,16 @@ export class UserService {
     );
   }
 
-  updateUser(id: string, updatedUser: User): Observable<User> {
+  updateUserById(id: string, updatedUser: User): Observable<User> {
     return this.http.put<User>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`, updatedUser, {
       withCredentials: true
-    }).pipe(
-      tap(updatedUser => {
-        this.currentUserSubject.next(updatedUser);
-      }),
-      catchError(error => {
-        console.error('Erreur lors de la mise à jour du profil:', error);
-        return throwError(() => error);
-      })
-    );
+    })
   }
 
   updatePassword(id: string, changePasswordRequest: ChangePasswordRequest): Observable<UpdatePasswordDto> {
     return this.http.put<UpdatePasswordDto>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}/password`, changePasswordRequest, {
       withCredentials: true
-    }).pipe(
-      catchError(error => {
-        console.error('Erreur lors de la mise à jour du mot de passe:', error);
-        return throwError(() => error);
-      })
-    );
+    })
   }
 
     /**
@@ -147,10 +117,7 @@ export class UserService {
     return params;
   }
 
-  /**
-   * Récupère un client par son ID
-   */
-  getUserById(id: number): Observable<User> {
+  getUserById(id: string): Observable<User> {
     return this.http.get<User>(
       `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`,{ withCredentials: true }
     );
@@ -161,5 +128,26 @@ export class UserService {
     return this.http.put<User>(
       `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.STATUS}/${id}`, statusAction, { withCredentials: true }
     );
+  }
+
+  /**
+   * Créer un nouvel utilisateur
+   */
+  createUser(createUserRequest: User): Observable<UserResponse> {
+    return this.http.post<UserResponse>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}`,
+      createUserRequest,
+      { withCredentials: true }
+    )
+  }
+
+  /**
+   * Supprimer un utilisateur (admin uniquement)
+   */
+  deleteUser(id: number): Observable<User> {
+    return this.http.delete<User>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}`,
+      { withCredentials: true }
+    )
   }
 }

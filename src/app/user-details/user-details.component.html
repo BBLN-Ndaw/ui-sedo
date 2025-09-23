@@ -62,9 +62,20 @@
           <button 
             mat-fab 
             extended 
+            color="primary"
+            (click)="onEditUser()"
+            matTooltip="Modifier cet utilisateur">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+          
+          <button 
+            mat-fab 
+            extended 
             color="primary" 
             *ngIf="!user.isActive"
-            (click)="onUpdateStatus()">
+            (click)="onToggleUserStatus()"
+            matTooltip="Activer ce compte">
             <mat-icon>check_circle</mat-icon>
             Activer
           </button>
@@ -73,9 +84,20 @@
             extended 
             color="warn" 
             *ngIf="user.isActive"
-            (click)="onUpdateStatus()">
+            (click)="onToggleUserStatus()"
+            matTooltip="Désactiver ce compte">
             <mat-icon>cancel</mat-icon>
             Désactiver
+          </button>
+          
+          <button 
+            mat-fab 
+            extended 
+            color="warn"
+            (click)="onDeleteUser()"
+            matTooltip="Supprimer cet utilisateur">
+            <mat-icon>delete</mat-icon>
+            Supprimer
           </button>
         </div>
       </div>

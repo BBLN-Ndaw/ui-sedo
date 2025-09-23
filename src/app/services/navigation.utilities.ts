@@ -77,11 +77,19 @@ export class NavigationUtilities {
     this.router.navigate(['/profile']);
   }
 
+  goToUsersList(): void {
+    this.router.navigate(['/users']);
+  }
+
   /**
    * Navigation vers une route spécifique
    */
   goToRouteWithState(route: string, state?: any): void {
     this.router.navigate([route], state ? { state } : {});
+  }
+
+  goToRouteWithId(route: string, id: number): void {
+    this.router.navigate([route, id]);
   }
 
   goToRouteWithQueryParams(route: string, queryParams?: any): void {

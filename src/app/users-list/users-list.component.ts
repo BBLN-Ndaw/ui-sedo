@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -16,8 +16,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
@@ -64,8 +62,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   // État du composant
   loading = false;
-  totalUsers = 0;
-  
+  totalUsers = 0;  
   // Contrôles de formulaire
   searchControl = new FormControl('');
   statusFilter = new FormControl('all');
@@ -198,7 +195,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   onViewUserDetails(user: User): void {
-    this.navigationUtilities.goToRouteWithState(PathNames.userDetails, {userDetails: user});
+    this.navigationUtilities.goToRouteWithId(PathNames.userDetails, user.id!);
   }
  
   onUpdateStatus(user: User): void {
@@ -206,10 +203,14 @@ export class UsersListComponent implements OnInit, OnDestroy {
     const action = newStatus ? 'activate' : 'deactivate';
 
     this.errorHandlingUtilities.wrapOperation(
-      this.userService.updateUserStatus(user.id, action),
+      this.userService.updateUserStatus(user.id!, action),
       'Mise à jour du statut de l\'utilisateur'
     ).pipe(takeUntil(this.destroy$))
-    .subscribe();
+    .subscribe({
+        next: () => {
+          this.loadUsers();
+        }
+      });
   }
 
   onViewUserOrders(user: User): void {
@@ -263,5 +264,30 @@ export class UsersListComponent implements OnInit, OnDestroy {
     this.statusFilter.setValue('all', { emitEvent: false });
     this.ordersFilter.setValue('all', { emitEvent: false });
     this.applyFilters();
+  }
+
+  onCreateUser(): void {
+    this.navigationUtilities.goToRouteWithState(PathNames.userForm);
+  }
+
+  onEditUser(user: User): void {
+    this.navigationUtilities.goToRouteWithQueryParams(PathNames.userForm, { id: user.id });
+  }
+
+  onDeleteUser(user: User): void {
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`;
+    
+    if (confirm(confirmMessage)) {
+      this.errorHandlingUtilities.wrapOperation(
+        this.userService.deleteUser(user.id!),
+        'Suppression de l\'utilisateur',
+        'Utilisateur supprimé avec succès!',
+      ).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadUsers();
+        }
+      });
+    }
   }
 }

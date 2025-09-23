@@ -58,12 +58,20 @@
             Actualiser
           </button>
           
-          <button mat-raised-button 
-                  color="primary"
+          <button mat-stroked-button 
                   (click)="onExportUsers()"
                   matTooltip="Exporter en CSV">
             <mat-icon>download</mat-icon>
             Exporter
+          </button>
+          
+          <!-- Bouton Créer un utilisateur (admin uniquement) -->
+          <button mat-raised-button 
+                  color="primary"
+                  (click)="onCreateUser()"
+                  matTooltip="Créer un nouvel utilisateur">
+            <mat-icon>person_add</mat-icon>
+            Créer un utilisateur
           </button>
         </div>
       </div>
@@ -228,6 +236,11 @@
                     <span>Voir les détails</span>
                   </button>
 
+                  <button mat-menu-item (click)="onEditUser(user)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+
                   <button mat-menu-item (click)="onViewUserOrders(user)">
                     <mat-icon>shopping_cart</mat-icon>
                     <span>Voir les commandes</span>
@@ -236,15 +249,23 @@
                   <mat-divider></mat-divider>
                   
                   <button mat-menu-item 
-                          *ngIf="!user.isActive" (click)="onUpdateStatus(user)">
+                          *ngIf="!user.isActive" 
+                          (click)="onUpdateStatus(user)">
                     <mat-icon color="primary">check_circle</mat-icon>
                     <span>Activer</span>
                   </button>
                   
                   <button mat-menu-item 
-                          *ngIf="user.isActive" (click)="onUpdateStatus(user)">
+                          *ngIf="user.isActive" 
+                          (click)="onUpdateStatus(user)">
                     <mat-icon color="warn">cancel</mat-icon>
                     <span>Désactiver</span>
+                  </button>
+                  
+                  <button mat-menu-item 
+                          (click)="onDeleteUser(user)">
+                    <mat-icon color="warn">delete</mat-icon>
+                    <span>Supprimer</span>
                   </button>
                 </mat-menu>
               </div>
