@@ -16,6 +16,11 @@ export interface LoginResponse {
   token?: string;
 }
 
+export interface SetPasswordDto {
+  token: string;
+  password: string;
+}
+
 // ===== CONSTANTES =====
 const API_CONFIG = {
   BASE_URL: 'http://localhost:8080/api/auth',
@@ -24,7 +29,8 @@ const API_CONFIG = {
     REFRESH: '/refresh_token',
     LOGOUT: '/logout',
     CHECK_LOGIN: '/check_login',
-    USER_PROFILE: '/users/profile'
+    USER_PROFILE: '/users/profile',
+    SET_PASSWORD: '/set-password'
   }
 } as const;
 
@@ -126,5 +132,14 @@ export class AuthService {
   
   setAccessToken(token: string | null): void {
     this.updateAccessTokenState(token);
+  }
+
+  /**
+   * Définir le mot de passe avec le token de validation
+   * @param setPasswordDto - Les données pour définir le mot de passe
+   * @returns Observable<{message: string}> - La réponse du serveur
+   */
+  setPassword(setPasswordDto: SetPasswordDto): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SET_PASSWORD}`, setPasswordDto);
   }
 }

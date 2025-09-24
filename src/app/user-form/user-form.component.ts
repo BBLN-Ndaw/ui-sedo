@@ -80,7 +80,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       numTel: ['', [Validators.required, Validators.pattern(/^[0-9]{10,}$/)]],
       roles: [['CUSTOMER'], [Validators.required]],
-      isActive: [true],
+      isActive: [false],
       address: this.formBuilder.group({
         street: ['', [Validators.required]],
         city: ['', [Validators.required]],
@@ -173,7 +173,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.errorHandlingUtilities.wrapOperation(
       this.userService.createUser(createRequest),
       'Création de l\'utilisateur',
-      'Utilisateur créé avec succès!'
+      'Utilisateur créé avec succès ! Le compte est désactivé par défaut. L\'utilisateur recevra un email pour définir son mot de passe.'
     ).pipe(takeUntil(this.destroy$))
     .subscribe({
       next: () => {

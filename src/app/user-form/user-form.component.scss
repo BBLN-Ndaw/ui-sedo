@@ -195,3 +195,29 @@ mat-error {
     line-height: 1.4;
   }
 }
+
+// Message d'information pour le statut du compte
+.account-status-info {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background-color: #fff3e0;
+  border: 1px solid #ff9800;
+  border-radius: 4px;
+  color: #f57c00;
+  font-size: 13px;
+  
+  mat-icon {
+    margin-right: 8px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+  }
+  
+  span {
+    line-height: 1.3;
+    flex: 1;
+  }
+}

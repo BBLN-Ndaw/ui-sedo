@@ -142,7 +142,7 @@
               </mat-error>
             </mat-form-field>
 
-            <div class="checkbox-container">
+            <div *ngIf="isEditMode" class="checkbox-container">
               <mat-checkbox formControlName="isActive" color="primary">
                 Compte actif
               </mat-checkbox>
