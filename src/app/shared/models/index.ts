@@ -292,6 +292,7 @@ export interface FavoriteItem {
 
 export interface PaypalCapturedResponse {
   id: string;
+  orderNumber: string;
   status: string;
   payment_source: PaymentSource;
   purchase_units: PurchaseUnit[];

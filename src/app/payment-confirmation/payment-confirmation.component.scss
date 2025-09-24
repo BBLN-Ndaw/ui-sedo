@@ -133,6 +133,22 @@
           font-size: 18px;
         }
       }
+
+      &.status-pending {
+        color: var(--accent-orange);
+        
+        mat-icon {
+          font-size: 18px;
+        }
+      }
+
+      &.transaction-id {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        background: #f8fafc;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
     }
   }
 }
@@ -146,6 +162,15 @@
   border: 1px solid #bfdbfe;
   border-radius: 12px;
   padding: 16px 20px;
+
+  &.warning {
+    background: #fffbeb;
+    border: 1px solid #fed7aa;
+    
+    mat-icon {
+      color: var(--accent-orange);
+    }
+  }
 
   mat-icon {
     color: var(--primary-blue);
@@ -290,5 +315,30 @@
       width: 100%;
       justify-content: center;
     }
+  }
+}
+
+// Section de support
+.support-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fefce8;
+  border: 1px solid #facc15;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+
+  mat-icon {
+    color: #ca8a04;
+    font-size: 20px;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    color: #713f12;
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 }

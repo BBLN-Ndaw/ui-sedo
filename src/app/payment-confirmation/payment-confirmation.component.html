@@ -3,9 +3,15 @@
     
     <!-- Header avec icône de succès -->
     <div class="confirmation-header">
-      <mat-icon class="success-icon">check_circle</mat-icon>
-      <h1 class="confirmation-title">Paiement confirmé !</h1>
-      <p class="confirmation-subtitle">Merci pour votre commande. Votre paiement a été traité avec succès.</p>
+      <mat-icon class="success-icon">{{ getStatusIcon() }}</mat-icon>
+      <h1 class="confirmation-title">
+        {{ orderDetails.status === 'Confirmé' ? 'Paiement confirmé !' : 'Paiement en cours' }}
+      </h1>
+      <p class="confirmation-subtitle">
+        {{ orderDetails.status === 'Confirmé' 
+          ? 'Merci pour votre commande. Votre paiement a été traité avec succès.' 
+          : 'Votre paiement est en cours de traitement. Vous recevrez une confirmation sous peu.' }}
+      </p>
     </div>
 
     <!-- Détails de la commande -->
@@ -24,6 +30,11 @@
             <span class="info-label">Numéro de commande</span>
             <span class="info-value order-number">{{ orderDetails.orderNumber }}</span>
           </div>
+
+          <div class="info-item" *ngIf="orderDetails.transactionId">
+            <span class="info-label">ID de transaction</span>
+            <span class="info-value transaction-id">{{ orderDetails.transactionId }}</span>
+          </div>
           
           <div class="info-item">
             <span class="info-label">Date</span>
@@ -32,7 +43,7 @@
           
           <div class="info-item">
             <span class="info-label">Montant</span>
-            <span class="info-value amount">{{ orderDetails.amount }} {{ orderDetails.currency }}</span>
+            <span class="info-value amount">{{ getFormattedAmount() }}</span>
           </div>
           
           <div class="info-item">
@@ -42,11 +53,21 @@
               {{ orderDetails.paymentMethod }}
             </span>
           </div>
+
+          <div class="info-item" *ngIf="orderDetails.customerName">
+            <span class="info-label">Client</span>
+            <span class="info-value">{{ orderDetails.customerName }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="orderDetails.customerEmail">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ orderDetails.customerEmail }}</span>
+          </div>
           
           <div class="info-item">
             <span class="info-label">Statut</span>
-            <span class="info-value status-confirmed">
-              <mat-icon>verified</mat-icon>
+            <span class="info-value" [class]="getStatusClass()">
+              <mat-icon>{{ getStatusIcon() }}</mat-icon>
               {{ orderDetails.status }}
             </span>
           </div>
@@ -56,9 +77,13 @@
     </mat-card>
 
     <!-- Message informatif -->
-    <div class="info-message">
-      <mat-icon>info</mat-icon>
-      <p>Un email de confirmation contenant tous les détails de votre commande vous a été envoyé.</p>
+    <div class="info-message" [class.warning]="orderDetails.status !== 'Confirmé'">
+      <mat-icon>{{ orderDetails.status === 'Confirmé' ? 'info' : 'schedule' }}</mat-icon>
+      <p>
+        {{ orderDetails.status === 'Confirmé' 
+          ? 'Un email de confirmation contenant tous les détails de votre commande vous a été envoyé.' 
+          : 'Vous recevrez un email de confirmation dès que votre paiement sera finalisé.' }}
+      </p>
     </div>
 
     <!-- Actions -->
@@ -72,6 +97,12 @@
         <mat-icon>list_alt</mat-icon>
         Voir mes commandes
       </button>
+    </div>
+
+    <!-- Informations de support (si nécessaire) -->
+    <div class="support-info" *ngIf="orderDetails.status !== 'Confirmé'">
+      <mat-icon>help_outline</mat-icon>
+      <p>En cas de question, contactez notre service client avec votre numéro de commande : {{ orderDetails.orderNumber }}</p>
     </div>
 
   </div>
