@@ -21,6 +21,7 @@ import { Subject, takeUntil} from 'rxjs';
 import { User, Order } from '../shared/models';
 import { UserService } from '../services/user.service';
 import { OrderService } from '../services/order.service';
+import { LoyaltyService, LoyaltyProgram } from '../services/loyalty.service';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { FormatUtilities } from '../services/format.utilities';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
@@ -66,6 +67,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   private orderService = inject(OrderService);
+  private loyaltyService = inject(LoyaltyService);
   private formatUtilities = inject(FormatUtilities);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -76,6 +78,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   user: User | null = null;
   userStatistics: UserStatistics | null = null;
   userOrders: Order[] = [];
+  userLoyalty: LoyaltyProgram | null = null;
 
   constructor(
     private navigationUtilities: NavigationUtilities,
@@ -89,9 +92,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.loadUserDetails();
-    this.loadUserStatistics();
-    this.loadUserOrders();
+    this.loadUserDetails(); 
   }
 
   ngOnDestroy(): void {
@@ -120,7 +121,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   private loadUserOrders(): void {
     this.loading = true;
-    this.orderService.getUserOrders().pipe(
+    this.orderService.getCustomerOrders(this.user!.userName).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (orders: Order[]) => {
@@ -131,6 +132,23 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement des commandes:', error);
         this.userOrders = [];
         this.loading = false;
+      }
+    });
+  }
+
+  private loadUserLoyalty(): void {
+    this.errorHandlingUtilities.wrapOperation(
+      this.loyaltyService.getUserLoyaltyProgram(this.user!.userName),
+      "chargement du programme de fidélité"
+    ).pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (loyalty: LoyaltyProgram) => {
+        this.userLoyalty = loyalty;
+        console.log('User loyalty loaded:', loyalty);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors du chargement du programme de fidélité:', error);
+        this.userLoyalty = null;
       }
     });
   }
@@ -205,11 +223,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   }
 
   getUserLoyaltyLevel(): string {
-    const totalSpent = this.userStatistics?.totalSpent || 0;
-    if (totalSpent >= 5000) return 'Platinum';
-    if (totalSpent >= 2000) return 'Gold';
-    if (totalSpent >= 500) return 'Silver';
-    return 'Bronze';
+    return this.userLoyalty?.level || 'Bronze';
   }
 
   getLoyaltyColor(): string {
@@ -220,6 +234,18 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       case 'Silver': return 'basic';
       default: return 'basic';
     }
+  }
+
+  getUserLoyaltyPoints(): number {
+    return this.userLoyalty?.points || 0;
+  }
+
+  getLoyaltyProgress(): number {
+    return this.userLoyalty?.progress || 0;
+  }
+
+  getLoyaltyBenefits(): string[] {
+    return this.userLoyalty?.benefits || [];
   }
 
   getAccountAge(): string {
@@ -252,7 +278,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   }
 
   private loadUserDetails(): void {
-
     this.errorHandlingUtilities.wrapOperation(
       this.userService.getUserById(this.userId),
       'Récupération de l\'utilisateur'
@@ -261,6 +286,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (user) => {
           this.user = user;
+          console.log('User details loaded:', user);
+          this.loadUserOrders();
+          this.loadUserStatistics();
+          this.loadUserLoyalty();
         },
         error: (error) => {
           console.error('Erreur lors de la récupération de l\'utilisateur:', error);

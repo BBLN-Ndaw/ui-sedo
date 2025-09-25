@@ -31,7 +31,7 @@ export class OrderService {
   ) { }
 
   /**
-   * Récupère toutes les commandes de l'utilisateur
+   * Récupère toutes les commandes de l'utilisateur connecté
   */
   getUserOrders(): Observable<Array<Order>> {
     const orders = this.ordersSubject.getValue();
@@ -43,6 +43,13 @@ export class OrderService {
     }).pipe(
       tap(orders => this.ordersSubject.next(orders))
       );
+  }
+
+  getCustomerOrders(customerUserName: String): Observable<Array<Order>> {
+
+    return this.http.get<Array<Order>>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CUSTOMER}/${customerUserName}`, {
+      withCredentials: true
+    });
   }
 
   /**

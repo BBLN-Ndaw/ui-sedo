@@ -366,6 +366,73 @@
           </div>
         </ng-template>
       </mat-tab>
+
+      <!-- Loyalty Tab -->
+      <mat-tab label="Programme de fidélité">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <div *ngIf="userLoyalty" class="loyalty-section">
+              <!-- Loyalty Overview Card -->
+              <mat-card class="loyalty-card">
+                <mat-card-header>
+                  <div mat-card-avatar class="loyalty-avatar">
+                    <mat-icon>star</mat-icon>
+                  </div>
+                  <mat-card-title>Programme de fidélité</mat-card-title>
+                  <mat-card-subtitle>Niveau {{ userLoyalty.level }}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="loyalty-content">
+                    <div class="points-section">
+                      <div class="points-display">
+                        <span class="points-number">{{ userLoyalty.points }}</span>
+                        <span class="points-label">points</span>
+                      </div>
+                      <div class="progress-section" *ngIf="userLoyalty.nextLevelPoints > 0">
+                        <div class="progress-info">
+                          <span>Vers le niveau supérieur</span>
+                          <span>{{ userLoyalty.nextLevelPoints - userLoyalty.points }} points restants</span>
+                        </div>
+                        <mat-progress-bar 
+                          mode="determinate" 
+                          [value]="getLoyaltyProgress()"
+                          color="accent">
+                        </mat-progress-bar>
+                      </div>
+                      <div class="progress-section" *ngIf="userLoyalty.nextLevelPoints === 0">
+                        <div class="progress-info">
+                          <span>Niveau maximum atteint !</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="benefits-section">
+                      <h4>Avantages du niveau {{ userLoyalty.level }} :</h4>
+                      <ul class="benefits-list">
+                        <li *ngFor="let benefit of userLoyalty.benefits">
+                          <mat-icon>check_circle</mat-icon>
+                          {{ benefit }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <!-- Loading state -->
+            <div *ngIf="!userLoyalty" class="loyalty-loading">
+              <mat-card>
+                <mat-card-content>
+                  <div class="loading-content">
+                    <mat-spinner diameter="30"></mat-spinner>
+                    <p>Chargement du programme de fidélité...</p>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+        </ng-template>
+      </mat-tab>
     </mat-tab-group>
   </div>
 

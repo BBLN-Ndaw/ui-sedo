@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -16,27 +16,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UserService } from '../services/user.service';
 import { OrderService} from '../services/order.service';
-import { FavoriteItem, Order, User } from '../shared/models';
+import { LoyaltyService, LoyaltyProgram } from '../services/loyalty.service';
+import { Order, User } from '../shared/models';
 import { OrderDetailsDialogComponent } from '../order-details-dialog/order-details-dialog.component';
 import { OrdersListComponent } from '../orders-list/orders-list.component';
 import { WishlistComponent } from '../wishlist/wishlist.component';
-import {  Subject, takeUntil } from 'rxjs';
+import {  Subject, takeUntil, filter } from 'rxjs';
 import { PathNames } from '../constant/path-names.enum';
-import { FavoritesService } from '../services/favorites.service';
-import { ProductService } from '../services/product.service';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
-
-interface LoyaltyProgram {
-  level: string;
-  points: number;
-  nextLevelPoints: number;
-  benefits: string[];
-}
 
 @Component({
   selector: 'app-profile',
@@ -59,6 +52,7 @@ interface LoyaltyProgram {
     MatListModule,
     MatMenuModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
     OrdersListComponent,
     WishlistComponent
   ],
@@ -68,9 +62,8 @@ interface LoyaltyProgram {
 export class ProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
-  private favoriteService = inject(FavoritesService);
+  private loyaltyService = inject(LoyaltyService);
   private fb = inject(FormBuilder);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private errorHandlingUtilities = inject(ErrorHandlingUtilities);
@@ -87,17 +80,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // Données pour les composants
   recentOrders: Order[] = [];
 
-  loyaltyProgram: LoyaltyProgram = {
-    level: 'Gold',
-    points: 2450,
-    nextLevelPoints: 5000,
-    benefits: [
-      'Livraison gratuite sur toutes les commandes',
-      'Retours gratuits sous 30 jours',
-      'Accès prioritaire aux ventes privées',
-      'Support client prioritaire'
-    ]
-  };
+  loyaltyProgram: LoyaltyProgram | null = null;
 
   constructor() {  }
 
@@ -115,13 +98,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+      ]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
 
 
     this.loadUserProfile();
     this.loadOrders();
+    this.loadLoyaltyProgram();
+    // Écouter les changements de navigation pour rafraîchir les données
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event: NavigationEnd) => {
+        // Si on arrive sur le profile depuis une autre page, rafraîchir les données
+        if (event.url === '/profile' || event.url.includes('/profile')) {
+          console.log('Navigation vers profile detectée, rafraîchissement des données');
+          this.refreshUserData();
+        }
+      });
   }
 
   /* unsubscribe from all observables */
@@ -164,10 +165,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (orders) => {
         console.log('profile component : Orders loaded:', orders);
-        // Convertir les OrderModel en OrderItem pour le composant
         this.recentOrders = orders;
       }
     });
+  }
+
+  loadLoyaltyProgram() {
+    this.errorHandlingUtilities.wrapOperation(
+      this.loyaltyService.getMyLoyaltyProgram(),
+      'chargement du programme de fidélité'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (loyaltyProgram) => {
+        console.log('Loyalty program loaded:', loyaltyProgram);
+        this.loyaltyProgram = loyaltyProgram;
+      }
+    });
+  }
+  /**
+   * Recharge toutes les données utilisateur (à appeler après une nouvelle commande)
+   */
+  refreshUserData() {
+    console.log('Refreshing user data...');
+    this.loadOrders();
+    this.loadLoyaltyProgram();
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -190,7 +212,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getLoyaltyProgress(): number {
-    return (this.loyaltyProgram.points / this.loyaltyProgram.nextLevelPoints) * 100;
+    if (!this.loyaltyProgram || this.loyaltyProgram.nextLevelPoints === 0) {
+      return 100;
+    }
+    return this.loyaltyProgram.progress;
   }
 
   toggleEditProfile() {
@@ -256,7 +281,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Méthode pour ouvrir le dialog des détails de commande
   openOrderDetails(orderId: string) {
     const dialogRef = this.dialog.open(OrderDetailsDialogComponent, {
       width: '800px',
