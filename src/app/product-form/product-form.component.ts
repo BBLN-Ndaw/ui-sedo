@@ -69,6 +69,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   
   // Images handling
   productImages: Array<{name: string, url: string, file?: File}> = [];
+  imagesToDelete: string[] = []; //image names to delete on server when updating product
   maxFileSize = 5 * 1024 * 1024; // 5MB
   allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
   
@@ -258,7 +259,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
    * If product creation fails, cleanup uploaded images
    */
   private createProduct(productData: Product): void {
-    // Lors de la création, toutes les images sont des nouveaux fichiers à uploader
+    // when creating, all images are new files to upload
     const filesToUpload = this.productImages.map(img => img.file!);
     const productName = productData.name || productData.sku || 'product';
     
@@ -305,7 +306,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Erreur lors de la création du produit:', error);
-          // Nettoyer les images uploadées en cas d'échec de création du produit
+          // Cleanup uploaded images in case of product creation failure
           this.cleanupUploadedImages(uploadedImageUrls);
           this.loading = false;
         }
@@ -326,7 +327,6 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.warn('Erreur lors du nettoyage des images:', error);
-            // Note: On log seulement l'erreur, on ne bloque pas l'utilisateur
           }
         });
     }
@@ -335,7 +335,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private updateProduct(productData: Product): void {
     const newImages = this.productImages.filter(img => img.file);
     
-    if (newImages.length > 0) {
+    if (newImages.length > 0) {// new image are added 
       this.uploadImagesBeforeUpdate(productData, newImages);
     } else {
       this.updateProductDirectly(productData);
@@ -397,7 +397,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Erreur lors de la mise à jour du produit:', error);
-          // Nettoyer uniquement les nouvelles images uploadées en cas d'échec
+          // cleanup newly uploaded images in case of update failure
           this.cleanupUploadedImages(newUploadedImageUrls);
           this.loading = false;
         }
@@ -528,8 +528,15 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     input.value = '';
   }
 
-  removeImage(index: number): void {
+
+   removeImage(index: number): void {
     if (index >= 0 && index < this.productImages.length) {
+      const imageToRemove = this.productImages[index];
+      
+      if (!imageToRemove.file && imageToRemove.url) { // existing image from server and not a new file
+        this.imagesToDelete.push(this.extractProductImagePath(imageToRemove.url));
+        console.log('Image marked for deletion:', this.imagesToDelete);
+      }
       this.productImages.splice(index, 1);
     }
   }
@@ -537,14 +544,19 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private loadProductImages(product: ProductWithCategoryDto): void {
     if (product.imageUrls && product.imageUrls.length > 0) {
       this.productImages = product.imageUrls.map(imageUrl => ({
-        name: this.extractFilenameFromUrl(imageUrl),
+        name: this.extractProductImagePath(imageUrl),
         url: imageUrl
       }));
     }
   }
 
-  private extractFilenameFromUrl(url: string): string {
-    const parts = url.split('/');
-    return parts[parts.length - 1] || 'image';
-  }
+
+  private extractProductImagePath(url: string): string {
+  const decoded = decodeURIComponent(url);
+  const regex = /products\/[^?]+\.png/;
+  const match = decoded.match(regex);
+
+  return match ? match[0] : "image";
+}
+
 }
