@@ -75,8 +75,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     },
     {
       icon: 'inventory_2',
-      label: 'Products & Stock',
-      route: '/products',
+      label: 'Produits & Stock',
+      route: PathNames.productsList,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
@@ -227,6 +227,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         return 'Catalogue Boutique';
       case PathNames.productDetails:
         return 'Détails du Produit';
+      case PathNames.productsList:
+        return 'Gestion des Produits';
+      case PathNames.productForm:
+        return 'Formulaire Produit';
       case PathNames.profile:
         return 'Mon Profil';
       case PathNames.pos:

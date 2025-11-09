@@ -1,4 +1,3 @@
-// Core interfaces pour le système de gestion de magasin
 
 export interface User {
   id?: number;
@@ -55,26 +54,44 @@ export enum UserRole {
 }
 
 export interface Product {
-  id: number;
+  id?: string;
   name: string;
-  description: string;
+  description?: string;
   sku: string;
-  barcode?: string;
-  category: Category;
-  price: number;
-  sellingPrice: number;
-  taxRate: number
-  stock: number;
+  categoryId: string;
+  supplierId: string;
+  sellingPrice: number; // prix HT
+  taxRate: number; // 20% par défaut
+  purchasePrice: number;
+  stockQuantity: number;
   minStock: number;
-  maxStock: number;
   unit: string;
+  expirationDate?: Date | null;
   images: string[];
   isActive: boolean;
-  isOnPromotion?: boolean;
-  promotionPrice?: number;
+  isOnPromotion: boolean;
+  promotionPrice?: number; // prix promo HT
   promotionEndDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface ProductWithCategoryListResponse {
+  content: ProductWithCategoryDto[];
+  totalElements: number;
+  pageSize: number;
+  size: number;
+}
+
+export interface ProductFilterOptions {
+  search?: string;
+  categoryId?: string;
+  supplierId?: string;
+  isActive?: boolean;
+  isOnPromotion?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
+  isLowStock?: boolean;
+  isInStock?: boolean;
+  isOutOfStock?: boolean;
 }
 
 export interface Category {
@@ -92,10 +109,11 @@ export interface ProductWithCategoryDto {
   category: Category;
   supplierId: string;
   sellingPrice: number;
+  purchasePrice?: number | null;
   taxRate: number
   stockQuantity: number;
   minStock: number;
-  expirationDate: Date;
+  expirationDate?: Date |null;
   unit: string;
   isActive: boolean;
   imageUrls: string[];

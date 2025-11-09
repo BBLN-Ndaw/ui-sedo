@@ -290,9 +290,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           this.loadUserOrders();
           this.loadUserStatistics();
           this.loadUserLoyalty();
-        },
-        error: (error) => {
-          console.error('Erreur lors de la récupération de l\'utilisateur:', error);
         }
       });
   }
@@ -336,12 +333,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (updatedUser) => {
         this.user = updatedUser;
-        this.snackBar.open(`Utilisateur ${actionText} avec succès!`, 'Fermer', {
-          duration: 3000
-        });
-      },
-      error: (error) => {
-        console.error('Erreur lors de la mise à jour du statut:', error);
       }
     });
   }

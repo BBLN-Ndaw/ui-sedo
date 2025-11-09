@@ -5,6 +5,8 @@ import { MainLayoutComponent } from './main-layout/main-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatalogComponent } from './catalog/catalog.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
+import { ProductFormComponent } from './product-form/product-form.component';
+import { ProductsListComponent } from './products-list/products-list.component';
 import { CartComponent } from './cart/cart.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
@@ -46,7 +48,7 @@ export const routes: Routes = [
          component: CatalogComponent
       },
       {
-         path: 'catalog/product/details',
+         path: 'catalog/product/details/:id',
          component: ProductDetailsComponent
       },
       {
@@ -68,6 +70,12 @@ export const routes: Routes = [
          component: UsersListComponent
       },
       {
+         path: 'products-list',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: ProductsListComponent
+      },
+      {
          path: 'users/details/:id',
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
@@ -78,6 +86,12 @@ export const routes: Routes = [
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UserFormComponent
+      },
+      {
+         path: 'product-form',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: ProductFormComponent
       },
       {
          path: 'wishlist',

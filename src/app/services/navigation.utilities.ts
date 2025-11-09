@@ -82,6 +82,29 @@ export class NavigationUtilities {
   }
 
   /**
+   * Navigation vers le formulaire de création de produit
+   */
+  goToCreateProduct(): void {
+    this.router.navigate([PathNames.productForm]);
+  }
+
+  /**
+   * Navigation vers le formulaire d'édition de produit
+   */
+  goToEditProduct(productId: string): void {
+    this.router.navigate([PathNames.productForm], { 
+      queryParams: { id: productId } 
+    });
+  }
+
+  /**
+   * Navigation vers la liste des produits (dashboard ou route spécifique)
+   */
+  goToProductsList(): void {
+    this.router.navigate([PathNames.productsList]);
+  }
+
+  /**
    * Navigation vers une route spécifique
    */
   goToRouteWithState(route: string, state?: any): void {

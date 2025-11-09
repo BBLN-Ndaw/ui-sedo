@@ -146,7 +146,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onProductView(product: ProductWithCategoryDto): void {
     console.log('Voir détails du produit:', product);
-    this.navigationUtilities.goToProductDetails(product);
+    this.navigationUtilities.goToRouteWithId(PathNames.productDetails, product.id);
   }
 
   trackByProductId(index: number, product: ProductWithCategoryDto): number {

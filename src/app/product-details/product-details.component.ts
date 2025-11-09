@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -49,6 +49,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   isLoading = false;
   currentImageIndex = 0;
   isFavorite = false;
+  productId: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -59,13 +60,16 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private stockUtilities: StockUtilities,
     private formatUtilities: FormatUtilities,
     private navigationUtilities: NavigationUtilities,
+    private route: ActivatedRoute,
     private errorHandlingUtilities: ErrorHandlingUtilities) {
-          this.product = this.router.getCurrentNavigation()?.extras?.state?.['currentProduct'];
+          this.productId = this.route.snapshot.paramMap.get('id')!;
      }
 
   ngOnInit(): void {
-    if (this.product) {
-      this.isFavorite = this.favoritesService.isFavorite(this.product.id);
+    if (this.productId) {
+      this.isFavorite = this.favoritesService.isFavorite(Number(this.productId));
+
+      this.loadProductDetails(this.productId);
     }
   }
 
@@ -78,6 +82,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.navigationUtilities.goToCatalog();
+  }
+
+  loadProductDetails(productId: string): void {
+    this.isLoading = true;
+    this.errorHandlingUtilities.wrapOperation(
+      this.productService.getProductWithCategoryById(productId),
+      'chargement des détails du produit'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((product) => {
+      this.product = product;
+      this.isLoading = false;
+    });
+
   }
 
   onProductSelect(product: ProductWithCategoryDto): void {

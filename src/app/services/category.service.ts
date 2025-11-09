@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 
 // ===== CONSTANTES =====
 const USER_API_CONFIG = {
-  BASE_URL: 'http://localhost:8080/api/categories',
+  BASE_URL: 'http://localhost:8080/api/products/categories',
   ENDPOINTS: {
     CATEGORIES: '/categories',
   }

@@ -1,0 +1,354 @@
+<div class="products-container">
+  <!-- Navigation breadcrumb -->
+  <div class="breadcrumb-nav">
+    <button 
+      mat-button 
+      class="nav-link"
+      (click)="goToDashboard()">
+      <mat-icon>dashboard</mat-icon>
+      Dashboard
+    </button>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="current-page">Gestion des Produits</span>
+  </div>
+
+  <!-- En-tête avec actions -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">inventory</mat-icon>
+        Gestion des Produits
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ totalProducts }} produit(s) au total
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Barre de recherche -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Rechercher un produit</mat-label>
+          <input matInput 
+                 [formControl]="searchControl"
+                 placeholder="Nom, SKU, description...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtres -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Catégorie</mat-label>
+          <mat-select [formControl]="categoryFilter">
+            <mat-option value="all">Toutes les catégories</mat-option>
+            <mat-option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Statut</mat-label>
+          <mat-select [formControl]="statusFilter">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Promotion</mat-label>
+          <mat-select [formControl]="promotionFilter">
+            <mat-option *ngFor="let option of promotionOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Stock</mat-label>
+          <mat-select [formControl]="stockFilter">
+            <mat-option *ngFor="let option of stockOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filtres de prix -->
+        <mat-form-field appearance="outline" class="filter-field price-field" floatLabel="always">
+          <mat-label>Prix min (€)</mat-label>
+          <input matInput 
+                 type="number" 
+                 [formControl]="minPriceControl"
+                 placeholder="0.00"
+                 min="0"
+                 step="0.01">
+          <mat-icon matSuffix>euro</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field price-field" floatLabel="always">
+          <mat-label>Prix max (€)</mat-label>
+          <input matInput 
+                 type="number" 
+                 [formControl]="maxPriceControl"
+                 placeholder="0.00"
+                 min="0"
+                 step="0.01">
+          <mat-icon matSuffix>euro</mat-icon>
+        </mat-form-field>
+
+        <!-- Actions -->
+        <div class="actions-container">
+          <button mat-stroked-button 
+                  (click)="onClearFilters()"
+                  matTooltip="Effacer tous les filtres">
+            <mat-icon>clear</mat-icon>
+            Effacer filtres
+          </button>
+
+          <button mat-stroked-button 
+                  (click)="onRefreshProducts()"
+                  matTooltip="Actualiser la liste">
+            <mat-icon>refresh</mat-icon>
+            Actualiser
+          </button>
+
+          <button mat-stroked-button 
+                  (click)="onExportProducts()"
+                  matTooltip="Exporter la liste">
+            <mat-icon>download</mat-icon>
+            Exporter
+          </button>
+
+          <button mat-raised-button 
+                  color="primary"
+                  (click)="onCreateProduct()"
+                  matTooltip="Créer un nouveau produit">
+            <mat-icon>add</mat-icon>
+            Nouveau produit
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Table des produits -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <!-- Indicateur de chargement -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-progress-spinner diameter="50" mode="indeterminate"></mat-progress-spinner>
+        <p>Chargement des produits...</p>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="!loading" class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="products-table">
+          
+          <!-- Colonne Nom -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+            <td mat-cell *matCellDef="let product">
+              <div class="product-name-cell">
+                <strong>{{ product.name }}</strong>
+                <span class="product-description" *ngIf="product.description">
+                  {{ product.description }}
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne SKU -->
+          <ng-container matColumnDef="sku">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
+            <td mat-cell *matCellDef="let product">
+              <code class="sku-code">{{ product.sku }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Catégorie -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+            <td mat-cell *matCellDef="let product">
+              <mat-chip [color]="'primary'" selected>
+                {{ getCategoryName(product) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Prix -->
+          <ng-container matColumnDef="sellingPrice">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Prix de vente</th>
+            <td mat-cell *matCellDef="let product">
+              <div class="price-cell">
+                <div class="price-ht">
+                  <strong>{{ formatCurrency(product.sellingPrice) }}</strong> HT
+                </div>
+                <div class="price-ttc">
+                  {{ formatCurrency(calculatePriceTTC(product.sellingPrice, product.taxRate)) }} TTC
+                </div>
+                <div *ngIf="product.isOnPromotion && isPromotionValid(product)" class="price-promo">
+                  <span class="promo-label">Promo:</span>
+                  {{ formatCurrency(product.promotionPrice!) }} HT
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Prix d'achat -->
+          <ng-container matColumnDef="purchasePrice">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Prix d'achat</th>
+            <td mat-cell *matCellDef="let product">
+              <div class="price-cell">
+                <div class="price-ht">
+                  <strong>{{ formatCurrency(product.purchasePrice || 0) }}</strong> HT
+                </div>
+                <div class="margin-info" *ngIf="product.purchasePrice">
+                  <span class="margin-text">
+                    Marge: {{ formatCurrency(product.sellingPrice - product.purchasePrice) }}
+                  </span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Stock -->
+          <ng-container matColumnDef="stockQuantity">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock</th>
+            <td mat-cell *matCellDef="let product" (click)="$event.stopPropagation()">
+              <div class="stock-cell">
+                <mat-chip 
+                  [color]="getStockStatusColor(product)" 
+                  selected
+                  (click)="onUpdateStock(product)"
+                  class="stock-chip clickable"
+                  matTooltip="Cliquer pour modifier">
+                  {{ product.stockQuantity }} {{ product.unit }}
+                </mat-chip>
+                <div class="stock-status">
+                  {{ getStockStatusText(product) }}
+                </div>
+                <div class="min-stock" *ngIf="product.stockQuantity <= product.minStock">
+                  Min: {{ product.minStock }}
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Promotion -->
+          <ng-container matColumnDef="isOnPromotion">
+            <th mat-header-cell *matHeaderCellDef>Promotion</th>
+            <td mat-cell *matCellDef="let product">
+              <div *ngIf="product.isOnPromotion" class="promotion-cell">
+                <mat-chip color="accent" selected>
+                  <mat-icon>local_offer</mat-icon>
+                  Promo
+                </mat-chip>
+                <div class="promo-end" *ngIf="product.promotionEndDate">
+                  Fin: {{ formatDate(product.promotionEndDate) }}
+                </div>
+              </div>
+              <span *ngIf="!product.isOnPromotion" class="no-promo">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Statut -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let product" (click)="$event.stopPropagation()">
+              <mat-slide-toggle 
+                [checked]="product.isActive"
+                (change)="onToggleStatus(product)"
+                [color]="'primary'"
+                matTooltip="Activer/Désactiver le produit">
+              </mat-slide-toggle>
+              <div class="status-text">
+                <mat-chip 
+                  [color]="getStatusChipColor(product.isActive)" 
+                  selected>
+                  {{ getStatusText(product.isActive) }}
+                </mat-chip>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let product">
+              <div class="actions-cell" (click)="$event.stopPropagation()">
+                <button mat-icon-button 
+                        [matMenuTriggerFor]="actionsMenu"
+                        matTooltip="Actions">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+
+                <mat-menu #actionsMenu="matMenu">
+                  <button mat-menu-item (click)="onViewProduct(product)">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Voir détails</span>
+                  </button>
+                  
+                  <button mat-menu-item (click)="onEditProduct(product)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onUpdateStock(product)">
+                    <mat-icon>inventory</mat-icon>
+                    <span>Mettre à jour stock</span>
+                  </button>
+
+                  <mat-divider></mat-divider>
+
+                  <button mat-menu-item 
+                          (click)="onToggleStatus(product)"
+                          [class.danger-action]="product.isActive">
+                    <mat-icon>{{ product.isActive ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    <span>{{ product.isActive ? 'Désactiver' : 'Activer' }}</span>
+                  </button>
+
+                  <button mat-menu-item 
+                          (click)="onDeleteProduct(product)"
+                          class="danger-action">
+                    <mat-icon>delete</mat-icon>
+                    <span>Supprimer</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row 
+              *matRowDef="let row; columns: displayedColumns;" 
+              class="clickable-row"
+              (click)="onRowClick(row)"
+              matTooltip="Cliquer pour modifier le produit"
+              role="button"
+              tabindex="0"></tr>
+        </table>
+
+        <!-- Message si aucun produit -->
+        <div *ngIf="dataSource.data.length === 0" class="no-data-container">
+          <mat-icon class="no-data-icon">inventory_2</mat-icon>
+          <h3>Aucun produit trouvé</h3>
+          <p>Aucun produit ne correspond aux critères de recherche.</p>
+          <button mat-raised-button color="primary" (click)="onCreateProduct()">
+            <mat-icon>add</mat-icon>
+            Créer le premier produit
+          </button>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator 
+          [length]="totalProducts"
+          [pageSize]="currentPageSize"
+          [pageSizeOptions]="[50, 60, 70, 80, 90, 100]"
+          [pageIndex]="currentPage"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
