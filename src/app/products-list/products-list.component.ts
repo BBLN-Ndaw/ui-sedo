@@ -66,12 +66,11 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   private formatUtilities = inject(FormatUtilities);
   private notificationService = inject(NotificationService);
 
-  // État du composant
+  // component state
   loading = false;
   totalProducts = 0;
   categories: Category[] = [];
   
-  // Contrôles de formulaire
   searchControl = new FormControl('');
   categoryFilter = new FormControl('all');
   statusFilter = new FormControl('all');
@@ -79,8 +78,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   stockFilter = new FormControl('all');
   minPriceControl = new FormControl<number | null>(null);
   maxPriceControl = new FormControl<number | null>(null);
-  
-  // Options de filtre
+
+  // filter options
   statusOptions = [
     { value: 'all', label: 'Tous les statuts' },
     { value: 'active', label: 'Actifs' },
@@ -119,7 +118,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   currentPage = 0;
   currentPageSize = 50;
 
-  // Gestion des abonnements
+  // Subscription management
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -134,7 +133,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   private setupFilters(): void {
-    // Recherche avec debounce
+    // Search with debounce
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -143,7 +142,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       this.applyFilters();
     });
 
-    // Autres filtres
+    // Other filters
     [this.categoryFilter, this.statusFilter, this.promotionFilter, this.stockFilter].forEach(control => {
       control.valueChanges.pipe(
         takeUntil(this.destroy$)
@@ -152,7 +151,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       });
     });
 
-    // Filtres de prix
+    // Price filters
     [this.minPriceControl, this.maxPriceControl].forEach(control => {
       control.valueChanges.pipe(
         debounceTime(800),
@@ -235,7 +234,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
       filters.isOutOfStock = true;
     }
 
-    // Filtres de prix
+    // Price filters
     const minPrice = this.minPriceControl.value;
     const maxPrice = this.maxPriceControl.value;
     
@@ -331,7 +330,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         ).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            product.stockQuantity = stockQuantity; // Mise à jour locale
+            product.stockQuantity = stockQuantity; // local update waiting for reload
           }
         });
       } else {
@@ -341,8 +340,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   onExportProducts(): void {
-    // TODO: Implémenter l'export
-    this.notificationService.showInfo('Fonctionnalité d\'export à venir');
+    // TODO: implement export functionality
+    this.notificationService.showInfo('Export functionality coming soon');
   }
 
   onRefreshProducts(): void {
@@ -360,7 +359,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  // Méthodes utilitaires pour l'affichage
+  // Utilities for display
   formatCurrency(price: number): string {
     return this.formatUtilities.formatCurrency(price);
   }
@@ -406,12 +405,11 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.navigationUtilities.goToRouteWithState(PathNames.dashboard);
   }
 
-  // Méthodes utilitaires pour les filtres de prix
+  // Utilities for price filters
   onPriceFilterChange(): void {
     const minPrice = this.minPriceControl.value;
     const maxPrice = this.maxPriceControl.value;
     
-    // Si les deux valeurs sont définies et que min > max, afficher un message d'avertissement
     if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
       this.notificationService.showWarning('Le prix minimum ne peut pas être supérieur au prix maximum. Les valeurs seront automatiquement ajustées.');
     }

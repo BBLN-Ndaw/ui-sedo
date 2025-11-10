@@ -149,18 +149,18 @@ export class ProductService {
     });
   }
 
-  toggleProductStatus(productId: string, action: 'activate' | 'deactivate'): Observable<Product> {
+   toggleProductStatus(productId: string, action: 'activate' | 'deactivate'): Observable<Product> {
     const statusAction = {value: action};
-    return this.http.put<Product>(`${USER_API_CONFIG.BASE_URL}/status/${productId}`, 
+    return this.http.patch<Product>(`${USER_API_CONFIG.BASE_URL}/status/${productId}`, 
      statusAction, { withCredentials: true }
     );
   }
 
 
   updateProductStock(productId: string, stockQuantity: number): Observable<Product> {
-    return this.http.patch<Product>(`${USER_API_CONFIG.BASE_URL}/${productId}/stock`, 
-      { stockQuantity }, 
-      { withCredentials: true }
+    const stockQuantityDto = { quantity: stockQuantity };
+    return this.http.patch<Product>(`${USER_API_CONFIG.BASE_URL}/stock/${productId}`, 
+      stockQuantityDto, { withCredentials: true }
     );
   }
 
@@ -223,8 +223,7 @@ export class ProductService {
     files.forEach(file => {
       formData.append('images', file);
     });
-    return this.http.post<string[]>(
-      `${USER_API_CONFIG.BASE_URL}/images/${encodeURIComponent(productName)}`,
+    return this.http.post<string[]>(`${USER_API_CONFIG.BASE_URL}/images/${encodeURIComponent(productName)}`,
       formData, {withCredentials: true}
     );
   }
