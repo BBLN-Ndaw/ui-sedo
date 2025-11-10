@@ -334,9 +334,20 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   private updateProduct(productData: Product): void {
     const newImages = this.productImages.filter(img => img.file);
+    console.log('New images to upload:', this.productImages);
+    console.log('Images to delete from server:', this.imagesToDelete);
     
     if (newImages.length > 0) {// new image are added 
       this.uploadImagesBeforeUpdate(productData, newImages);
+    } 
+    else if (this.imagesToDelete.length > 0) { // there are images to delete
+
+      const updatedImageImage = this.productImages.map(img => img.name);
+       const updateData: Product = {
+      ...productData,
+      images: updatedImageImage
+    };
+      this.deleteImagesBeforeUpdate(updateData, this.imagesToDelete);
     } else {
       this.updateProductDirectly(productData);
     }
@@ -367,6 +378,23 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             images: [...existingImageUrls, ...uploadedUrls]
           };
           this.updateProductWithCleanup(updatedProductData, uploadedUrls);
+        },
+        error: (error) => {
+          this.loading = false;
+        }
+      });
+  }
+
+  private deleteImagesBeforeUpdate(productData: Product, imagesToDelete: string[]): void {
+    
+    this.errorHandlingUtilities.wrapOperation(
+      this.productService.deleteProductImages(imagesToDelete),
+      'suppression des images'
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.updateProductDirectly(productData);
         },
         error: (error) => {
           this.loading = false;

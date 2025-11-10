@@ -149,12 +149,6 @@ export class ProductService {
     });
   }
 
-  deleteProduct(productId: string): Observable<Product> {
-    return this.http.delete<Product>(`${USER_API_CONFIG.BASE_URL}/${productId}`, {
-      withCredentials: true
-    });
-  }
-
   toggleProductStatus(productId: string, action: 'activate' | 'deactivate'): Observable<Product> {
     const statusAction = {value: action};
     return this.http.put<Product>(`${USER_API_CONFIG.BASE_URL}/status/${productId}`, 
@@ -235,9 +229,15 @@ export class ProductService {
     );
   }
 
-  deleteProductImages(imageUrls: string[]): Observable<void> {
-    return this.http.request<void>('DELETE', `${USER_API_CONFIG.BASE_URL}/images`, {
+  deleteProductImages(imageUrls: string[]): Observable<Product> {
+    return this.http.delete<Product>(`${USER_API_CONFIG.BASE_URL}/images`, {
       body: { imageUrls },
+      withCredentials: true
+    });
+  }
+
+    deleteProduct(productId: string): Observable<Product> {
+    return this.http.delete<Product>(`${USER_API_CONFIG.BASE_URL}/${productId}`, {
       withCredentials: true
     });
   }
