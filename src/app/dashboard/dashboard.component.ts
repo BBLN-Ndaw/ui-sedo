@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 // Services
 import { DashboardService, DashboardStats, LowStockProduct, RecentActivity } from '../services/dashboard.service';
+import { NavigationUtilities } from '../services/navigation.utilities';
 
 interface DashboardCard {
   title: string;
@@ -43,7 +44,10 @@ export class DashboardComponent implements OnInit {
   recentActivities: RecentActivity[] = [];
   lowStockProducts: LowStockProduct[] = [];
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(
+    private dashboardService: DashboardService,
+    private navigationUtilities: NavigationUtilities
+  ) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -130,5 +134,9 @@ export class DashboardComponent implements OnInit {
 
   getStockStatus(current: number, min: number): string {
     return this.dashboardService.getStockStatus(current, min);
+  }
+
+  navigateToOrdersManagement(): void {
+    this.navigationUtilities.goToOrdersManagement();
   }
 }

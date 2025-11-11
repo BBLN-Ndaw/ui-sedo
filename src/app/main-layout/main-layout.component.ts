@@ -30,7 +30,6 @@ interface MenuItem {
   label: string;
   route: string;
   roles: UserRole[];
-  badge?: number;
 }
 
 @Component({
@@ -79,12 +78,11 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       route: PathNames.productsList,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
-    {
+        {
       icon: 'shopping_cart',
-      label: 'Orders',
-      route: PathNames.orders,
+      label: 'Gestion Commandes',
+      route: PathNames.ordersManagement,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE],
-      badge: 5 // Exemple: nouvelles commandes
     },
     {
       icon: 'point_of_sale',

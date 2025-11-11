@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, forkJoin, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
-import { Order, OrderStatus } from '../shared/models';
+import { Order, OrderStatus, OrderListResponse, OrderFilterOptions } from '../shared/models';
 import { ProductService } from './product.service';
 import { NotificationService } from './notification.service';
 
@@ -12,7 +12,8 @@ const ORDER_API_CONFIG = {
     CUSTOMER: '/customer',
     UPDATE: '/update',
     CANCEL: '/cancel',
-    CREATE: '/create'
+    CREATE: '/create',
+    SEARCH: '/search'
   }
 } as const;
 
@@ -22,7 +23,6 @@ const ORDER_API_CONFIG = {
 export class OrderService {
   
   private ordersSubject = new BehaviorSubject<Order[]>([]);
-  orders$ = this.ordersSubject.asObservable();
 
   constructor( private readonly http: HttpClient,
     private readonly productService: ProductService,
@@ -34,39 +34,57 @@ export class OrderService {
    * Récupère toutes les commandes de l'utilisateur connecté
   */
   getUserOrders(): Observable<Array<Order>> {
-    const orders = this.ordersSubject.getValue();
-    if (orders.length > 0) {
-      return of(orders);
-    }
     return this.http.get<Array<Order>>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CUSTOMER}`, {
       withCredentials: true
-    }).pipe(
-      tap(orders => this.ordersSubject.next(orders))
-      );
+    });
   }
 
   getCustomerOrders(customerUserName: String): Observable<Array<Order>> {
-
     return this.http.get<Array<Order>>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CUSTOMER}/${customerUserName}`, {
       withCredentials: true
     });
   }
 
   /**
-   * Récupère une commande par son ID
-  */
-  getOrderById(orderId: string): Observable<Order | null> {
-    const orders = this.ordersSubject.getValue();
-    const localOrder = orders.find(order => order.id === orderId);
+   * Récupère toutes les commandes avec pagination (pour les administrateurs et employés)
+   */
+  getAllOrdersPaginated(page: number, size: number, filters?: OrderFilterOptions): Observable<OrderListResponse> {
+    let params = new HttpParams();
+    params = this.addSearchParam(size, page, filters);
 
-  if (localOrder) {
-    return of(localOrder); 
-  }
-  else{
-     return this.http.get<Order>(`${ORDER_API_CONFIG.BASE_URL}/${orderId}`, {
+    return this.http.get<OrderListResponse>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.SEARCH}`, {
+      params,
       withCredentials: true
     });
   }
+
+  addSearchParam(size: number, page: number, filters?: OrderFilterOptions): HttpParams {
+    let params = new HttpParams()
+      .set('size', size.toString())
+      .set('page', page.toString());
+
+    if (filters) {
+      if (filters.search) {
+        params = params.set('search', filters.search);
+      }
+      if (filters.status) {
+        params = params.set('status', filters.status);
+      }
+      if (filters.period) {
+        params = params.set('period', filters.period);
+      }
+    }
+
+    return params;
+  }
+
+  /**
+   * Récupère une commande par son ID
+  */
+  getOrderById(orderId: string): Observable<Order | null> {
+     return this.http.get<Order>(`${ORDER_API_CONFIG.BASE_URL}/${orderId}`, {
+      withCredentials: true
+    });
   }
 
 /**
@@ -91,68 +109,17 @@ export class OrderService {
   }
 
 changeOrderStatus(orderId: string, newStatus: OrderStatus): Observable<Order | null> {
-  console.log(`Changement du statut de la commande ${orderId} vers ${newStatus}`);
-
-  const orders = this.ordersSubject.getValue();
-
-  const updatedOrders = orders.map(order =>
-    order.id === orderId
-      ? { ...order, status: newStatus } // copie modifiée
-      : order
-  );
-
-  const updatedOrder = updatedOrders.find(order => order.id === orderId) ?? null;
-  if (!updatedOrder) {
-    return throwError(() => new Error(`Commande ${orderId} introuvable`));
-  }
-
-  return this.http.put<Order>(
-    `${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.UPDATE}/${orderId}`,
-    updatedOrder,
-    { withCredentials: true }
-  ).pipe(
-    tap(() => {
-      // on met à jour uniquement si le serveur a confirmé
-      this.ordersSubject.next(updatedOrders);
-    }),
-    catchError(err => {
-      console.error('Erreur lors de la mise à jour de la commande', err);
-      return throwError(() => new Error('Erreur lors de la mise à jour de la commande'));
-    })
-  );
+  const newOrderStatus = {orderStatus: newStatus};
+  return this.http.patch<Order>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.UPDATE}/${orderId}`,
+    newOrderStatus, { withCredentials: true });
 }
 
 /**
  * Annuler une commande
  */
   cancelOrder(orderId: string): Observable<Order | null> {
-    console.log(`Annulation de la commande ${orderId}`);
-
-    const orders = this.ordersSubject.getValue();
-
-    const updatedOrders = orders.map(order =>
-      order.id === orderId
-        ? { ...order, status: OrderStatus.CANCELLED } // copie modifiée
-        : order
-    );
-
-    const updatedOrder = updatedOrders.find(order => order.id === orderId) ?? null;
-    if (!updatedOrder) {
-      return throwError(() => new Error(`Commande ${orderId} introuvable`));
-    }
-
-    return this.http.put<Order>(
-      `${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CANCEL}/${orderId}`,
+    return this.http.put<Order>(`${ORDER_API_CONFIG.BASE_URL}${ORDER_API_CONFIG.ENDPOINTS.CANCEL}/${orderId}`,
       { withCredentials: true }
-    ).pipe(
-      tap(() => {
-        // on met à jour uniquement si le serveur a confirmé
-        this.ordersSubject.next(updatedOrders);
-      }),
-      catchError(err => {
-        console.error('Erreur lors de l\'annulation de la commande', err);
-        return throwError(() => new Error('Erreur lors de l\'annulation de la commande'));
-      })
     );
   }
 

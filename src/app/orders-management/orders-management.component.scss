@@ -1,0 +1,429 @@
+.orders-management-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--primary-color, #2196F3);
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-separator {
+    margin: 0 12px;
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 16px;
+  }
+
+  .current-page {
+    color: rgba(0, 0, 0, 0.87);
+    font-weight: 500;
+  }
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 28px;
+    font-weight: 400;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--primary-color, #2196F3);
+    }
+  }
+
+  .page-description {
+    margin: 8px 0 0 44px;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+.stats-section {
+  margin-bottom: 24px;
+
+  .stats-card {
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      padding: 8px 0;
+
+      .stat-item {
+        text-align: center;
+
+        .stat-value {
+          font-size: 32px;
+          font-weight: 500;
+          color: var(--primary-color, #2196F3);
+          line-height: 1.2;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.6);
+          margin-top: 4px;
+        }
+      }
+    }
+  }
+}
+
+.filters-section {
+  margin-bottom: 24px;
+
+  .filters-card {
+    .filters-content {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+
+      .filter-field {
+        min-width: 200px;
+        flex: 1;
+        
+        &:first-child {
+          flex: 2;
+        }
+      }
+
+      .reset-filters-btn {
+        height: 40px;
+        margin-bottom: 8px;
+      }
+    }
+  }
+}
+
+.loading-container {
+  margin: 40px 0;
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+    text-align: center;
+
+    p {
+      color: rgba(0, 0, 0, 0.6);
+      margin: 0;
+    }
+  }
+}
+
+.orders-table-section {
+  margin-bottom: 24px;
+
+  .table-card {
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(0, 0, 0, 0.87);
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 16px;
+
+      .orders-table {
+        width: 100%;
+        min-width: 800px;
+
+        .order-row {
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+          }
+        }
+
+        // Colonnes spécifiques
+        .order-number-cell {
+          .order-number {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+          }
+        }
+
+        .customer-cell {
+          .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+        }
+
+        .date-cell {
+          .order-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .date-info {
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+
+              .date {
+                font-weight: 500;
+                font-size: 14px;
+              }
+
+              .time {
+                font-size: 12px;
+                color: rgba(0, 0, 0, 0.6);
+              }
+            }
+          }
+        }
+
+        .status-cell {
+          mat-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 4px 12px;
+          }
+        }
+
+        .amount-cell {
+          .amount {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            strong {
+              font-size: 16px;
+            }
+
+            small {
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.6);
+            }
+          }
+        }
+
+        .actions-cell {
+          .action-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+          }
+        }
+      }
+
+      // Pagination
+      mat-paginator {
+        margin-top: 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        padding-top: 16px;
+        
+        // Style pour les boutons de pagination
+        ::ng-deep .mat-mdc-paginator-range-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        ::ng-deep .mat-mdc-paginator-range-label {
+          color: rgba(0, 0, 0, 0.6);
+          font-size: 14px;
+        }
+        
+        ::ng-deep .mat-mdc-paginator-page-size-select {
+          min-width: 80px;
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  margin: 40px 0;
+
+  .empty-state-card {
+    .empty-state-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 60px 40px;
+      text-align: center;
+
+      .empty-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: rgba(0, 0, 0, 0.26);
+      }
+
+      h3 {
+        margin: 0;
+        color: rgba(0, 0, 0, 0.6);
+        font-weight: 400;
+      }
+
+      p {
+        margin: 0;
+        color: rgba(0, 0, 0, 0.4);
+        max-width: 400px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .orders-management-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .page-description {
+      margin-left: 0;
+    }
+
+    .header-actions {
+      justify-content: flex-start;
+    }
+  }
+
+  .stats-section {
+    .stats-card {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+    }
+  }
+
+  .filters-section {
+    .filters-card {
+      .filters-content {
+        flex-direction: column;
+        align-items: stretch;
+
+        .filter-field {
+          min-width: auto;
+        }
+
+        .reset-filters-btn {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .orders-table-section {
+    .table-card {
+      .table-container {
+        .orders-table {
+          min-width: 600px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-section {
+    .stats-card {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .breadcrumb-nav {
+    font-size: 13px;
+
+    .breadcrumb-separator {
+      margin: 0 8px;
+      font-size: 14px;
+    }
+  }
+
+  .page-header {
+    h1 {
+      font-size: 24px;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+}
+
+// Menu actions styling
+.mat-mdc-menu-panel {
+  .details-action {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Custom colors for status chips
+:host ::ng-deep {
+  .mat-mdc-chip.mat-warn {
+    --mdc-chip-label-text-color: #f44336;
+    background-color: rgba(244, 67, 54, 0.1);
+  }
+
+  .mat-mdc-chip.mat-primary {
+    --mdc-chip-label-text-color: #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+  }
+
+  .mat-mdc-chip.mat-accent {
+    --mdc-chip-label-text-color: #ff9800;
+    background-color: rgba(255, 152, 0, 0.1);
+  }
+}

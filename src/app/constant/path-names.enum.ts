@@ -14,5 +14,6 @@ export enum PathNames{
     reports = 'reports',
     admin = 'admin',
     settings = 'settings',
-    orders = 'orders'
+    orders = 'orders',
+    ordersManagement = 'orders-management'
 };

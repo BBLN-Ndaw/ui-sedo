@@ -14,6 +14,7 @@ import { RoleGuard } from './guards/role.guard';
 import { UserRole } from './shared/models';
 import { ProfileComponent } from './profile/profile.component';
 import { MyOrdersComponent } from './my-orders/my-orders.component';
+import { OrdersManagementComponent } from './orders-management/orders-management.component';
 import { PaypalComponentComponent } from './paypal-component/paypal-component.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { WishlistComponent } from './wishlist/wishlist.component';
@@ -62,6 +63,12 @@ export const routes: Routes = [
       {
          path: 'orders',
          component: MyOrdersComponent
+      },
+      {
+         path: 'orders-management',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: OrdersManagementComponent
       },
       {
          path: 'users',

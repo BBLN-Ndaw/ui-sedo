@@ -71,6 +71,13 @@ export class NavigationUtilities {
   }
 
   /**
+   * Navigation vers la gestion des commandes
+   */
+  goToOrdersManagement(): void {
+    this.router.navigate(['/orders-management']);
+  }
+
+  /**
    * Navigation vers le profil
    */
   goToProfile(): void {

@@ -28,20 +28,18 @@
     </div>
 
     <!-- Navigation Menu -->
+    <!-- Navigation Menu -->
+    <!-- Navigation Menu -->
     <mat-nav-list class="navigation-menu">
       <mat-list-item 
         *ngFor="let item of filteredMenuItems" 
         (click)="onMenuItemClick(item.route)"
         class="nav-item">
-        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle>{{ item.label }}</span>
         <mat-icon 
-          *ngIf="item.badge && item.badge > 0" 
-          matBadge="{{ item.badge }}" 
-          matBadgeColor="accent"
-          matBadgeSize="small"
-          class="badge-icon">
+          matListItemIcon>
+          {{ item.icon }}
         </mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
       </mat-list-item>
     </mat-nav-list>
 

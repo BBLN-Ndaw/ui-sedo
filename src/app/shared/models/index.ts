@@ -265,6 +265,19 @@ export interface Order {
 
 }
 
+export interface OrderListResponse {
+  content: Order[];
+  totalElements: number;
+  pageSize: number;
+  size: number;
+}
+
+export interface OrderFilterOptions {
+  search?: string;
+  status?: OrderStatus;
+  period?: string;
+}
+
 export enum OrderStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',

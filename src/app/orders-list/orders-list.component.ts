@@ -42,7 +42,7 @@ export class OrdersListComponent implements OnDestroy {
   @Input() showCatalogButton: boolean = true;
   @Input() catalogButtonText?: string;
 
-  // Événements optionnels pour override du comportement par défaut
+  // Optional events for overriding default behavior
   @Output() orderDetails = new EventEmitter<string>();
   @Output() reorderItems = new EventEmitter<{ orderId: string, event: Event }>();
   @Output() cancelOrder = new EventEmitter<{ orderId: string, event: Event }>();
@@ -97,7 +97,7 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onOrderDetails(orderId: string) {
-    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.orderDetails.observed) {
       this.orderDetails.emit(orderId);
     } else {
@@ -106,7 +106,7 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onReorderItems(orderId: string, event: Event) {
-    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.reorderItems.observed) {
       this.reorderItems.emit({ orderId, event });
     } else {
@@ -115,7 +115,7 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onCancelOrder(orderId: string, event: Event) {
-    // Si un handler externe est fourni, l'utiliser, sinon utiliser le comportement par défaut
+    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.cancelOrder.observed) {
       this.cancelOrder.emit({ orderId, event });
     } else {
@@ -123,7 +123,7 @@ export class OrdersListComponent implements OnDestroy {
     }
   }
 
-  // Méthodes par défaut pour gérer les actions
+  // Default methods for handling actions
   private openOrderDetailsDialog(orderId: string) {
     const dialogRef = this.dialog.open(OrderDetailsDialogComponent, {
       width: '800px',
@@ -164,10 +164,10 @@ export class OrdersListComponent implements OnDestroy {
               duration: 3000,
               panelClass: ['success-snackbar']
             });
-            // Mettre à jour la commande dans la liste locale
+            // local update of order status in the list
             const orderToUpdate = this.orders.find(o => o.id === orderId);
             if (orderToUpdate) {
-              orderToUpdate.status = OrderStatus.CANCELLED; // Mise à jour de l'état de la commande trouvée
+              orderToUpdate.status = OrderStatus.CANCELLED; // Update the status of the found order
             }
           } else {
             this.snackBar.open('Impossible d\'annuler cette commande', 'Fermer', {
