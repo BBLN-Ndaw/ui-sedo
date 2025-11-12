@@ -5,12 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
 import { OrderService } from '../services/order.service';
 import { OrdersListComponent } from '../orders-list/orders-list.component';
-import { OrderStatus, Order } from '../shared/models';
+import { Order } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
 import { Router } from '@angular/router';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
@@ -32,7 +31,6 @@ import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 })
 export class MyOrdersComponent implements OnInit, OnDestroy {
   private orderService = inject(OrderService);
-  private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
   private router = inject(Router);
   private errorHandlingUtilities = inject(ErrorHandlingUtilities);

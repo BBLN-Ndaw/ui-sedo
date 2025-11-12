@@ -313,7 +313,6 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
   }
 
   canChangeStatus(order: Order, newStatus: OrderStatus): boolean {
-    // Logique métier pour déterminer si un changement de statut est autorisé
     if (order.status === OrderStatus.CANCELLED || order.status === OrderStatus.DELIVERED) {
       return false;
     }

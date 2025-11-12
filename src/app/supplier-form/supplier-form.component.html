@@ -1,0 +1,162 @@
+<div class="supplier-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add_business' }}</mat-icon>
+        {{ isEditMode ? 'Modifier le fournisseur' : 'Créer un nouveau fournisseur' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Indicateur de chargement -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Chargement du fournisseur...</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="supplierForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+        <!-- Informations générales -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>business</mat-icon>
+            Informations générales
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Nom du fournisseur</mat-label>
+              <input matInput formControlName="name" placeholder="Nom de l'entreprise">
+              <mat-error *ngIf="isFieldRequired('name')">
+                {{ getFieldError('name') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Personne de contact</mat-label>
+              <input matInput formControlName="contactPersonName" placeholder="Nom de la personne de contact">
+              <mat-error *ngIf="isFieldRequired('contactPersonName')">
+                {{ getFieldError('contactPersonName') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="half-width">
+              <mat-label>Email *</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="email@exemple.com">
+              <mat-error *ngIf="isFieldRequired('email')">
+                {{ getFieldError('email') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" floatLabel="always" class="half-width">
+              <mat-label>Téléphone *</mat-label>
+              <input matInput formControlName="phone" placeholder="01 23 45 67 89">
+              <mat-error *ngIf="isFieldRequired('phone')">
+                {{ getFieldError('phone') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Catégorie</mat-label>
+              <mat-select formControlName="category">
+                <mat-option value="">-- Sélectionner une catégorie --</mat-option>
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="isFieldRequired('category')">
+                {{ getFieldError('category') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="form-section" formGroupName="address">
+          <h3 class="section-title">
+            <mat-icon>location_on</mat-icon>
+            Adresse *
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Rue *</mat-label>
+              <input matInput formControlName="street" placeholder="123 rue de la Paix">
+              <mat-error *ngIf="isAddressFieldRequired('street')">
+                {{ getAddressFieldError('street') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="half-width">
+              <mat-label>Ville *</mat-label>
+              <input matInput formControlName="city" placeholder="Paris">
+              <mat-error *ngIf="isAddressFieldRequired('city')">
+                {{ getAddressFieldError('city') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" floatLabel="always" class="half-width">
+              <mat-label>Code postal *</mat-label>
+              <input matInput formControlName="postalCode" placeholder="75000">
+              <mat-error *ngIf="isAddressFieldRequired('postalCode')">
+                {{ getAddressFieldError('postalCode') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="half-width">
+              <mat-label>Pays *</mat-label>
+              <input matInput formControlName="country">
+              <mat-error *ngIf="isAddressFieldRequired('country')">
+                {{ getAddressFieldError('country') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>toggle_on</mat-icon>
+            Statut
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-checkbox formControlName="isActive" color="primary">
+              Fournisseur actif
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="saving">
+            <mat-icon>cancel</mat-icon>
+            Annuler
+          </button>
+          
+          <button mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  [disabled]="saving || supplierForm.invalid">
+            <mat-spinner diameter="20" *ngIf="saving"></mat-spinner>
+            <mat-icon *ngIf="!saving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Modifier' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

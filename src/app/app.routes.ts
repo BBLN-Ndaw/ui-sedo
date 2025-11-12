@@ -21,6 +21,9 @@ import { WishlistComponent } from './wishlist/wishlist.component';
 import { UsersListComponent } from './users-list/users-list.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { UserFormComponent } from './user-form/user-form.component';
+import { SuppliersListComponent } from './suppliers-list/suppliers-list.component';
+import { SupplierFormComponent } from './supplier-form/supplier-form.component';
+import { SupplierDetailsComponent } from './supplier-details/supplier-details.component';
 
 export const routes: Routes = [
   { 
@@ -77,6 +80,12 @@ export const routes: Routes = [
          component: UsersListComponent
       },
       {
+         path: 'suppliers',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: SuppliersListComponent
+      },
+      {
          path: 'products-list',
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
@@ -89,10 +98,22 @@ export const routes: Routes = [
          component: UserDetailsComponent
       },
       {
+         path: 'suppliers/details/:id',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: SupplierDetailsComponent
+      },
+      {
          path: 'user-form',
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UserFormComponent
+      },
+      {
+         path: 'supplier-form',
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: SupplierFormComponent
       },
       {
          path: 'product-form',

@@ -1,0 +1,196 @@
+<div class="supplier-details-container">
+  <!-- Navigation breadcrumb -->
+  <div class="breadcrumb-nav">
+    <button 
+      mat-button 
+      class="nav-link"
+      (click)="onGoBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Liste des fournisseurs
+    </button>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="current-page">Détails fournisseur</span>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement des détails fournisseur...</p>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!loading && supplier" class="supplier-content">
+    
+    <!-- Header Section -->
+    <div class="supplier-header">
+      <div class="header-content">
+        <div class="supplier-avatar-large">
+          {{ getSupplierInitials() }}
+        </div>
+        <div class="supplier-info">
+          <h1 class="supplier-name">{{ supplier.name }}</h1>
+          <p class="supplier-email">{{ supplier.email }}</p>
+          <p class="supplier-phone">{{ supplier.phone }}</p>
+          <div class="supplier-meta">
+            <span class="contact-person" *ngIf="getContactPersonName()">
+              <mat-icon>person</mat-icon>
+              Contact: {{ getContactPersonName() }}
+            </span>
+            <span class="supplier-category" *ngIf="category">
+              <mat-icon>category</mat-icon>
+              {{ category.name }}
+            </span>
+          </div>
+          <div class="supplier-status">
+            <mat-chip-set>
+              <mat-chip [color]="getStatusChipColor()">
+                <mat-icon matChipAvatar>{{ supplier.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ getStatusText() }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button 
+            mat-fab 
+            extended 
+            color="primary"
+            (click)="onEditSupplier()"
+            matTooltip="Modifier ce fournisseur">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+          
+          <button 
+            mat-fab 
+            extended 
+            color="primary" 
+            *ngIf="!supplier.isActive"
+            (click)="onUpdateStatus()"
+            matTooltip="Activer ce fournisseur">
+            <mat-icon>check_circle</mat-icon>
+            Activer
+          </button>
+          <button 
+            mat-fab 
+            extended 
+            color="warn" 
+            *ngIf="supplier.isActive"
+            (click)="onUpdateStatus()"
+            matTooltip="Désactiver ce fournisseur">
+            <mat-icon>cancel</mat-icon>
+            Désactiver
+          </button>
+          
+          <button 
+            mat-fab 
+            extended 
+            color="warn"
+            (click)="onDeleteSupplier()"
+            matTooltip="Supprimer ce fournisseur">
+            <mat-icon>delete</mat-icon>
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      
+      <!-- Informations générales -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>business</mat-icon>
+            Informations générales
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">
+                <mat-icon>business</mat-icon>
+                Nom du fournisseur
+              </span>
+              <span class="info-value">{{ supplier.name }}</span>
+            </div>
+            
+            <div class="info-item" *ngIf="getContactPersonName()">
+              <span class="info-label">
+                <mat-icon>person</mat-icon>
+                Personne de contact
+              </span>
+              <span class="info-value">{{ getContactPersonName() }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">
+                <mat-icon>email</mat-icon>
+                Email
+              </span>
+              <span class="info-value">
+                <a [href]="'mailto:' + supplier.email" class="contact-link">
+                  {{ supplier.email }}
+                </a>
+              </span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">
+                <mat-icon>phone</mat-icon>
+                Téléphone
+              </span>
+              <span class="info-value">
+                <a [href]="'tel:' + supplier.phone" class="contact-link">
+                  {{ supplier.phone }}
+                </a>
+              </span>
+            </div>
+            
+            <div class="info-item" *ngIf="supplier.category">
+              <span class="info-label">
+                <mat-icon>category</mat-icon>
+                Catégorie
+              </span>
+              <span class="info-value">
+                <mat-chip color="accent">{{ category?.name }}</mat-chip>
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Adresse -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>location_on</mat-icon>
+            Adresse
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="address-display">
+            <div class="address-text">
+              <mat-icon>place</mat-icon>
+              <div class="address-lines">
+                {{ getFullAddress() }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  </div>
+
+  <!-- État d'erreur -->
+  <div *ngIf="!loading && !supplier" class="error-state">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3>Fournisseur non trouvé</h3>
+    <p>Le fournisseur demandé n'existe pas ou n'est plus disponible.</p>
+    <button mat-raised-button color="primary" (click)="onGoBack()">
+      Retour à la liste
+    </button>
+  </div>
+</div>

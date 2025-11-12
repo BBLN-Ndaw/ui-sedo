@@ -118,7 +118,7 @@ export class NavigationUtilities {
     this.router.navigate([route], state ? { state } : {});
   }
 
-  goToRouteWithId(route: string, id: number): void {
+  goToRouteWithId(route: string, id: number | string): void {
     this.router.navigate([route, id]);
   }
 

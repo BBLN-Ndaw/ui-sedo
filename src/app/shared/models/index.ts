@@ -48,9 +48,34 @@ export interface UpdatePasswordDto {
 }
 
 export enum UserRole {
-  ADMIN = 'ADMIN',        // Administrateur - contrôle total
-  EMPLOYEE = 'EMPLOYEE',  // Gestionnaire/Employé unique
-  CUSTOMER = 'CUSTOMER'   // Clients du magasin
+  ADMIN = 'ADMIN',        
+  EMPLOYEE = 'EMPLOYEE',
+  CUSTOMER = 'CUSTOMER'
+}
+
+// ===== INTERFACES FOURNISSEURS =====
+export interface Supplier {
+  id?: string;
+  name: string;
+  contactPersonName?: string;
+  category?: string;
+  email: string;
+  phone: string;
+  address: Address;
+  isActive: boolean;
+}
+
+export interface SupplierListResponse {
+  content: Supplier[];
+  totalElements: number;
+  pageSize: number;
+  size: number;
+}
+
+export interface SupplierFilterOptions {
+  search?: string;
+  isActive?: boolean;
+  category?: string;
 }
 
 export interface Product {

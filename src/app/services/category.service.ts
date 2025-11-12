@@ -24,4 +24,9 @@ export class CategoryService {
             withCredentials: true
           });
   }  
+  getcategoryById(categoryId: string): Observable<Category> {
+    return this.http.get<Category>(`${USER_API_CONFIG.BASE_URL}/${categoryId}`, {
+      withCredentials: true
+    });
+  }
 }

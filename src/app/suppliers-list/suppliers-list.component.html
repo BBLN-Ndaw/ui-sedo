@@ -1,0 +1,274 @@
+<div class="suppliers-container">
+  <!-- En-tête avec actions -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">business</mat-icon>
+        Gestion des Fournisseurs
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ totalSuppliers }} fournisseur(s) au total
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Barre de recherche -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Rechercher un fournisseur</mat-label>
+          <input matInput 
+                 [formControl]="searchControl"
+                 placeholder="Nom, contact, email, personne de contact...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtres -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Statut</mat-label>
+          <mat-select [formControl]="statusFilter">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Catégorie</mat-label>
+          <mat-select [formControl]="categoryFilter">
+            <mat-option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Actions -->
+        <div class="actions-container">
+          <button mat-stroked-button 
+                  (click)="onClearFilters()"
+                  matTooltip="Effacer tous les filtres">
+            <mat-icon>clear</mat-icon>
+            Effacer
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="onRefreshSuppliers()"
+                  matTooltip="Actualiser la liste">
+            <mat-icon>refresh</mat-icon>
+            Actualiser
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="onExportSuppliers()"
+                  matTooltip="Exporter en CSV">
+            <mat-icon>download</mat-icon>
+            Exporter
+          </button>
+          
+          <!-- Bouton Créer un fournisseur -->
+          <button mat-raised-button 
+                  color="primary"
+                  (click)="onCreateSupplier()"
+                  matTooltip="Créer un nouveau fournisseur">
+            <mat-icon>add_business</mat-icon>
+            Créer un fournisseur
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tableau des fournisseurs -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <!-- Indicateur de chargement -->
+        <div *ngIf="loading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Chargement des fournisseurs...</p>
+        </div>
+
+        <!-- Tableau -->
+        <table mat-table 
+               [dataSource]="dataSource" 
+               matSort
+               *ngIf="!loading"
+               class="suppliers-table">
+
+          <!-- Colonne Nom du fournisseur -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Nom du fournisseur
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="name-cell">
+                <mat-icon class="supplier-icon">business</mat-icon>
+                <span class="supplier-name">{{ supplier.name }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Personne de contact -->
+          <ng-container matColumnDef="contactPerson">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Personne de contact
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="contact-cell">
+                <mat-icon class="contact-icon">person</mat-icon>
+                <span class="contact-name">{{ getContactPersonName(supplier) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Email -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Email
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="email-cell">
+                <mat-icon class="contact-icon">email</mat-icon>
+                <a [href]="'mailto:' + supplier.email" class="email-link">
+                  {{ supplier.email }}
+                </a>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Téléphone -->
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef>
+              Téléphone
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="phone-cell">
+                <mat-icon class="contact-icon">phone</mat-icon>
+                <a [href]="'tel:' + supplier.phone" class="phone-link">
+                  {{ supplier.phone }}
+                </a>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Catégorie -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Catégorie
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="category-cell">
+                <mat-chip-listbox>
+                  <mat-chip-option color="accent" class="category-chip">
+                    <mat-icon matChipAvatar>category</mat-icon>
+                    {{ getCategoryName(supplier.category) }}
+                  </mat-chip-option>
+                </mat-chip-listbox>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Statut -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>
+              Statut
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <mat-chip-listbox>
+                <mat-chip-option 
+                  [color]="getStatusChipColor(supplier.isActive)"
+                  class="status-chip">
+                  <mat-icon matChipAvatar>
+                    {{ supplier.isActive ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                  {{ getStatusText(supplier.isActive) }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>
+              Actions
+            </th>
+            <td mat-cell *matCellDef="let supplier">
+              <div class="actions-cell" (click)="$event.stopPropagation()">
+                <button mat-icon-button 
+                        [matMenuTriggerFor]="actionsMenu"
+                        matTooltip="Actions"
+                        aria-label="Actions pour le fournisseur">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                
+                <mat-menu #actionsMenu="matMenu">
+                  <button mat-menu-item (click)="onViewSupplierDetails(supplier)">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Voir les détails</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onEditSupplier(supplier)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+                  
+                  <mat-divider></mat-divider>
+                  
+                  <button mat-menu-item 
+                          *ngIf="!supplier.isActive" 
+                          (click)="onUpdateStatus(supplier)">
+                    <mat-icon color="primary">check_circle</mat-icon>
+                    <span>Activer</span>
+                  </button>
+                  
+                  <button mat-menu-item 
+                          *ngIf="supplier.isActive" 
+                          (click)="onUpdateStatus(supplier)">
+                    <mat-icon color="warn">cancel</mat-icon>
+                    <span>Désactiver</span>
+                  </button>
+                  
+                  <button mat-menu-item 
+                          (click)="onDeleteSupplier(supplier)">
+                    <mat-icon color="warn">delete</mat-icon>
+                    <span>Supprimer</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- En-têtes et lignes du tableau -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row 
+              *matRowDef="let row; columns: displayedColumns;"
+              (click)="onViewSupplierDetails(row)"
+              class="clickable-row"
+              matTooltip="Cliquer pour voir les détails"
+              role="button"
+              tabindex="0"></tr>
+        </table>
+
+        <!-- État vide -->
+        <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">business</mat-icon>
+          <h3>Aucun fournisseur trouvé</h3>
+          <p>Aucun fournisseur ne correspond aux critères de recherche actuels.</p>
+          <button mat-raised-button color="primary" (click)="onClearFilters()">
+            Effacer les filtres
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator
+        *ngIf="!loading && dataSource.data.length > 0"
+        [length]="totalSuppliers"
+        [pageSize]="currentPageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="[10, 20, 40, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
