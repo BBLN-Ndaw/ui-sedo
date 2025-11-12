@@ -1,0 +1,77 @@
+<div class="category-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ isEditMode ? 'Modifier la catégorie' : 'Créer une nouvelle catégorie' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Indicateur de chargement -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Chargement de la catégorie...</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Informations de la catégorie
+          </h3>
+          <mat-divider></mat-divider>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Nom de la catégorie</mat-label>
+              <input matInput formControlName="name" placeholder="Nom de la catégorie" maxlength="100">
+              <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
+              <mat-error *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+                Le nom est requis
+              </mat-error>
+              <mat-error *ngIf="form.get('name')?.hasError('minlength')">
+                Minimum 2 caractères
+              </mat-error>
+              <mat-error *ngIf="form.get('name')?.hasError('maxlength')">
+                Maximum 100 caractères
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" 
+                        placeholder="Description de la catégorie (optionnelle)" 
+                        maxlength="500" 
+                        rows="4">
+              </textarea>
+              <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-checkbox formControlName="isActive" class="full-width">
+              <span class="checkbox-label">Catégorie active</span>
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <mat-card-actions class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+          </button>
+          
+          <button mat-stroked-button type="button" (click)="onCancel()">
+            <mat-icon>cancel</mat-icon>
+            Annuler
+          </button>
+        </mat-card-actions>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

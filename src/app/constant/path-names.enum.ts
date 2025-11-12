@@ -15,6 +15,8 @@ export enum PathNames{
     suppliersList = 'suppliers-list',
     supplierDetails = 'suppliers/details',
     supplierForm = 'supplier-form',
+    categories = 'categories',
+    categoryForm = 'category-form',
     reports = 'reports',
     admin = 'admin',
     settings = 'settings',

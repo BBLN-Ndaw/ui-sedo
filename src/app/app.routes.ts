@@ -24,6 +24,8 @@ import { UserFormComponent } from './user-form/user-form.component';
 import { SuppliersListComponent } from './suppliers-list/suppliers-list.component';
 import { SupplierFormComponent } from './supplier-form/supplier-form.component';
 import { SupplierDetailsComponent } from './supplier-details/supplier-details.component';
+import { CategoriesListComponent } from './categories-list/categories-list.component';
+import { CategoryFormComponent } from './category-form/category-form.component';
 
 export const routes: Routes = [
   { 
@@ -132,6 +134,24 @@ export const routes: Routes = [
       {
          path: 'payment-confirmation',
          component: PaymentConfirmationComponent
+      },
+      {
+         path: 'categories',
+         component: CategoriesListComponent,
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
+      },
+      {
+         path: 'category-form',
+         component: CategoryFormComponent,
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
+      },
+      {
+         path: 'category-form/:id',
+         component: CategoryFormComponent,
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
       },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       

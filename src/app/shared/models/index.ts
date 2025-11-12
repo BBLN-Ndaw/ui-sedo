@@ -1,4 +1,3 @@
-
 export interface User {
   id?: number;
   userName: string;
@@ -120,9 +119,9 @@ export interface ProductFilterOptions {
 }
 
 export interface Category {
-  id?: number;
+  id?: string;
   name: string;
-  description?: string | null;
+  description?: string;
   isActive: boolean;
 }
 

@@ -103,6 +103,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
+      icon: 'category',
+      label: 'Gestion Catégories',
+      route: PathNames.categories,
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
+    },
+    {
       icon: 'analytics',
       label: 'Reports & Analytics',
       route: PathNames.reports,
@@ -243,6 +249,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         return 'Clients';
       case PathNames.suppliers:
         return 'Fournisseurs';
+      case PathNames.categories:
+        return 'Catégories';
       case PathNames.reports:
         return 'Rapports & Analytics';
       case PathNames.admin:
