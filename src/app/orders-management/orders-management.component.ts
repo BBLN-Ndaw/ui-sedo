@@ -81,6 +81,7 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
     'customerName', 
     'createdAt', 
     'status', 
+    'processedByUser',
     'totalAmount', 
     'actions'
   ];
