@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterModule } from '@angular/router';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable, Subject } from 'rxjs';
-import { map, shareReplay, takeUntil } from 'rxjs/operators';
+import { Observable, Subject, takeUntil } from 'rxjs';
 
 // Angular Material
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -24,6 +22,7 @@ import { CartService } from '../services/cart.service';
 import { User, UserRole, CartSummary } from '../shared/models';
 import { UserService } from '../services/user.service';
 import { PathNames } from '../constant/path-names.enum';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
 interface MenuItem {
   icon: string;
@@ -62,7 +61,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   UserRole = UserRole;
   cartSummary$: Observable<CartSummary>;
   
-  // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   menuItems: MenuItem[] = [
@@ -148,11 +146,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
     private userService: UserService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private errorHandlingUtilities: ErrorHandlingUtilities,
+
   ) {
     // Initialiser l'observable du résumé du panier
     this.cartSummary$ = this.cartService.cartSummary$;
@@ -167,30 +166,29 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Charge le profil complet de l'utilisateur depuis l'API.
-   * Le serveur identifie l'utilisateur via le token JWT.
-   */
   private loadUserProfile(): void {
-    this.userService.getCurrentUserProfile().subscribe({
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.getCurrentUserProfile(),
+      'chargement du profil utilisateur'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (fullProfile) => {
         this.currentUser = fullProfile;
-        console.log('Profil utilisateur chargé:', this.currentUser);
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement du profil:', error);
-        this.authService.logout().subscribe({
-      next: (response) => {
-        console.log('Déconnexion réussie:', response);
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Erreur lors de la déconnexion:', error);
-        this.router.navigate(['/login']);
+      error: () => {
+        this.authService.logout().subscribe(() => this.router.navigate(['/login']));
       }
     });
-      }
-    });
+  }
+
+  onLogout(): void {
+    this.errorHandlingUtilities.wrapOperation(
+    this.authService.logout(),
+      'déconnexion'
+    )
+    .pipe(takeUntil(this.destroy$))
+   .subscribe(() => this.router.navigate(['/login']))
   }
 
   get filteredMenuItems(): MenuItem[] {
@@ -202,20 +200,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   onMenuItemClick(route: string): void {
     this.router.navigate([route]);
-  }
-
-  onLogout(): void {
-    // Déconnecter l'utilisateur
-    this.authService.logout().subscribe({
-      next: (response) => {
-        console.log('Déconnexion réussie:', response);
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Erreur lors de la déconnexion:', error);
-        this.router.navigate(['/login']);
-      }
-    });
   }
 
   getUserInitials(): string {

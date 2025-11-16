@@ -405,3 +405,19 @@ export interface Payer {
   email_address: string;
   address: PaypalCustomerAddress;
 }
+
+export interface TopSellingProductDto {
+  productId: string;
+  productName: string;
+  totalQuantitySold: number;
+  totalRevenue: number;
+  numberOfOrders: number;
+}
+
+export interface DailySalesResponseDto {
+  value: string;
+}
+
+export interface DailySalesRequestDto {
+  date: string;
+}

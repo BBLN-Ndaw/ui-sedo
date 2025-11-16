@@ -57,8 +57,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   constructor(
     private categoryService: CategoryService,
-    private notificationService: NotificationService,
-    private router: Router,
     public productService: ProductService,
     private promotionUtilities: PromotionUtilities,
     private stockUtilities: StockUtilities,

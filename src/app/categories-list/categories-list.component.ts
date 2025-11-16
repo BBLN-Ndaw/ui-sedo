@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -13,6 +13,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import { Category } from '../shared/models';
 import { CategoryService } from '../services/category.service';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-categories-list',
@@ -33,9 +35,15 @@ import { CategoryService } from '../services/category.service';
   templateUrl: './categories-list.component.html',
   styleUrls: ['./categories-list.component.scss']
 })
-export class CategoriesListComponent implements OnInit {
+export class CategoriesListComponent implements OnInit, OnDestroy {
+
   private categoryService = inject(CategoryService);
   private router = inject(Router);
+  private errorHandlingUtilities = inject(ErrorHandlingUtilities);
+
+    private destroy$ = new Subject<void>();
+
+  
   
   loading = false;
   categories: Category[] = [];
@@ -47,9 +55,18 @@ export class CategoriesListComponent implements OnInit {
     this.loadCategories();
   }
 
+    ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadCategories(): void {
     this.loading = true;
-    this.categoryService.getAllCategories().subscribe({
+    this.errorHandlingUtilities.wrapOperation(
+    this.categoryService.getAllCategories(),
+    "chargement des catégories")
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (cats) => {
         this.categories = cats;
         this.filteredCategories = cats;

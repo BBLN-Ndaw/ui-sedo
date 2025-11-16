@@ -53,7 +53,7 @@ export class NavigationUtilities {
    * Navigation vers le dashboard
    */
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate([PathNames.dashboard]);
   }
 
   /**
@@ -67,25 +67,33 @@ export class NavigationUtilities {
    * Navigation vers les commandes
    */
   goToOrders(): void {
-    this.router.navigate(['/orders']);
+    this.router.navigate([PathNames.orders]);
   }
 
   /**
    * Navigation vers la gestion des commandes
    */
   goToOrdersManagement(): void {
-    this.router.navigate(['/orders-management']);
+    this.router.navigate([PathNames.ordersManagement]);
   }
 
   /**
    * Navigation vers le profil
    */
   goToProfile(): void {
-    this.router.navigate(['/profile']);
+    this.router.navigate([PathNames.profile]);
   }
 
   goToUsersList(): void {
-    this.router.navigate(['/users']);
+    this.router.navigate([PathNames.users]);
+  }
+
+  goToUserCreation(): void {
+    this.router.navigate([PathNames.userForm]);
+  }
+
+  goToSupplierCreation(): void {
+    this.router.navigate([PathNames.supplierForm]);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Angular Material
@@ -8,18 +8,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDividerModule } from '@angular/material/divider';
 
 // Services
-import { DashboardService, DashboardStats, LowStockProduct, RecentActivity } from '../services/dashboard.service';
+import { DashboardService, DashboardStats, RecentActivity } from '../services/dashboard.service';
 import { NavigationUtilities } from '../services/navigation.utilities';
+import { Subject, takeUntil } from 'rxjs';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
+import { Product, TopSellingProductDto } from '../shared/models';
 
 interface DashboardCard {
   title: string;
   value: string | number;
   icon: string;
   color: string;
-  change?: string;
-  changeType?: 'increase' | 'decrease';
+  description?: string;
 }
 
 @Component({
@@ -32,111 +36,234 @@ interface DashboardCard {
     MatButtonModule,
     MatGridListModule,
     MatProgressBarModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule,
+    MatDividerModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
-  dashboardStats: DashboardStats | null = null;
   dashboardCards: DashboardCard[] = [];
   recentActivities: RecentActivity[] = [];
-  lowStockProducts: LowStockProduct[] = [];
+  lowStockProducts: Product[] = [];
+  topSellingProducts: TopSellingProductDto[] = [];
+  currentDate: Date = new Date();
+  
+  // Propriétés pour le graphique de revenus mensuels
+  monthlyRevenueData: { month: string; value: number; percentage: number; formattedValue: string }[] = [];
+  totalYearRevenue: number = 0;
+  currentMonthRevenue: number = 0;
+  monthlyGrowth: number = 0;
+  
+  private destroy$ = new Subject<void>();
+
 
   constructor(
     private dashboardService: DashboardService,
-    private navigationUtilities: NavigationUtilities
+    private navigationUtilities: NavigationUtilities,
+    private errorHandlingUtilities: ErrorHandlingUtilities,
+
   ) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
+    this.loadRecentActivitiesNotifications();
+    this.getLowStockProducts()
+    this.loadTopSellingProducts();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private loadDashboardData(): void {
-    // Charger les statistiques
-    this.dashboardService.getDashboardStats().subscribe(stats => {
-      this.dashboardStats = stats;
-      this.updateDashboardCards(stats);
+    this.errorHandlingUtilities.wrapOperation(
+      this.dashboardService.getDashboardStats(),
+      "chargement des statistiques du tableau de bord"
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (stats) => {
+        this.updateDashboardCards(stats);
+        if (stats.revenuePerMonthInCurrentYear) {
+          this.processMonthlyRevenueData(stats.revenuePerMonthInCurrentYear);
+        }
+      }
     });
+  }
 
-    // Charger les activités récentes
-    this.dashboardService.getRecentActivities().subscribe(activities => {
+  loadRecentActivitiesNotifications(): void {
+    this.errorHandlingUtilities.wrapOperation(
+      this.dashboardService.getRecentActivities(),
+      "chargement des activités récentes"
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(activities => {
       this.recentActivities = activities;
     });
+  }
 
-    // Charger les produits en rupture de stock
-    this.dashboardService.getLowStockProducts().subscribe(products => {
-      this.lowStockProducts = products;
+  private loadTopSellingProducts(): void {
+    this.errorHandlingUtilities.wrapOperation(
+      this.dashboardService.getTopSellingProducts(5),
+      "chargement des produits les plus vendus"
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (products) => {
+        this.topSellingProducts = products;
+      }
+    });
+  }
+
+  private getLowStockProducts(): void {
+    this.errorHandlingUtilities.wrapOperation(
+      this.dashboardService.getLowStockProducts(),
+      "chargement des produits en rupture de stock"
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (products) => {
+        this.lowStockProducts = products;
+      },
     });
   }
 
   private updateDashboardCards(stats: DashboardStats): void {
     this.dashboardCards = [
       {
-        title: 'Daily Sales',
+        title: 'Ventes du Jour',
         value: this.dashboardService.formatCurrency(stats.dailySales),
-        icon: 'attach_money',
+        icon: 'trending_up',
         color: 'primary',
-        change: `${stats.salesChange > 0 ? '+' : ''}${stats.salesChange}%`,
-        changeType: stats.salesChange >= 0 ? 'increase' : 'decrease'
+        description: 'Revenus générés aujourd\'hui'
       },
       {
-        title: 'Total Orders',
-        value: stats.totalOrders,
+        title: 'Commandes à Traiter',
+        value: stats.processingOrders,
         icon: 'shopping_cart',
         color: 'accent',
-        change: `${stats.ordersChange > 0 ? '+' : ''}${stats.ordersChange}%`,
-        changeType: stats.ordersChange >= 0 ? 'increase' : 'decrease'
+        description: 'Commandes en cours de traitement'
       },
       {
-        title: 'Products in Stock',
+        title: 'Produits en Stock',
         value: stats.productsInStock,
-        icon: 'inventory',
+        icon: 'inventory_2',
         color: 'success',
-        change: `${stats.stockChange > 0 ? '+' : ''}${stats.stockChange}%`,
-        changeType: stats.stockChange >= 0 ? 'increase' : 'decrease'
+        description: 'Articles disponibles à la vente'
       },
       {
-        title: 'Active Customers',
-        value: stats.activeCustomers,
+        title: 'Commandes anulées',
+        value: stats.monthlyCancelledOrders,
         icon: 'people',
         color: 'warning',
-        change: `${stats.customersChange > 0 ? '+' : ''}${stats.customersChange}%`,
-        changeType: stats.customersChange >= 0 ? 'increase' : 'decrease'
+        description: 'Commandes annulées ce mois-ci'
+      },
+      {
+        title: 'Revenus Mensuel',
+        value: this.dashboardService.formatCurrency(stats.monthlyRevenue),
+        icon: 'account_balance_wallet',
+        color: 'success',
+        description: 'Chiffre d\'affaires du mois'
+      },
+      {
+        title: 'Panier Moyen',
+        value: this.dashboardService.formatCurrency(stats.averageOrderValue),
+        icon: 'shopping_basket',
+        color: 'primary',
+        description: 'Valeur moyenne des commandes'
       }
     ];
   }
 
-  getActivityIcon(type: string): string {
-    switch (type) {
-      case 'sale': return 'point_of_sale';
-      case 'order': return 'shopping_bag';
-      case 'stock': return 'warning';
-      case 'customer': return 'person_add';
-      default: return 'info';
+  private processMonthlyRevenueData(revenueMap: Map<string, number> | any): void {
+    if (!revenueMap) {
+      return;
     }
+        
+    // month names in french for display
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    // month mapping from English to index (0-11)
+    const monthMapping: { [key: string]: number } = {
+      'JANUARY': 0, 'FEBRUARY': 1, 'MARCH': 2, 'APRIL': 3,
+      'MAY': 4, 'JUNE': 5, 'JULY': 6, 'AUGUST': 7,
+      'SEPTEMBER': 8, 'OCTOBER': 9, 'NOVEMBER': 10, 'DECEMBER': 11
+    };
+    
+      // Initialize an array for the 12 months
+      const monthlyData: number[] = new Array(12).fill(0);
+      
+      // Process backend data
+        Object.entries(revenueMap).forEach(([monthKey, value]) => {
+          const monthIndex = monthMapping[monthKey.toUpperCase()];
+          if (monthIndex !== undefined && typeof value === 'number') {
+            monthlyData[monthIndex] = value;
+          }
+        });
+      
+      // Calculate total annual revenue
+      this.totalYearRevenue = monthlyData.reduce((sum, value) => sum + value, 0);
+      
+      // Find the maximum revenue to calculate percentages
+      const maxRevenue = Math.max(...monthlyData);
+      
+      // Prepare data for the chart
+      this.monthlyRevenueData = monthlyData.map((value, index) => ({
+        month: monthNames[index],
+        value: value,
+        percentage: maxRevenue > 0 ? (value / maxRevenue) * 100 : 0,
+        formattedValue: this.dashboardService.formatCurrency(value)
+      }));
+      
+      // Calculate current month revenue
+      const currentMonth = new Date().getMonth(); // 0-11
+      this.currentMonthRevenue = monthlyData[currentMonth] || 0;
+      
+      // Calculate growth compared to previous month
+      const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const previousMonthRevenue = monthlyData[previousMonth] || 0;
+      
+      if (previousMonthRevenue > 0) {
+        this.monthlyGrowth = ((this.currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100;
+      } else {
+        this.monthlyGrowth = this.currentMonthRevenue > 0 ? 100 : 0;
+      }
+      
+    
   }
 
-  getActivityColor(type: string): string {
-    switch (type) {
-      case 'sale': return 'success';
-      case 'order': return 'primary';
-      case 'stock': return 'warning';
-      case 'customer': return 'accent';
-      default: return 'basic';
-    }
+
+  formatCurrency(amount: number): string {
+    return this.dashboardService.formatCurrency(amount);
   }
 
-  getStockPercentage(current: number, min: number): number {
-    return this.dashboardService.getStockPercentage(current, min);
+  getCurrentMonthName(): string {
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const currentMonth = new Date().getMonth();
+    return monthNames[currentMonth];
   }
 
-  getStockStatus(current: number, min: number): string {
-    return this.dashboardService.getStockStatus(current, min);
+  trackByMonth(index: number, item: any): string {
+    return item.month;
   }
 
   navigateToOrdersManagement(): void {
     this.navigationUtilities.goToOrdersManagement();
+  }
+
+  navigateToProductCreation(): void {
+    this.navigationUtilities.goToCreateProduct();
+  }
+
+  navigateToCustomerCreation(): void {
+    this.navigationUtilities.goToUserCreation();
+  }
+
+  navigateToSupplierCreation(): void {
+    this.navigationUtilities.goToSupplierCreation();  
   }
 }
