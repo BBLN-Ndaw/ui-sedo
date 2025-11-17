@@ -725,48 +725,6 @@
   }
 }
 
-// Footer Stats Section
-.showcase-footer {
-  margin-top: 64px;
-  padding-top: 32px;
-  border-top: 2px solid rgba(255, 255, 255, 0.3);
-  
-  .stats-container {
-    display: flex;
-    justify-content: center;
-    gap: 48px;
-    max-width: 600px;
-    margin: 0 auto;
-    
-    @media (max-width: 768px) {
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    
-    .stat-item {
-      text-align: center;
-      
-      .stat-number {
-        display: block;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
-        line-height: 1;
-      }
-      
-      .stat-label {
-        display: block;
-        font-size: 0.95rem;
-        color: #64748b;
-        font-weight: 500;
-        margin-top: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-    }
-  }
-}
-
 // Responsive Design
 @media (max-width: 480px) {
   .catalog-showcase {

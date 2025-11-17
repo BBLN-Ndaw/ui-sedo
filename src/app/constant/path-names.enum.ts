@@ -18,7 +18,7 @@ export enum PathNames{
     categories = 'categories',
     categoryForm = 'category-form',
     reports = 'reports',
-    admin = 'admin',
+    storeManagement = 'store-management',
     settings = 'settings',
     orders = 'orders',
     ordersManagement = 'orders-management'

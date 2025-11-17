@@ -1,0 +1,273 @@
+<div class="store-administration">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">admin_panel_settings</mat-icon>
+          Administration du Magasin
+        </h1>
+        <p class="page-subtitle">Centre de contrôle et configuration système</p>
+        <div class="header-date">{{ getCurrentDate() }}</div>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="createNewUser()">
+          <mat-icon>person_add</mat-icon>
+          Nouvel Utilisateur
+        </button>
+        <button mat-raised-button color="accent" (click)="createNewProduct()">
+          <mat-icon>add_box</mat-icon>
+          Nouveau Produit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards Overview -->
+  <div class="admin-stats-section">
+    <div class="stats-grid">
+      <mat-card 
+        *ngFor="let card of adminCards; let i = index" 
+        class="admin-stat-card"
+        [ngClass]="'card-' + card.color"
+        (click)="onCardClick(card)"
+        matRipple>
+        
+        <div class="card-background"></div>
+        
+        <mat-card-content class="card-content">
+          <div class="stat-header">
+            <div class="icon-container">
+              <mat-icon class="stat-icon">{{ card.icon }}</mat-icon>
+            </div>
+            <div class="stat-value">{{ card.value }}</div>
+          </div>
+          
+          <div class="stat-info">
+            <h3 class="stat-title">{{ card.title }}</h3>
+            <p class="stat-description">{{ card.description }}</p>
+          </div>
+
+          <div class="card-arrow">
+            <mat-icon>arrow_forward</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Main Content Tabs -->
+  <div class="admin-content">
+    <mat-tab-group class="admin-tabs" selectedIndex="0">
+      
+      <!-- Modules Système -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>apps</mat-icon>
+          Modules Système
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="modules-grid">
+            <mat-card 
+              *ngFor="let module of systemModules" 
+              class="system-module-card"
+              [ngClass]="'module-' + module.color"
+              (click)="onModuleClick(module)"
+              matRipple>
+              
+              <mat-card-header class="module-header">
+                <div class="module-icon-container">
+                  <mat-icon class="module-icon">{{ module.icon }}</mat-icon>
+                  <mat-icon 
+                    class="status-icon"
+                    [ngClass]="getModuleStatusColor(module.status)">
+                    {{ getModuleStatusIcon(module.status) }}
+                  </mat-icon>
+                </div>
+              </mat-card-header>
+              
+              <mat-card-content class="module-content">
+                <h3 class="module-title">{{ module.name }}</h3>
+                <p class="module-description">{{ module.description }}</p>
+                
+                <div class="module-status">
+                  <mat-chip 
+                    [color]="getModuleStatusColor(module.status)"
+                    selected>
+                    {{ module.status | titlecase }}
+                  </mat-chip>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Activité Système -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>timeline</mat-icon>
+          Activité Système
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="activities-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>history</mat-icon>
+                Activités Récentes
+              </mat-card-title>
+              <mat-card-subtitle>10 dernières activités du système</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="activities-list" *ngIf="recentActivities.length > 0; else noActivities">
+                <div 
+                  *ngFor="let activity of recentActivities" 
+                  class="activity-item">
+                  
+                  <div class="activity-icon">
+                    <mat-icon [ngClass]="'type-' + activity.type">
+                      {{ getActivityIcon(activity.type) }}
+                    </mat-icon>
+                  </div>
+                  
+                  <div class="activity-content">
+                    <div class="activity-message">{{ activity.message }}</div>
+                    <div class="activity-meta">
+                      <span class="activity-time">{{ activity.time }}</span>
+                      <span class="activity-user" *ngIf="activity.userName">
+                        par {{ activity.userName }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="activity-amount" *ngIf="activity.amount">
+                    {{ formatCurrency(activity.amount) }}
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noActivities>
+                <div class="no-activities">
+                  <mat-icon>info</mat-icon>
+                  <p>Aucune activité récente</p>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Outils Administration -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>build</mat-icon>
+          Outils Admin
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="admin-tools-grid">
+            
+            <!-- Sauvegarde et Maintenance -->
+            <mat-card class="tool-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>backup</mat-icon>
+                  Sauvegarde & Maintenance
+                </mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <p>Outils de sauvegarde et maintenance du système</p>
+                
+                <div class="tool-actions">
+                  <button mat-stroked-button (click)="backupSystem()">
+                    <mat-icon>backup</mat-icon>
+                    Sauvegarde
+                  </button>
+                  <button mat-stroked-button (click)="viewSystemLogs()">
+                    <mat-icon>description</mat-icon>
+                    Logs Système
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Configuration Système -->
+            <mat-card class="tool-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>settings</mat-icon>
+                  Configuration
+                </mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <p>Paramètres généraux du magasin et de l'application</p>
+                
+                <div class="tool-actions">
+                  <button mat-stroked-button disabled>
+                    <mat-icon>store</mat-icon>
+                    Config. Magasin
+                  </button>
+                  <button mat-stroked-button disabled>
+                    <mat-icon>security</mat-icon>
+                    Sécurité
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Statistiques Avancées -->
+            <mat-card class="tool-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>analytics</mat-icon>
+                  Analytics Avancées
+                </mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <p>Rapports détaillés et analyses prédictives</p>
+                
+                <div class="tool-actions">
+                  <button mat-stroked-button disabled>
+                    <mat-icon>assessment</mat-icon>
+                    Rapports
+                  </button>
+                  <button mat-stroked-button disabled>
+                    <mat-icon>trending_up</mat-icon>
+                    Prédictions
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Monitoring Système -->
+            <mat-card class="tool-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>monitor_heart</mat-icon>
+                  Monitoring
+                </mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <p>Surveillance de la santé du système</p>
+                
+                <div class="system-health">
+                  <div class="health-indicator">
+                    <mat-icon class="health-icon success">check_circle</mat-icon>
+                    <span>Système Opérationnel</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

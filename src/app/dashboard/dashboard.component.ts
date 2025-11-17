@@ -16,15 +16,8 @@ import { DashboardService, DashboardStats, RecentActivity } from '../services/da
 import { NavigationUtilities } from '../services/navigation.utilities';
 import { Subject, takeUntil } from 'rxjs';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
-import { Product, TopSellingProductDto } from '../shared/models';
-
-interface DashboardCard {
-  title: string;
-  value: string | number;
-  icon: string;
-  color: string;
-  description?: string;
-}
+import { DashboardCard, Product, TopSellingProductDto } from '../shared/models';
+import { PathNames } from '../constant/path-names.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -59,12 +52,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   
   private destroy$ = new Subject<void>();
 
-
   constructor(
     private dashboardService: DashboardService,
     private navigationUtilities: NavigationUtilities,
     private errorHandlingUtilities: ErrorHandlingUtilities,
-
   ) { }
 
   ngOnInit(): void {
@@ -132,6 +123,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  onCardClick(card: DashboardCard): void {
+    if (card.route) {
+      this.navigationUtilities.goToRoute(card.route);
+    } 
+  }
+
   private updateDashboardCards(stats: DashboardStats): void {
     this.dashboardCards = [
       {
@@ -139,42 +136,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
         value: this.dashboardService.formatCurrency(stats.dailySales),
         icon: 'trending_up',
         color: 'primary',
-        description: 'Revenus générés aujourd\'hui'
+        description: 'Revenus générés aujourd\'hui',
+        route: PathNames.ordersManagement
       },
       {
         title: 'Commandes à Traiter',
         value: stats.processingOrders,
         icon: 'shopping_cart',
         color: 'accent',
-        description: 'Commandes en cours de traitement'
+        description: 'Commandes en cours de traitement',
+        route: PathNames.ordersManagement
       },
       {
         title: 'Produits en Stock',
         value: stats.productsInStock,
         icon: 'inventory_2',
         color: 'success',
-        description: 'Articles disponibles à la vente'
+        description: 'Articles disponibles à la vente',
+        route: PathNames.productsList
       },
       {
         title: 'Commandes anulées',
         value: stats.monthlyCancelledOrders,
         icon: 'people',
         color: 'warning',
-        description: 'Commandes annulées ce mois-ci'
+        description: 'Commandes annulées ce mois-ci',
+        route: PathNames.ordersManagement
       },
       {
         title: 'Revenus Mensuel',
         value: this.dashboardService.formatCurrency(stats.monthlyRevenue),
         icon: 'account_balance_wallet',
         color: 'success',
-        description: 'Chiffre d\'affaires du mois'
+        description: 'Chiffre d\'affaires du mois',
+        route: PathNames.ordersManagement
       },
       {
         title: 'Panier Moyen',
         value: this.dashboardService.formatCurrency(stats.averageOrderValue),
         icon: 'shopping_basket',
         color: 'primary',
-        description: 'Valeur moyenne des commandes'
+        description: 'Valeur moyenne des commandes',
+        route: PathNames.ordersManagement
       }
     ];
   }

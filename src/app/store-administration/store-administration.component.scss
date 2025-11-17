@@ -1,0 +1,551 @@
+// 🎨 STORE ADMINISTRATION - DESIGN MODERNE
+.store-administration {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+// 📝 EN-TÊTE ADMINISTRATION
+.page-header {
+  margin-bottom: 32px;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+
+    .header-info {
+      .page-title {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 8px 0;
+
+        .title-icon {
+          font-size: 36px;
+          color: #6366f1;
+        }
+      }
+
+      .page-subtitle {
+        font-size: 18px;
+        color: #64748b;
+        margin: 0 0 12px 0;
+        font-weight: 500;
+      }
+
+      .header-date {
+        font-size: 14px;
+        color: #94a3b8;
+        text-transform: capitalize;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+
+      button {
+        height: 40px;
+        font-weight: 600;
+        border-radius: 10px;
+        
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+// 📊 CARTES STATISTIQUES ADMIN
+.admin-stats-section {
+  margin-bottom: 32px;
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+
+    .admin-stat-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      }
+
+      // Couleurs des cartes
+      &.card-primary .card-background { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+      &.card-success .card-background { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+      &.card-accent .card-background { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+      &.card-warning .card-background { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
+
+      .card-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        z-index: 1;
+      }
+
+      .card-content {
+        padding: 24px;
+        position: relative;
+
+        .stat-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+
+          .icon-container {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .stat-icon {
+              font-size: 28px;
+              color: #6366f1;
+            }
+          }
+
+          .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1;
+          }
+        }
+
+        .stat-info {
+          .stat-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 4px 0;
+          }
+
+          .stat-description {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0;
+          }
+        }
+
+        .card-arrow {
+          position: absolute;
+          top: 24px;
+          right: 24px;
+          opacity: 0;
+          transition: all 0.3s ease;
+
+          mat-icon {
+            color: #9ca3af;
+          }
+        }
+      }
+
+      &:hover .card-arrow {
+        opacity: 1;
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
+// 🗂️ CONTENU PRINCIPAL AVEC ONGLETS
+.admin-content {
+  .admin-tabs {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    ::ng-deep {
+      .mat-mdc-tab-group {
+        .mat-mdc-tab-header {
+          border-bottom: 1px solid #e5e7eb;
+          background: #f9fafb;
+
+          .mat-mdc-tab-label {
+            min-width: 160px;
+            height: 64px;
+            padding: 0 24px;
+            font-weight: 600;
+            color: #6b7280;
+
+            &.mdc-tab--active {
+              color: #6366f1;
+            }
+
+            .mat-mdc-tab-label-content {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+          }
+        }
+
+        .mat-mdc-tab-body-wrapper {
+          .mat-mdc-tab-body {
+            padding: 32px;
+          }
+        }
+      }
+    }
+
+    .tab-content {
+      min-height: 400px;
+    }
+  }
+}
+
+// 🧩 GRILLE DES MODULES SYSTÈME
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+
+  .system-module-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    &.module-primary::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    &.module-success::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    &.module-accent::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    &.module-warning::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .module-header {
+      padding: 24px 24px 12px;
+
+      .module-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        .module-icon {
+          font-size: 32px;
+          color: #6366f1;
+        }
+
+        .status-icon {
+          font-size: 20px;
+
+          &.success { color: #10b981; }
+          &.warning { color: #f59e0b; }
+          &.error { color: #ef4444; }
+        }
+      }
+    }
+
+    .module-content {
+      padding: 0 24px 24px;
+
+      .module-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 8px 0;
+      }
+
+      .module-description {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0 0 16px 0;
+        line-height: 1.5;
+      }
+
+      .module-status {
+        display: flex;
+        justify-content: flex-end;
+
+        mat-chip {
+          font-size: 12px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// 📋 LISTE DES ACTIVITÉS
+.activities-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  mat-card-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+
+      mat-icon {
+        color: #6366f1;
+      }
+    }
+
+    mat-card-subtitle {
+      color: #6b7280;
+      margin-top: 4px;
+    }
+  }
+
+  .activities-list {
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f3f4f6;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 20px;
+
+          &.type-sale { color: #10b981; }
+          &.type-order { color: #6366f1; }
+          &.type-stock { color: #f59e0b; }
+          &.type-customer { color: #8b5cf6; }
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: currentColor;
+          opacity: 0.1;
+        }
+      }
+
+      .activity-content {
+        flex-grow: 1;
+
+        .activity-message {
+          font-size: 14px;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 4px;
+        }
+
+        .activity-meta {
+          display: flex;
+          gap: 12px;
+          font-size: 12px;
+          color: #9ca3af;
+
+          .activity-user {
+            font-weight: 500;
+          }
+        }
+      }
+
+      .activity-amount {
+        font-size: 14px;
+        font-weight: 600;
+        color: #059669;
+      }
+    }
+  }
+
+  .no-activities {
+    text-align: center;
+    padding: 48px 24px;
+    color: #9ca3af;
+
+    mat-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}
+
+// 🛠️ OUTILS D'ADMINISTRATION
+.admin-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+
+  .tool-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+
+    mat-card-header {
+      padding-bottom: 16px;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+
+        mat-icon {
+          color: #6366f1;
+        }
+      }
+    }
+
+    mat-card-content {
+      p {
+        color: #6b7280;
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+
+      .tool-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        button {
+          border-radius: 10px;
+          font-weight: 500;
+
+          mat-icon {
+            margin-right: 6px;
+            font-size: 18px;
+          }
+        }
+      }
+
+      .system-health {
+        .health-indicator {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          background: #f0fdf4;
+          border-radius: 10px;
+          border: 1px solid #bbf7d0;
+
+          .health-icon {
+            font-size: 20px;
+
+            &.success { color: #059669; }
+          }
+
+          span {
+            font-weight: 500;
+            color: #065f46;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 📱 RESPONSIVE
+@media (max-width: 768px) {
+  .store-administration {
+    padding: 16px;
+  }
+
+  .page-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .header-actions {
+      width: 100%;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-group .mat-mdc-tab-header .mat-mdc-tab-label {
+        min-width: auto;
+        padding: 0 16px;
+      }
+
+      .mat-mdc-tab-body-wrapper .mat-mdc-tab-body {
+        padding: 24px 16px;
+      }
+    }
+  }
+}

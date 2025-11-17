@@ -130,6 +130,10 @@ export class NavigationUtilities {
     this.router.navigate([route, id]);
   }
 
+  goToRoute(route: string): void {
+    this.router.navigate([route]);
+  }
+
   goToRouteWithQueryParams(route: string, queryParams?: any): void {
     this.router.navigate([route], queryParams ? { queryParams } : {});
   }

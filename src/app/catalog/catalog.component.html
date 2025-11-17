@@ -203,22 +203,4 @@
       </p>
     </div>
   </div>
-
-  <!-- Section footer avec statistiques -->
-  <div class="showcase-footer" *ngIf="!isLoading && productWithCategorys.length > 0">
-    <div class="stats-container">
-      <div class="stat-item">
-        <span class="stat-number">{{ productWithCategorys.length }}</span>
-        <span class="stat-label">Produit{{ productWithCategorys.length > 1 ? 's' : '' }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">{{ categories.length }}</span>
-        <span class="stat-label">Catégorie{{ categories.length > 1 ? 's' : '' }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">{{ getInStockCount() }}</span>
-        <span class="stat-label">En stock</span>
-      </div>
-    </div>
-  </div>
 </div>

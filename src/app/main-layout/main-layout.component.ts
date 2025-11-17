@@ -83,12 +83,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE],
     },
     {
-      icon: 'point_of_sale',
-      label: 'Point of Sale',
-      route: PathNames.pos,
-      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
-    },
-    {
       icon: 'people',
       label: 'Gestion Clients',
       route: PathNames.users,
@@ -107,21 +101,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     {
-      icon: 'analytics',
-      label: 'Reports & Analytics',
-      route: PathNames.reports,
-      roles: [UserRole.ADMIN]
-    },
-    {
       icon: 'admin_panel_settings',
-      label: 'Store Administration',
-      route: PathNames.admin,
-      roles: [UserRole.ADMIN]
-    },
-    {
-      icon: 'settings',
-      label: 'Settings',
-      route: PathNames.settings,
+      label: 'Gestion Magasin',
+      route: PathNames.storeManagement,
       roles: [UserRole.ADMIN]
     },
     //Menu pour tous les utilisateurs
@@ -182,6 +164,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
+  onSearch(arg0: any) {
+    
+  }
+
   onLogout(): void {
     this.errorHandlingUtilities.wrapOperation(
     this.authService.logout(),
@@ -237,7 +223,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         return 'Catégories';
       case PathNames.reports:
         return 'Rapports & Analytics';
-      case PathNames.admin:
+      case PathNames.storeManagement:
         return 'Administration';
       default:
         return 'Store Manager';

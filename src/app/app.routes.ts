@@ -26,6 +26,7 @@ import { SupplierFormComponent } from './supplier-form/supplier-form.component';
 import { SupplierDetailsComponent } from './supplier-details/supplier-details.component';
 import { CategoriesListComponent } from './categories-list/categories-list.component';
 import { CategoryFormComponent } from './category-form/category-form.component';
+import { StoreAdministrationComponent } from './store-administration/store-administration.component';
 
 export const routes: Routes = [
   { 
@@ -150,6 +151,12 @@ export const routes: Routes = [
       {
          path: 'category-form/:id',
          component: CategoryFormComponent,
+         canActivate: [RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
+      },
+      {
+         path: 'store-management',
+         component: StoreAdministrationComponent,
          canActivate: [RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
       },
