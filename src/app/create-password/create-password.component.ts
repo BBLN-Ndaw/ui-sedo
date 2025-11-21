@@ -14,14 +14,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { AuthService } from '../services/auth.service';
+import { AuthService, CreatePasswordDto } from '../services/auth.service';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 import { NavigationUtilities } from '../services/navigation.utilities';
-
-export interface SetPasswordDto {
-  token: string;
-  password: string;
-}
 
 export interface UserInfoFromToken {
   firstName: string;
@@ -31,7 +26,7 @@ export interface UserInfoFromToken {
 }
 
 @Component({
-  selector: 'app-set-password',
+  selector: 'app-create-password',
   standalone: true,
   imports: [
     CommonModule,
@@ -43,11 +38,11 @@ export interface UserInfoFromToken {
     MatIconModule,
     MatProgressSpinnerModule
   ],
-  templateUrl: './set-password.component.html',
-  styleUrl: './set-password.component.scss'
+  templateUrl: './create-password.component.html',
+  styleUrl: './create-password.component.scss'
 })
-export class SetPasswordComponent implements OnInit, OnDestroy {
-  setPasswordForm: FormGroup;
+export class CreatePasswordComponent implements OnInit, OnDestroy {
+  createPasswordForm: FormGroup;
   isLoading = false;
   hidePassword = true;
   hideConfirmPassword = true;
@@ -64,7 +59,7 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private route: ActivatedRoute
   ) {
-    this.setPasswordForm = this.formBuilder.group({
+    this.createPasswordForm = this.formBuilder.group({
       password: ['', [
         Validators.required, 
         Validators.minLength(8),
@@ -100,12 +95,11 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
           userName: params['userName'] || '',
           email: params['email'] || ''
         };
-      } else {
-        const errorMessage = params['message'] || 'Token invalide ou expiré';
-        console.error(errorMessage);
-        setTimeout(() => {
-          this.navigationUtilities.goToLogin();
-        }, 3000);
+      }
+      if(!this.token || !this.userInfo || !this.userInfo.email || !this.isTokenValid
+        || !this.userInfo.userName || !this.userInfo.firstName || !this.userInfo.lastName) {
+          console.error('Token ou informations utilisateur invalides pour la création du mot de passe.');
+        this.navigationUtilities.goToLogin();
       }
     });
   }
@@ -122,16 +116,16 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.setPasswordForm.valid && this.token) {
+    if (this.createPasswordForm.valid && this.token) {
       this.isLoading = true;
       
-      const setPasswordData: SetPasswordDto = {
+      const createPasswordData: CreatePasswordDto = {
         token: this.token,
-        password: this.setPasswordForm.value.password
+        password: this.createPasswordForm.value.password
       };
 
       this.errorHandlingUtilities.wrapOperation(
-        this.authService.setPassword(setPasswordData),
+        this.authService.createPassword(createPasswordData),
         'Définition du mot de passe',
         'Mot de passe défini avec succès! Vous pouvez maintenant vous connecter.'
       ).pipe(takeUntil(this.destroy$))
@@ -148,7 +142,7 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.markFormGroupTouched(this.setPasswordForm);
+      this.markFormGroupTouched(this.createPasswordForm);
     }
   }
 
@@ -171,7 +165,7 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
   }
 
   getErrorMessage(fieldName: string): string {
-    const field = this.setPasswordForm.get(fieldName);
+    const field = this.createPasswordForm.get(fieldName);
     if (!field || !field.touched) return '';
 
     if (field.hasError('required')) {
@@ -187,7 +181,7 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
       }
     }
     
-    if (fieldName === 'confirmPassword' && this.setPasswordForm.hasError('passwordMismatch')) {
+    if (fieldName === 'confirmPassword' && this.createPasswordForm.hasError('passwordMismatch')) {
       return 'Les mots de passe ne correspondent pas';
     }
     
@@ -195,7 +189,7 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
   }
 
   isFieldRequired(fieldName: string): boolean {
-    const field = this.setPasswordForm.get(fieldName);
+    const field = this.createPasswordForm.get(fieldName);
     return field ? field.hasValidator(Validators.required) : false;
   }
 
@@ -204,6 +198,6 @@ export class SetPasswordComponent implements OnInit, OnDestroy {
   }
 
   get isSubmitDisabled(): boolean {
-    return this.setPasswordForm.invalid || this.isLoading || !this.isTokenValid;
+    return this.createPasswordForm.invalid || this.isLoading || !this.isTokenValid;
   }
 }

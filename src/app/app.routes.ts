@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { SetPasswordComponent } from './set-password/set-password.component';
+import { CreatePasswordComponent } from './create-password/create-password.component';
 import { MainLayoutComponent } from './main-layout/main-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatalogComponent } from './catalog/catalog.component';
@@ -35,8 +35,8 @@ export const routes: Routes = [
     canActivate: [LoginGuard]
   },
   { 
-    path: 'set-password', 
-    component: SetPasswordComponent
+    path: 'create-password', 
+    component: CreatePasswordComponent
   },
   { path: 'logout', redirectTo: '/login' },
   {

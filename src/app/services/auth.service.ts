@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, REQUEST } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 // ===== INTERFACES =====
 export interface LoginCredentials {
@@ -16,7 +17,7 @@ export interface LoginResponse {
   token?: string;
 }
 
-export interface SetPasswordDto {
+export interface CreatePasswordDto {
   token: string;
   password: string;
 }
@@ -29,8 +30,7 @@ const API_CONFIG = {
     REFRESH: '/refresh_token',
     LOGOUT: '/logout',
     CHECK_LOGIN: '/check_login',
-    USER_PROFILE: '/users/profile',
-    SET_PASSWORD: '/set-password'
+    CREATE_PASSWORD: '/create-password',
   }
 } as const;
 
@@ -42,9 +42,6 @@ export class AuthService {
   public accessTokenSubject = new BehaviorSubject<string|null>(null);
 
   public readonly accessToken$ = this.accessTokenSubject.asObservable();
-
-  private readonly CART_STORAGE_KEY = 'shopping_cart';
-
 
   // flag pour indiquer que l'initApp (APP_INITIALIZER) est terminé
   private initializedSubject = new BehaviorSubject<boolean>(false);
@@ -134,12 +131,35 @@ export class AuthService {
     this.updateAccessTokenState(token);
   }
 
+  shouldSkipRefreshForPasswordCreation(): boolean {
+    const platformId = inject(PLATFORM_ID);
+
+    // ---- SERVER SIDE ----
+    if (!isPlatformBrowser(platformId)) {
+      const req = inject(REQUEST);
+      const url = req?.url ?? '';
+      if (url.includes('create-password')) {
+        console.log('Skip refresh token: create-password detected (server)');
+        return true;
+      }
+      return false;
+    }
+
+    // ---- BROWSER SIDE ----
+    const url = window.location.pathname;
+    if (url.includes('create-password')) {
+      console.log('Skip refresh token: create-password detected (browser)');
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Définir le mot de passe avec le token de validation
-   * @param setPasswordDto - Les données pour définir le mot de passe
+   * @param createPassword - Les données pour définir le mot de passe
    * @returns Observable<{message: string}> - La réponse du serveur
    */
-  setPassword(setPasswordDto: SetPasswordDto): Observable<{message: string}> {
-    return this.http.post<{message: string}>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SET_PASSWORD}`, setPasswordDto);
+  createPassword(createPassword: CreatePasswordDto): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CREATE_PASSWORD}`, createPassword);
   }
 }

@@ -20,7 +20,12 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAppInitializer(() => {
       const auth = inject(AuthService);
-      return firstValueFrom(auth.refreshToken()).catch(() => { /*...*/ });
+
+      //prevent token refresh on password creation page
+      if(auth.shouldSkipRefreshForPasswordCreation()) {
+        return Promise.resolve();
+      }  
+      return firstValueFrom(auth.refreshToken()).catch(() => { });
     }),
     provideAnimationsAsync()
   ]

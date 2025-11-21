@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
+import { RequestPasswordResetRequestDto, RequestPasswordResetResponseDto, UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
 
 // ===== INTERFACES =====
 
@@ -24,6 +24,7 @@ const USER_API_CONFIG = {
     USERS: '/users',
     STATUS: '/users/status',
     PROFILE: '/users/profile',
+    REQUEST_PASSWORD_RESET: '/request-password-reset',
   }
 } as const;
 
@@ -73,6 +74,15 @@ export class UserService {
     return this.http.put<UpdatePasswordDto>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/${id}/password`, changePasswordRequest, {
       withCredentials: true
     })
+  }
+
+   /**
+   * Demander une réinitialisation de mot de passe lorsqu'on a oublié son mot de passe
+   * @param email - L'email de l'utilisateur
+   * @returns Observable<{message: string}> - La réponse du serveur
+   */
+  requestPasswordReset(requestPasswordResetRequestDto: RequestPasswordResetRequestDto): Observable<RequestPasswordResetResponseDto> {
+    return this.http.post<RequestPasswordResetResponseDto>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}${USER_API_CONFIG.ENDPOINTS.REQUEST_PASSWORD_RESET}`, requestPasswordResetRequestDto );
   }
 
     /**

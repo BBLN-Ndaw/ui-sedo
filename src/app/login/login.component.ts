@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -13,6 +13,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AuthService, LoginCredentials } from '../services/auth.service';
+import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
+import { Subject, takeUntil } from 'rxjs';
+import { UserService } from '../services/user.service';
+import { RequestPasswordResetRequestDto } from '../shared/models';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +24,7 @@ import { AuthService, LoginCredentials } from '../services/auth.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -31,21 +36,32 @@ import { AuthService, LoginCredentials } from '../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
   loginForm: FormGroup;
+  emailFormControl = new FormControl('', [Validators.required, Validators.pattern("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")]);
   isLoading = false;
   hidePassword = true;
+  showForgotPassword = false;
+  isResetLoading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private userService: UserService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private errorHandlingUtilities: ErrorHandlingUtilities
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSubmit(): void {
@@ -55,22 +71,19 @@ export class LoginComponent {
         username: this.loginForm.value.username,
         password: this.loginForm.value.password
       };
-
-      this.authService.login(credentials).subscribe({
-        next: (response) => {
+      this.errorHandlingUtilities.wrapOperation(
+      this.authService.login(credentials),
+      'Connexion utilisateur',
+      'Connexion réussie'
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
           this.isLoading = false;
-          this.snackBar.open('Connexion is succeeded !', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
           this.router.navigate(['/dashboard']);
         },
-        error: (error) => {
+        error: () => {
           this.isLoading = false;
-          this.snackBar.open('Erreur de connexion. Veuillez réessayer.', 'Fermer', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
           this.router.navigate(['/login']);
         }
       });
@@ -97,4 +110,34 @@ export class LoginComponent {
     }
     return '';
   }
+
+  toggleForgotPassword(): void {
+    console.log('Toggling forgot password. Current state:', this.showForgotPassword);
+    this.showForgotPassword = !this.showForgotPassword;
+    this.emailFormControl.reset();
+  }
+
+  requestPasswordReset(): void {
+    const email = this.emailFormControl.value || ''
+    this.isResetLoading = true;
+    const requestPasswordResetRequestDto: RequestPasswordResetRequestDto = { email: email };
+
+    this.errorHandlingUtilities.wrapOperation(
+    this.userService.requestPasswordReset(requestPasswordResetRequestDto),
+    'Réinitialisation de mot de passe',
+    'Si un compte avec cet email existe, un lien de réinitialisation a été envoyé.'
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: () => {
+        this.isResetLoading = false;
+        this.showForgotPassword = false;
+        this.emailFormControl.setValue('');
+      },
+      error: () => {
+        this.isResetLoading = false;
+      }
+    });
+  }
 }
+

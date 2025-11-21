@@ -54,6 +54,50 @@
           <span *ngIf="!isLoading">Se connecter</span>
           <span *ngIf="isLoading">Connexion en cours...</span>
         </button>
+
+        <!-- Lien mot de passe oublié -->
+        <div class="forgot-password-section">
+          <button 
+            mat-button 
+            type="button"
+            class="forgot-password-link"
+            (click)="toggleForgotPassword()">
+            {{ showForgotPassword ? 'Retour à la connexion' : 'Mot de passe oublié ?' }}
+          </button>
+        </div>
+
+        <!-- Section de réinitialisation de mot de passe -->
+        <div *ngIf="showForgotPassword" class="reset-password-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Adresse email</mat-label>
+            <input
+              matInput
+              type="email"
+              [formControl]="emailFormControl"
+              placeholder="Saisissez votre adresse email"
+              autocomplete="email"
+            >
+            <mat-icon matSuffix>email</mat-icon>
+            <mat-error *ngIf="emailFormControl.hasError('required')">
+              L'adresse email est requise
+            </mat-error>
+            <mat-error *ngIf="emailFormControl.errors?.['pattern'] && (!emailFormControl.hasError('required'))">
+              L'adresse email n'est pas valide
+            </mat-error>
+          </mat-form-field>
+          <button
+          *ngIf="!emailFormControl.hasError('pattern') && !emailFormControl.hasError('required')"
+            mat-raised-button
+            color="accent"
+            type="button"
+            class="full-width reset-button"
+            [disabled]="emailFormControl.invalid || isResetLoading"
+            (click)="requestPasswordReset()">
+            <mat-spinner *ngIf="isResetLoading" diameter="20"></mat-spinner>
+            <span *ngIf="!isResetLoading">Envoyer le lien de réinitialisation</span>
+            <span *ngIf="isResetLoading">Envoi en cours...</span>
+          </button>
+        </div>
       </form>
     </mat-card-content>
 
