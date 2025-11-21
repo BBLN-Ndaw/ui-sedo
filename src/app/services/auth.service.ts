@@ -29,8 +29,7 @@ const API_CONFIG = {
     REFRESH: '/refresh_token',
     LOGOUT: '/logout',
     CHECK_LOGIN: '/check_login',
-    USER_PROFILE: '/users/profile',
-    SET_PASSWORD: '/set-password'
+    SET_PASSWORD: '/set-password',
   }
 } as const;
 
@@ -42,9 +41,6 @@ export class AuthService {
   public accessTokenSubject = new BehaviorSubject<string|null>(null);
 
   public readonly accessToken$ = this.accessTokenSubject.asObservable();
-
-  private readonly CART_STORAGE_KEY = 'shopping_cart';
-
 
   // flag pour indiquer que l'initApp (APP_INITIALIZER) est terminé
   private initializedSubject = new BehaviorSubject<boolean>(false);

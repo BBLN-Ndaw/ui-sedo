@@ -430,3 +430,11 @@ export interface DashboardCard {
   description?: string;
   route?: string;
 }
+
+export interface RequestPasswordResetRequestDto{
+  email: string;
+}
+
+export interface RequestPasswordResetResponseDto{
+  value: string;
+}

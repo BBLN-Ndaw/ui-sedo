@@ -18,7 +18,11 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (req.url.includes('/api/auth/refresh') || req.url.includes('/api/auth/login') || req.url.includes('/api/auth/logout') || req.url.includes('/api/set-password')) {
+  if (req.url.includes('/api/auth/refresh') 
+    || req.url.includes('/api/auth/login') 
+    || req.url.includes('/api/auth/logout') 
+    || req.url.includes('/api/auth/set-password')
+    || req.url.includes('api/users/request-password-reset')) {
     return next(req);
   }
   let accessToken: string | null = null;
@@ -49,7 +53,6 @@ function handle401(
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
-
     return authService.refreshToken().pipe(
       switchMap(response => {
         isRefreshing = false;
