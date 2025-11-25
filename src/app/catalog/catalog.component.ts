@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -15,7 +14,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
-import { NotificationService } from '../services/notification.service';
 import {Category, ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
 import { ProductService } from '../services/product.service';
@@ -44,7 +42,6 @@ import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
   styleUrl: './catalog.component.scss'
 })
 export class CatalogComponent implements OnInit, OnDestroy {
-  @ViewChild('promoContainer', { static: false }) promoContainer!: ElementRef<HTMLElement>;
 
   // État du composant
   isLoading = false;
@@ -60,7 +57,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
     public productService: ProductService,
     private promotionUtilities: PromotionUtilities,
     private stockUtilities: StockUtilities,
-    private formatUtilities: FormatUtilities,
     private navigationUtilities: NavigationUtilities,
     private errorHandlingUtilities: ErrorHandlingUtilities
   ) {}
@@ -106,13 +102,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
     });
   }
 
-  formatCurrency(price: number): string {
-    return this.formatUtilities.formatCurrency(price);
-  }
-
-  /**
-   * Formate le prix TTC d'un produit
-   */
   formatProductPriceTTC(product: ProductWithCategoryDto): string {
     return this.promotionUtilities.formatApplicablePriceTTC(product);
   }
@@ -151,36 +140,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
     return product.id;
   }
 
-  getInStockCount(): number {
-    return this.stockUtilities.getInStockCount(this.productWithCategorys);
-  }
-
-  getPromotionalProducts(): ProductWithCategoryDto[] {
-    return this.productWithCategorys.filter(product => 
-      this.promotionUtilities.isValidPromotion(product)
-    );
-  }
-
   getPromotionalPrice(product: ProductWithCategoryDto): string {
     return this.promotionUtilities.getPromotionalPriceTTC(product);
   }
 
   getDiscountPercentage(product: ProductWithCategoryDto): number {
     return this.promotionUtilities.getDiscountPercentage(product);
-  }
-
-  scrollPromos(direction: 'left' | 'right'): void {
-    const container = this.promoContainer.nativeElement;
-    const scrollAmount = 300;
-    const currentScroll = container.scrollLeft;
-    const targetScroll = direction === 'left'
-      ? currentScroll - scrollAmount
-      : currentScroll + scrollAmount;
-
-    container.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
   }
 
   isPromotionExpiringSoon(product: ProductWithCategoryDto): boolean {

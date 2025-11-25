@@ -1,99 +1,62 @@
-<div class="catalog-showcase">
-  <!-- Header élégant -->
-  <div class="showcase-header">
-    <h1 class="showcase-title">
-      <mat-icon class="title-icon">storefront</mat-icon>
-      Notre Catalogue
-    </h1>
-    <p class="showcase-subtitle">Découvrez tous nos produits disponibles en boutique</p>
+<div class="ecommerce-catalog">
+  <!-- Header moderne -->
+  <div class="catalog-header">
+    <div class="header-content">
+      <h1 class="catalog-title">
+        <mat-icon class="title-icon">shopping_bag</mat-icon>
+        Nos Produits
+      </h1>
+      <p class="catalog-subtitle">Découvrez notre sélection de produits disponibles en boutique</p>
+    </div>
   </div>
 
   <!-- Spinner de chargement -->
-  <div class="loading-container" *ngIf="isLoading">
-    <mat-spinner diameter="60" color="primary"></mat-spinner>
+  <div class="loading-section" *ngIf="isLoading">
+    <mat-spinner diameter="50" color="primary"></mat-spinner>
     <p class="loading-text">Chargement des produits...</p>
   </div>
 
-  <!-- Section Produits en Promotion (Carrousel) -->
-  <div class="promotional-section" *ngIf="!isLoading && promotionalProductWithCategorys.length > 0">
-    <div class="promo-header">
+  <!-- Section Promotions en bannière -->
+  <div class="promotions-banner" *ngIf="!isLoading && promotionalProductWithCategorys.length > 0">
+    <div class="banner-header">
       <h2 class="promo-title">
-        <mat-icon class="promo-icon">local_offer</mat-icon>
-        Offres Spéciales
+        <mat-icon class="flash-icon">flash_on</mat-icon>
+        Offres Flash
       </h2>
-      <p class="promo-subtitle">Profitez de nos promotions exceptionnelles</p>
+      <p class="promo-subtitle">Profitez de nos réductions limitées dans le temps</p>
     </div>
 
-    <div class="promo-carousel">
-      <button 
-        mat-icon-button 
-        class="carousel-btn carousel-btn-left"
-        (click)="scrollPromos('left')"
-        aria-label="Précédent">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-
-      <div #promoContainer class="promo-products-container">
-        <div class="promo-products-track">
+    <div class="promo-slider">
+      <div class="promo-container">
+        <div class="promo-track">
           <div 
             *ngFor="let product of promotionalProductWithCategorys; trackBy: trackByProductId" 
-            class="promo-product-card"
-            matRipple>
+            class="promo-card"
+            (click)="onProductView(product)">
             
-            <!-- Badge de réduction -->
-            <div class="discount-badge">
-              -{{ getDiscountPercentage(product) }}%
-            </div>
-
-            <!-- Badge urgent si expiration proche -->
-            <div class="urgent-badge" *ngIf="isPromotionExpiringSoon(product)">
-              <mat-icon>access_time</mat-icon>
-              Derniers jours !
-            </div>
-
-            <!-- Image du produit -->
-            <div class="promo-image-wrapper">
+            <div class="promo-image-container">
               <img 
                 [src]="product.imageUrls[0] || 'assets/images/no-image.png'"
                 [alt]="product.name"
                 class="promo-image"
                 loading="lazy">
               
-              <!-- Overlay avec action rapide -->
-              <div class="promo-overlay">
-                <!-- voir details bouton -->
-                <button 
-                  mat-fab 
-                  color="primary" 
-                  class="quick-add-btn view-btn"
-                  (click)="onProductView(product)"
-                  [disabled]="getStockStatus(product) === 'out-of-stock'"
-                  matTooltip="Voir les détails">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-              <!-- Ajouter au panier bouton -->
-                <button 
-                  mat-fab 
-                  color="accent" 
-                  class="quick-add-btn"
-                  (click)="onProductSelect(product)"
-                  [disabled]="getStockStatus(product) === 'out-of-stock'"
-                  [matTooltip]="getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
-                  <mat-icon>{{ getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
-                </button>
-                
+              <div class="discount-label">
+                -{{ getDiscountPercentage(product) }}%
+              </div>
+              
+              <div class="urgent-label" *ngIf="isPromotionExpiringSoon(product)">
+                <mat-icon>schedule</mat-icon>
+                <span>Dernières heures !</span>
               </div>
             </div>
 
-            <!-- Informations du produit -->
-            <div class="promo-info">
-              <h4 class="promo-product-name" [title]="product.name">{{ product.name }}</h4>
-              
-              <div class="promo-prices">
-                <span class="original-price">{{ getNormalPriceTTC(product) }}</span>
-                <span class="promo-price">{{ getPromotionalPrice(product) }}</span>
+            <div class="promo-details">
+              <h4 class="promo-name">{{ product.name }}</h4>
+              <div class="promo-pricing">
+                <span class="old-price">{{ getNormalPriceTTC(product) }}</span>
+                <span class="new-price">{{ getPromotionalPrice(product) }}</span>
               </div>
-
               <div class="promo-stock" [ngClass]="getStockStatus(product)">
                 {{ getStockStatusText(product) }}
               </div>
@@ -101,105 +64,90 @@
           </div>
         </div>
       </div>
-
-      <button 
-        mat-icon-button 
-        class="carousel-btn carousel-btn-right"
-        (click)="scrollPromos('right')"
-        aria-label="Suivant">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
     </div>
   </div>
 
-  <!-- Grille de produits -->
-  <div class="products-showcase" *ngIf="!isLoading && productWithCategorys.length > 0">
+  <!-- Grille produits principale -->
+  <div class="products-section" *ngIf="!isLoading && productWithCategorys.length > 0">
     <div class="products-grid">
-      <mat-card 
+      <div 
         *ngFor="let product of productWithCategorys; trackBy: trackByProductId" 
-        class="product-showcase-card"
-        [class.low-stock]="getStockStatus(product) === 'low-stock'"
-        [class.out-of-stock]="getStockStatus(product) === 'out-of-stock'"
-        matRipple>
+        class="product-card"
+        [class.stock-low]="getStockStatus(product) === 'low-stock'"
+        [class.stock-out]="getStockStatus(product) === 'out-of-stock'">
         
-        <!-- Image du produit avec overlay -->
-        <div class="product-image-wrapper">
-          <img 
-            [src]="product.imageUrls[0] || 'assets/images/no-image.png'"
-            [alt]="product.name"
-            class="product-image"
-            loading="lazy">
-          
-          <!-- Overlay avec actions -->
-          <div class="product-overlay">
-            <div class="product-actions">
-              <button 
-                mat-fab 
-                color="primary" 
-                class="action-btn view-btn"
-                (click)="onProductView(product)"
-                matTooltip="Voir les détails">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              
-              <button 
-                mat-fab 
-                color="accent" 
-                class="action-btn add-btn"
-                (click)="onProductSelect(product)"
-                [disabled]="getStockStatus(product) === 'out-of-stock'"
-                [matTooltip]="getStockStatus(product) === 'out-of-stock' ? 'Produit indisponible' : 'Ajouter au panier'">
-                <mat-icon>{{ getStockStatus(product) === 'out-of-stock' ? 'block' : 'add_shopping_cart' }}</mat-icon>
-              </button>
+        <!-- Image et badges -->
+        <div class="card-image-section">
+          <div class="image-container">
+            <img 
+              [src]="product.imageUrls[0] || 'assets/images/no-image.png'"
+              [alt]="product.name"
+              class="product-img"
+              loading="lazy"
+              (click)="onProductView(product)">
+            
+            <!-- Badge catégorie -->
+            <div class="category-tag">
+              {{ product.category.name }}
+            </div>
+            
+            <!-- Badge stock -->
+            <div class="stock-badge" [ngClass]="getStockStatus(product)" *ngIf="getStockStatus(product) !== 'in-stock'">
+              <mat-icon class="badge-icon">{{ getStockStatusIcon(product) }}</mat-icon>
+              <span>{{ getStockStatusText(product) }}</span>
             </div>
           </div>
-
-          <!-- Badge de statut -->
-          <div class="status-badge" [ngClass]="getStockStatus(product)">
-            <mat-icon class="status-icon">{{ getStockStatusIcon(product) }}</mat-icon>
-          </div>
-
-          <!-- Badge de catégorie -->
-          <mat-chip class="category-badge">{{ product.category.name }}</mat-chip>
         </div>
 
-        <!-- Contenu de la carte -->
-        <mat-card-content class="product-info">
-          <div class="product-header">
-            <h3 class="product-name" [title]="product.name">{{ product.name }}</h3>
+        <!-- Informations produit -->
+        <div class="card-content">
+          <div class="product-info">
+            <h3 class="product-title" (click)="onProductView(product)" [title]="product.name">
+              {{ product.name }}
+            </h3>
+            
+            <p class="product-desc" [title]="product.description">
+              {{ product.description }}
+            </p>
+            
             <div class="product-meta">
-              <span class="product-sku">{{ product.sku }}</span>
-              <span class="stock-count" [ngClass]="getStockStatus(product)">
-                {{ product.stockQuantity }} en stock
+              <span class="sku">Réf: {{ product.sku }}</span>
+              <span class="stock-info" [ngClass]="getStockStatus(product)">
+                {{ product.stockQuantity }} disponible(s)
               </span>
             </div>
           </div>
-
-          <p class="product-description" [title]="product.description">
-            {{ product.description }}
-          </p>
-
-          <div class="product-footer">
-            <div class="price-section">
-              <span class="price">{{ formatProductPriceTTC(product) }}</span>
-              <span class="price-mention">TTC</span>
+          
+          <!-- Prix et action -->
+          <div class="card-footer">
+            <div class="pricing">
+              <span class="price-value">{{ formatProductPriceTTC(product) }}</span>
+              <span class="price-tax">TTC</span>
             </div>
-            <div class="status-text" [ngClass]="getStockStatus(product)">
-              {{ getStockStatusText(product) }}
-            </div>
+            
+            <button 
+              mat-raised-button 
+              color="primary"
+              class="add-to-cart-btn"
+              (click)="onProductSelect(product)"
+              [matTooltip]="getStockStatus(product) === 'out-of-stock' ? 'Indisponible' : 'Ajouter au panier'"
+              [disabled]="getStockStatus(product) === 'out-of-stock'">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ getStockStatus(product) === 'out-of-stock' ? 'Indisponible' : 'Ajouter' }}
+            </button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Message si aucun produit -->
-  <div class="no-products-container" *ngIf="!isLoading && productWithCategorys.length === 0">
-    <div class="no-products-content">
-      <mat-icon class="no-products-icon">inventory_2</mat-icon>
-      <h2 class="no-products-title">Aucun produit disponible</h2>
-      <p class="no-products-message">
-        La boutique ne contient actuellement aucun produit à afficher.
+  <!-- Message aucun produit -->
+  <div class="empty-state" *ngIf="!isLoading && productWithCategorys.length === 0">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">shopping_bag</mat-icon>
+      <h2 class="empty-title">Aucun produit disponible</h2>
+      <p class="empty-message">
+        Notre catalogue est en cours de mise à jour. Revenez bientôt pour découvrir nos nouveaux produits !
       </p>
     </div>
   </div>
