@@ -233,7 +233,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       expirationDate: formValue.expirationDate ? new Date(formValue.expirationDate) : null,
       promotionEndDate: formValue.isOnPromotion && formValue.promotionEndDate ? 
                        new Date(formValue.promotionEndDate) : undefined,
-      images: this.productImages.map(img => img.url),
+      imageUrls: this.productImages.map(img => img.url),
       promotionPrice: formValue.isOnPromotion ? formValue.promotionPrice : undefined
     };
 
@@ -272,7 +272,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           console.log('Images uploadées avec succès:', uploadedUrls);
           const updatedProductData: Product = {
             ...productData,
-            images: uploadedUrls
+            imageUrls: uploadedUrls
           };
           this.createProductWithCleanup(updatedProductData, uploadedUrls);
         },
@@ -345,7 +345,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       const updatedImageImage = this.productImages.map(img => img.name);
        const updateData: Product = {
       ...productData,
-      images: updatedImageImage
+      imageUrls: updatedImageImage
     };
       this.deleteImagesBeforeUpdate(updateData, this.imagesToDelete);
     } else {
@@ -375,7 +375,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           
           const updatedProductData: Product = {
             ...productData,
-            images: [...existingImageUrls, ...uploadedUrls]
+            imageUrls: [...existingImageUrls, ...uploadedUrls]
           };
           this.updateProductWithCleanup(updatedProductData, uploadedUrls);
         },

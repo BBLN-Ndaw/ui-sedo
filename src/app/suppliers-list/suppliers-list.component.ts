@@ -26,6 +26,7 @@ import { SupplierService } from '../services/supplier.service';
 import { NavigationUtilities } from '../services/navigation.utilities';
 import { PathNames } from '../constant/path-names.enum';
 import { CategoryService } from '../services/category.service';
+import { ExportToExcelService } from '../services/export.to.excel.service';
 
 @Component({
   selector: 'app-suppliers-list',
@@ -61,6 +62,7 @@ export class SuppliersListComponent implements OnInit, OnDestroy {
   private navigationUtilities = inject(NavigationUtilities);
   private formatUtilities = inject(FormatUtilities);
   private categoriesService = inject(CategoryService);
+  private exportToExcelService = inject(ExportToExcelService);
 
   // État du composant
   loading = false;
@@ -257,8 +259,15 @@ export class SuppliersListComponent implements OnInit, OnDestroy {
   }
 
   onExportSuppliers(): void {
-    // TODO: Implémenter l'export des fournisseurs
-    console.log('Export des fournisseurs à implémenter');
+    this.errorHandlingUtilities.wrapOperation(
+      this.supplierService.getAllSuppliers(),
+      'export des fournisseurs')
+      .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (suppliers) => {
+        this.exportToExcelService.exportSupplierDataToExcel(suppliers);
+      }
+    });
   }
 
   onRefreshSuppliers(): void {

@@ -28,6 +28,7 @@ import { NavigationUtilities } from '../services/navigation.utilities';
 import { NotificationService } from '../services/notification.service';
 import { PathNames } from '../constant/path-names.enum';
 import { CategoryService } from '../services/category.service';
+import { ExportToExcelService } from '../services/export.to.excel.service';
 
 @Component({
   selector: 'app-products-list',
@@ -65,6 +66,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   private navigationUtilities = inject(NavigationUtilities);
   private formatUtilities = inject(FormatUtilities);
   private notificationService = inject(NotificationService);
+  private exportToExcelService = inject(ExportToExcelService);
 
   // component state
   loading = false;
@@ -340,8 +342,15 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   }
 
   onExportProducts(): void {
-    // TODO: implement export functionality
-    this.notificationService.showInfo('Export functionality coming soon');
+    this.errorHandlingUtilities.wrapOperation(
+    this.productService.getAllProducts(),
+      'export des produits')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (products) => {
+          this.exportToExcelService.exportProductToExcel(products);
+        }
+      });
   }
 
   onRefreshProducts(): void {

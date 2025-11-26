@@ -106,6 +106,13 @@ export class UserService {
     );
   }
 
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/all`,
+      { withCredentials: true }
+    );
+  }
+
    addSearchParam(
     page: number = 0,
     size: number = 20,

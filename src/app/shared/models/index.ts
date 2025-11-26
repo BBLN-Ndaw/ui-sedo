@@ -91,7 +91,7 @@ export interface Product {
   minStock: number;
   unit: string;
   expirationDate?: Date | null;
-  images: string[];
+  imageUrls: string[];
   isActive: boolean;
   isOnPromotion: boolean;
   promotionPrice?: number; // prix promo HT

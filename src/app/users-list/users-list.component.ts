@@ -25,6 +25,7 @@ import { FormatUtilities } from '../services/format.utilities';
 import { UserService } from '../services/user.service';
 import { NavigationUtilities } from '../services/navigation.utilities';
 import { PathNames } from '../constant/path-names.enum';
+import { ExportToExcelService } from '../services/export.to.excel.service';
 
 @Component({
   selector: 'app-users-list',
@@ -59,6 +60,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
   private errorHandlingUtilities = inject(ErrorHandlingUtilities);
   private navigationUtilities = inject(NavigationUtilities);
   private formatUtilities = inject(FormatUtilities);
+  private exportToExcelService = inject(ExportToExcelService);
 
   // État du composant
   loading = false;
@@ -251,8 +253,15 @@ export class UsersListComponent implements OnInit, OnDestroy {
   }
 
   onExportUsers(): void {
-    // const filters = this.buildFilters();
-
+    this.errorHandlingUtilities.wrapOperation(
+      this.userService.getAllUsers(),
+      'export des utilisateurs')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (users) => {
+          this.exportToExcelService.exportUserDataToExcel(users);
+        }
+      });
   }
 
   onRefreshUsers(): void {

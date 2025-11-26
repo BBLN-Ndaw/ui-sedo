@@ -62,6 +62,13 @@ export class SupplierService {
     return params;
   }
 
+  getAllSuppliers(): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(
+      `${SUPPLIER_API_CONFIG.BASE_URL}${SUPPLIER_API_CONFIG.ENDPOINTS.SUPPLIERS}/all`,
+      { withCredentials: true }
+    );
+  }
+
   getSupplierById(id: string): Observable<Supplier> {
     return this.http.get<Supplier>(
       `${SUPPLIER_API_CONFIG.BASE_URL}${SUPPLIER_API_CONFIG.ENDPOINTS.SUPPLIERS}/${id}`,
