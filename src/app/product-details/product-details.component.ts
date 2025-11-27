@@ -48,6 +48,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: ProductWithCategoryDto | null = null;
   isLoading = false;
   currentImageIndex = 0;
+  
+  // Nouvelles propriétés pour les améliorations
+  isImageZoomed = false;
+  showZoomHint = false;
+  selectedQuantity = 1;
   isFavorite = false;
   productId: string | null = null;
 
@@ -203,5 +208,110 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         this.isFavorite = true;
       }
     }
+  }
+  
+  // === Nouvelles méthodes d'amélioration ===
+  
+  // Navigation vers catégorie
+  navigateToCategory(categoryId: string | number): void {
+    this.router.navigate([PathNames.catalog], {
+      queryParams: { category: categoryId }
+    });
+  }
+  
+  // Tronquer le texte
+  truncateText(text: string, maxLength: number): string {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  }
+  
+  // Vérifications de statut produit
+  isNewProduct(product: ProductWithCategoryDto): boolean {
+    // Considérer un produit comme nouveau s'il a été créé dans les 30 derniers jours
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    // Si le produit a une date de création, la comparer
+    if ((product as any).createdDate) {
+      return new Date((product as any).createdDate) > thirtyDaysAgo;
+    }
+    
+    // Sinon, utiliser l'ID (produits récents ont des IDs plus élevés)
+    return product.id > 100; // Exemple de logique
+  }
+  
+  isBestseller(product: ProductWithCategoryDto): boolean {
+    // Logique pour déterminer si c'est un bestseller
+    // Peut être basé sur les ventes, les avis, etc.
+    return product.id % 5 === 0; // Exemple simplifié
+  }
+  
+  // Gestion du zoom d'image
+  toggleImageZoom(): void {
+    this.isImageZoomed = !this.isImageZoomed;
+    if (this.isImageZoomed) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+  
+  closeImageZoom(event: Event): void {
+    event.stopPropagation();
+    this.isImageZoomed = false;
+    document.body.style.overflow = '';
+  }
+  
+  // Gestion de la quantité
+  increaseQuantity(): void {
+    if (this.product && this.selectedQuantity < this.product.stockQuantity) {
+      this.selectedQuantity++;
+    }
+  }
+  
+  decreaseQuantity(): void {
+    if (this.selectedQuantity > 1) {
+      this.selectedQuantity--;
+    }
+  }
+  
+  // Méthodes de prix avancées
+  formatProductPriceHT(product: ProductWithCategoryDto): string {
+    const priceHT = product.sellingPrice / 1.2; // Enlever la TVA de 20%
+    return this.formatUtilities.formatCurrency(priceHT);
+  }
+  
+  getTaxAmount(product: ProductWithCategoryDto): string {
+    const taxAmount = product.sellingPrice - (product.sellingPrice / 1.2);
+    return this.formatUtilities.formatCurrency(taxAmount);
+  }
+  
+  getPromotionEndDate(product: ProductWithCategoryDto): Date | null {
+    // Retourner une date de fin de promotion si disponible
+    // Pour l'exemple, retourner une date dans 7 jours
+    if (this.isPromotional(product)) {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 7);
+      return endDate;
+    }
+    return null;
+  }
+  
+  formatDate(date: Date | null): string {
+    if (!date) return '';
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+  
+  // Achat express
+  buyNow(product: ProductWithCategoryDto): void {
+    // Ajouter au panier et rediriger vers le paiement
+    this.onProductSelect(product);
+    // Redirection vers le panier/checkout
+    setTimeout(() => {
+      this.router.navigate([PathNames.cart]);
+    }, 500);
   }
 }

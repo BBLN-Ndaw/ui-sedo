@@ -7,17 +7,28 @@
   </div>
 
   <!-- Navigation breadcrumb -->
-  <div class="breadcrumb-nav" *ngIf="!isLoading && product">
-    <button 
-      mat-button 
-      class="nav-link"
-      (click)="goBack()">
-      <mat-icon>home</mat-icon>
-      Catalogue
-    </button>
-    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
-    <span class="current-page">{{ product.name }}</span>
-  </div>
+  <nav class="breadcrumb-nav" *ngIf="!isLoading && product">
+    <div class="breadcrumb-container">
+      <button 
+        mat-button 
+        class="nav-link"
+        (click)="goBack()"
+        matRipple>
+        <mat-icon>storefront</mat-icon>
+        <span>Catalogue</span>
+      </button>
+      <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+      <button 
+        mat-button 
+        class="category-link"
+        (click)="navigateToCategory(product.category.id || 0)"
+        matRipple>
+        <span>{{ product.category.name }}</span>
+      </button>
+      <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+      <span class="current-page" [title]="product.name">{{ truncateText(product.name, 40) }}</span>
+    </div>
+  </nav>
 
   <!-- Détails du produit -->
   <div class="product-showcase" *ngIf="!isLoading && product">
@@ -27,21 +38,70 @@
         <div class="main-image-container">
           <!-- Badges -->
           <div class="product-badges">
-            <div class="discount-badge" *ngIf="isPromotional(product)">
-              <span>-{{ getDiscountPercentage(product) }}%</span>
+            <!-- Badge de réduction -->
+            <div class="discount-badge animate-badge" *ngIf="isPromotional(product)">
+              <div class="badge-content">
+                <mat-icon>flash_on</mat-icon>
+                <span class="discount-text">-{{ getDiscountPercentage(product) }}%</span>
+              </div>
             </div>
-            <div class="urgent-badge" *ngIf="isPromotionExpiringSoon(product)">
-              <mat-icon>schedule</mat-icon>
-              <span>Offre limitée</span>
+            
+            <!-- Badge d'urgence -->
+            <div class="urgent-badge animate-badge" *ngIf="isPromotionExpiringSoon(product)">
+              <div class="badge-content">
+                <mat-icon>schedule</mat-icon>
+                <span>Offre limitée</span>
+              </div>
+            </div>
+            
+            <!-- Badge nouveau produit -->
+            <div class="new-badge animate-badge" *ngIf="isNewProduct(product)">
+              <div class="badge-content">
+                <mat-icon>fiber_new</mat-icon>
+                <span>Nouveau</span>
+              </div>
+            </div>
+            
+            <!-- Badge bestseller -->
+            <div class="bestseller-badge animate-badge" *ngIf="isBestseller(product)">
+              <div class="badge-content">
+                <mat-icon>star</mat-icon>
+                <span>Bestseller</span>
+              </div>
             </div>
           </div>
 
-          <!-- Image principale -->
-          <div class="main-image-wrapper">
+          <!-- Image principale avec zoom -->
+          <div class="main-image-wrapper" (click)="toggleImageZoom()">
             <img 
               [src]="product.imageUrls[currentImageIndex] || 'assets/images/no-image.png'"
               [alt]="product.name"
-              class="main-product-image">
+              class="main-product-image"
+              [class.zoomed]="isImageZoomed"
+              (mouseenter)="showZoomHint = true"
+              (mouseleave)="showZoomHint = false">
+            
+            <!-- Indicateur de zoom -->
+            <div class="zoom-indicator" *ngIf="showZoomHint && !isImageZoomed">
+              <mat-icon>zoom_in</mat-icon>
+              <span>Cliquer pour agrandir</span>
+            </div>
+            
+            <!-- Overlay de fermeture du zoom -->
+            <div class="zoom-overlay" *ngIf="isImageZoomed" (click)="closeImageZoom($event)">
+              <button mat-icon-button class="close-zoom-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Indicateurs d'images -->
+          <div class="image-indicators" *ngIf="product.imageUrls.length > 1">
+            <span 
+              *ngFor="let img of product.imageUrls; let i = index"
+              class="indicator"
+              [class.active]="i === currentImageIndex"
+              (click)="selectImage(i)"></span>
           </div>
 
           <!-- Navigation images -->
@@ -101,25 +161,69 @@
           </div>
         </div>
 
-        <!-- Section prix -->
-        <mat-card class="price-card">
+        <!-- Section prix-->
+        <mat-card class="price-card enhanced-price-card">
           <mat-card-content>
             <div class="price-display">
+              <!-- Prix promotionnel -->
               <div class="price-main" *ngIf="isPromotional(product); else normalPriceTemplate">
-                <div class="promo-prices">
-                  <span class="old-price">{{ getNormalPriceTTC(product) }}</span>
-                  <span class="current-price-promo">{{ getPromotionalPrice(product) }}</span>
+                <div class="promo-header">
+                  <div class="promotion-label">
+                    <mat-icon>local_offer</mat-icon>
+                    <span>Promotion en cours</span>
+                  </div>
+                  <div class="promo-timer" *ngIf="getPromotionEndDate(product)">
+                    <mat-icon>timer</mat-icon>
+                    <span>Jusqu'au {{ formatDate(getPromotionEndDate(product)) }}</span>
+                  </div>
                 </div>
+                
+                <div class="promo-prices">
+                  <div class="price-comparison">
+                    <span class="old-price">{{ getNormalPriceTTC(product) }}</span>
+                    <div class="price-arrow">
+                      <mat-icon>trending_down</mat-icon>
+                    </div>
+                    <span class="current-price-promo">{{ getPromotionalPrice(product) }}</span>
+                  </div>
+                </div>
+                
                 <div class="savings-info">
-                  <mat-icon>trending_down</mat-icon>
-                  <span>Vous économisez {{ getSavingsAmountTTC(product) }}</span>
+                  <div class="savings-amount">
+                    <mat-icon>savings</mat-icon>
+                    <span class="savings-text">Vous économisez {{ getSavingsAmountTTC(product) }}</span>
+                  </div>
+                  <div class="savings-percentage">
+                    <span>{{ getDiscountPercentage(product) }}% de réduction</span>
+                  </div>
                 </div>
               </div>
+              
+              <!-- Prix normal -->
               <ng-template #normalPriceTemplate>
-                <span class="current-price">{{ formatProductPriceTTC(product) }}</span>
+                <div class="normal-price-container">
+                  <span class="current-price">{{ formatProductPriceTTC(product) }}</span>
+                  <div class="price-benefits">
+                    <div class="benefit-item">
+                      <mat-icon>local_shipping</mat-icon>
+                      <span>Livraison gratuite dès 50€</span>
+                    </div>
+                    <div class="benefit-item">
+                      <mat-icon>verified_user</mat-icon>
+                      <span>Garantie fabricant</span>
+                    </div>
+                  </div>
+                </div>
               </ng-template>
-              <div class="price-note">
-                <small>Prix TTC</small>
+              
+              <div class="price-details">
+                <div class="price-breakdown">
+                  <span class="ht-price">Prix HT: {{ formatProductPriceHT(product) }}</span>
+                  <span class="tax-amount">TVA (20%): {{ getTaxAmount(product) }}</span>
+                </div>
+                <div class="price-note">
+                  <small>Prix TTC</small>
+                </div>
               </div>
             </div>
           </mat-card-content>
@@ -127,32 +231,67 @@
 
         <!-- Actions principales -->
         <div class="main-actions">
-          <div class="primary-action">
-            <button 
-              mat-raised-button 
-              color="accent"
-              class="add-cart-btn"
-              [disabled]="getStockStatus(product) === 'out-of-stock'"
-              (click)="onProductSelect(product)">
-              <div class="btn-content">
-                <div class="btn-icon-wrapper">
-                  <mat-icon class="btn-icon">
-                    {{ getStockStatus(product) === 'out-of-stock' ? 'block' : 'shopping_cart' }}
-                  </mat-icon>
+          <!-- Sélecteur de quantité -->
+          <div class="quantity-selector" *ngIf="getStockStatus(product) !== 'out-of-stock'">
+            <label class="quantity-label">Quantité :</label>
+            <div class="quantity-controls">
+              <button mat-icon-button (click)="decreaseQuantity()" [disabled]="selectedQuantity <= 1">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="quantity-display">{{ selectedQuantity }}</span>
+              <button mat-icon-button (click)="increaseQuantity()" [disabled]="selectedQuantity >= product.stockQuantity">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <div class="action-buttons">
+            <!-- Bouton principal -->
+            <div class="primary-action">
+              <button 
+                mat-raised-button 
+                color="accent"
+                class="add-cart-btn enhanced-btn"
+                [disabled]="getStockStatus(product) === 'out-of-stock'"
+                (click)="onProductSelect(product)">
+                <div class="btn-content">
+                  <div class="btn-icon-wrapper">
+                    <mat-icon class="btn-icon">
+                      {{ getStockStatus(product) === 'out-of-stock' ? 'block' : 'shopping_cart' }}
+                    </mat-icon>
+                  </div>
+                  <div class="btn-text">
+                    <span class="btn-label" *ngIf="getStockStatus(product) !== 'out-of-stock'; else outOfStockText">
+                      Ajouter au panier
+                    </span>
+                    <ng-template #outOfStockText>
+                      <span class="btn-label">Produit indisponible</span>
+                    </ng-template>
+                    <span class="btn-sublabel" *ngIf="getStockStatus(product) !== 'out-of-stock'">
+                      {{ selectedQuantity > 1 ? selectedQuantity + ' articles' : '1 article' }} • Livraison gratuite dès 50€
+                    </span>
+                  </div>
                 </div>
-                <div class="btn-text">
-                  <span class="btn-label" *ngIf="getStockStatus(product) !== 'out-of-stock'; else outOfStockText">
-                    Ajouter au panier
-                  </span>
-                  <ng-template #outOfStockText>
-                    <span class="btn-label">Produit indisponible</span>
-                  </ng-template>
-                  <span class="btn-sublabel" *ngIf="getStockStatus(product) !== 'out-of-stock'">
-                    Livraison gratuite dès 50€
-                  </span>
+              </button>
+            </div>
+            
+            <!-- Bouton achat express -->
+            <div class="express-action" *ngIf="getStockStatus(product) !== 'out-of-stock'">
+              <button 
+                mat-raised-button 
+                class="buy-now-btn enhanced-btn"
+                (click)="buyNow(product)">
+                <div class="btn-content">
+                  <div class="btn-icon-wrapper">
+                    <mat-icon class="btn-icon">flash_on</mat-icon>
+                  </div>
+                  <div class="btn-text">
+                    <span class="btn-label">Acheter maintenant</span>
+                    <span class="btn-sublabel">Paiement sécurisé</span>
+                  </div>
                 </div>
-              </div>
-            </button>
+              </button>
+            </div>
           </div>
           
           <div class="secondary-actions">
@@ -189,32 +328,93 @@
         </mat-card>
 
         <!-- Caractéristiques -->
-        <mat-card class="specs-card">
+        <mat-card class="specs-card enhanced-specs-card">
           <mat-card-header>
             <mat-card-title>
               <mat-icon>list_alt</mat-icon>
-              Caractéristiques
+              Informations produit
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div class="specs-list">
-              <div class="spec-row">
-                <span class="spec-label">Référence</span>
-                <span class="spec-value">{{ product.sku }}</span>
+            <div class="specs-grid">
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>info</mat-icon>
+                  Informations générales
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>tag</mat-icon>
+                    Référence
+                  </span>
+                  <span class="spec-value">{{ product.sku }}</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>category</mat-icon>
+                    Catégorie
+                  </span>
+                  <span class="spec-value">{{ product.category.name }}</span>
+                </div>
+                <div class="spec-row" *ngIf="product.category.description">
+                  <span class="spec-label">
+                    <mat-icon>label</mat-icon>
+                    Type
+                  </span>
+                  <span class="spec-value">{{ product.category.description }}</span>
+                </div>
               </div>
-              <div class="spec-row">
-                <span class="spec-label">Catégorie</span>
-                <span class="spec-value">{{ product.category.name }}</span>
+              
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>inventory</mat-icon>
+                  Stock et disponibilité
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>warehouse</mat-icon>
+                    Disponibilité
+                  </span>
+                  <span class="spec-value enhanced-stock" [ngClass]="getStockStatus(product)">
+                    <mat-icon class="status-icon">{{ getStockStatusIcon(product) }}</mat-icon>
+                    {{ getStockStatusText(product) }}
+                  </span>
+                </div>
+                <div class="spec-row" *ngIf="getStockStatus(product) !== 'out-of-stock'">
+                  <span class="spec-label">
+                    <mat-icon>confirmation_number</mat-icon>
+                    Quantité disponible
+                  </span>
+                  <span class="spec-value">{{ product.stockQuantity }} unité{{ product.stockQuantity > 1 ? 's' : '' }}</span>
+                </div>
               </div>
-              <div class="spec-row" *ngIf="product.category.description">
-                <span class="spec-label">Type</span>
-                <span class="spec-value">{{ product.category.description }}</span>
-              </div>
-              <div class="spec-row">
-                <span class="spec-label">Disponibilité</span>
-                <span class="spec-value" [ngClass]="getStockStatus(product)">
-                  {{ getStockStatusText(product) }}
-                </span>
+              
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>local_shipping</mat-icon>
+                  Livraison et service
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>schedule</mat-icon>
+                    Délai de livraison
+                  </span>
+                  <span class="spec-value">2-3 jours ouvrés</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>autorenew</mat-icon>
+                    Retour
+                  </span>
+                  <span class="spec-value">14 jours pour changer d'avis</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>support_agent</mat-icon>
+                    Support
+                  </span>
+                  <span class="spec-value">Service client disponible 7j/7</span>
+                </div>
               </div>
             </div>
           </mat-card-content>

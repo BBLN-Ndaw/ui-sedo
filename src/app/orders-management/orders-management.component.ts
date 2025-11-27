@@ -13,7 +13,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
@@ -115,7 +115,6 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
     private errorHandlingUtilities: ErrorHandlingUtilities,
     private navigationUtilities: NavigationUtilities,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -131,7 +130,7 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
   private setupFilters(): void {
     // Search avec debounce
     this.searchControl.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(700),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(() => {
