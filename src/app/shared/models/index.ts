@@ -270,6 +270,7 @@ export interface Order {
   id?: string;
   orderNumber?: string;
   customerName?: string;
+  customerNumTel?: string;
   status: OrderStatus;
   totalAmount: number;
   subtotal: number;

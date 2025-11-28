@@ -55,8 +55,6 @@ interface MenuItem {
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
-  @ViewChild('drawer') drawer!: MatSidenav;
-
   currentUser!: User;
   UserRole = UserRole;
   cartSummary$: Observable<CartSummary>;

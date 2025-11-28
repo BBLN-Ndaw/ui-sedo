@@ -43,6 +43,7 @@
             <mat-label>Période</mat-label>
             <mat-select [(value)]="selectedPeriod" (selectionChange)="filterOrders()">
               <mat-option value="">Toutes les périodes</mat-option>
+              <mat-option value="day">Aujourd'hui</mat-option>
               <mat-option value="week">Cette semaine</mat-option>
               <mat-option value="month">Ce mois</mat-option>
               <mat-option value="quarter">Ce trimestre</mat-option>

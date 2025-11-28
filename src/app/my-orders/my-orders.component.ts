@@ -86,6 +86,10 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
         const now = new Date();
         
         switch (this.selectedPeriod) {
+          case 'day':
+            const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            matchesPeriod = orderDate >= dayAgo;
+            break;
           case 'week':
             const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             matchesPeriod = orderDate >= weekAgo;

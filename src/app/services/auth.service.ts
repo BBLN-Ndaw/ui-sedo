@@ -138,8 +138,7 @@ export class AuthService {
     if (!isPlatformBrowser(platformId)) {
       const req = inject(REQUEST);
       const url = req?.url ?? '';
-      if (url.includes('create-password') || url.includes('catalog') ||
-       url.includes('register') || url.includes('login') || url.includes('logout')) {
+      if (url.includes('create-password') || url.includes('catalog') || url.includes('logout')) {
         console.log('Skip refresh token: ', url);
         return true;
       }
@@ -148,8 +147,7 @@ export class AuthService {
 
     // ---- BROWSER SIDE ----
     const url = window.location.pathname;
-    if (url.includes('create-password') || url.includes('catalog') || url.includes('register') ||
-        url.includes('login') || url.includes('logout') || url.includes('request-password-reset')) {
+    if (url.includes('create-password') || url.includes('catalog')) {
       console.log('Skip refresh token: ', url);
       return true;
     }
