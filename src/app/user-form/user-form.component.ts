@@ -77,8 +77,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
       username: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      numTel: ['', [Validators.required, Validators.pattern(/^[0-9]{10,}$/)]],
+      email: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")]],
+      numTel: ['', [Validators.required, Validators.pattern(/^(?:(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4})$/)]],
       roles: [['CUSTOMER'], [Validators.required]],
       isActive: [false],
       address: this.formBuilder.group({

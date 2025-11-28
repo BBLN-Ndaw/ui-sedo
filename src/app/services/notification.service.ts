@@ -35,7 +35,7 @@ export class NotificationService {
     this.show({
       message,
       action,
-      duration: duration || 5000,
+      duration: duration || 9000,
       type: 'error'
     });
   }

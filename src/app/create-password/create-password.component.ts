@@ -63,7 +63,7 @@ export class CreatePasswordComponent implements OnInit, OnDestroy {
       password: ['', [
         Validators.required, 
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
       ]],
       confirmPassword: ['', [Validators.required]]
     }, { 
@@ -177,7 +177,7 @@ export class CreatePasswordComponent implements OnInit, OnDestroy {
         return 'Le mot de passe doit contenir au moins 8 caractères';
       }
       if (field.hasError('pattern')) {
-        return 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial';
+        return 'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre';
       }
     }
     

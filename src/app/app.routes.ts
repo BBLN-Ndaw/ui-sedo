@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { CreatePasswordComponent } from './create-password/create-password.component';
+import { RegisterComponent } from './register/register.component';
 import { MainLayoutComponent } from './main-layout/main-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatalogComponent } from './catalog/catalog.component';
@@ -32,6 +33,11 @@ export const routes: Routes = [
   { 
     path: 'login', 
     component: LoginComponent,
+    canActivate: [LoginGuard]
+  },
+  { 
+    path: 'register', 
+    component: RegisterComponent,
     canActivate: [LoginGuard]
   },
   { 

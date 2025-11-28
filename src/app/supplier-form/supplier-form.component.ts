@@ -87,8 +87,8 @@ export class SupplierFormComponent implements OnInit, OnDestroy {
     this.supplierForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       contactPersonName: ['', [Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email]], 
-      phone: ['', [Validators.required, Validators.maxLength(20)]],
+      email: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")]], 
+      phone: ['', [Validators.required, Validators.pattern(/^(?:(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4})$/)]],
       category: ['', [Validators.maxLength(50)]],
       isActive: [true],
       address: this.formBuilder.group({

@@ -54,8 +54,8 @@ export class LoginComponent implements OnDestroy {
     private errorHandlingUtilities: ErrorHandlingUtilities
   ) {
     this.loginForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]]
     });
   }
 
@@ -138,6 +138,10 @@ export class LoginComponent implements OnDestroy {
         this.isResetLoading = false;
       }
     });
+  }
+
+  goToRegister(): void {
+    this.router.navigate(['/register']);
   }
 }
 

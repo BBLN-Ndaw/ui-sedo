@@ -66,6 +66,18 @@
           </button>
         </div>
 
+        <!-- Lien création de compte -->
+        <div class="register-section">
+          <p class="register-text">Pas encore de compte ?</p>
+          <button 
+            mat-button 
+            type="button"
+            class="register-link"
+            (click)="goToRegister()">
+            Créer un compte
+          </button>
+        </div>
+
         <!-- Section de réinitialisation de mot de passe -->
         <div *ngIf="showForgotPassword" class="reset-password-section">
           <mat-form-field appearance="outline" class="full-width">
@@ -103,7 +115,7 @@
 
     <mat-card-actions align="end">
       <div class="login-footer">
-        <p class="app-branding">UI-SEDO</p>
+        <p class="app-branding">SEDO-STORE</p>
       </div>
     </mat-card-actions>
   </mat-card>

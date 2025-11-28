@@ -117,7 +117,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       icon: 'shopping_bag',
       label: 'Mes Commandes',
       route: PathNames.orders,
-      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
+      roles: [UserRole.CUSTOMER]
     },
     {
       icon: 'account_circle',

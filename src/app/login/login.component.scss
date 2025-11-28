@@ -67,6 +67,30 @@
   }
 }
 
+// Section création de compte
+.register-section {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  
+  .register-text {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .register-link {
+    color: #2E7D32;
+    font-weight: 500;
+    text-decoration: none;
+    
+    &:hover {
+      color: #2E7D32;
+    }
+  }
+}
+
 .reset-password-section {
   margin-top: 16px;
   padding-top: 16px;

@@ -1,0 +1,190 @@
+<div class="register-container center-content">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <div mat-card-avatar class="register-header-image">
+        <mat-icon>person_add</mat-icon>
+      </div>
+      <mat-card-title>Créer un compte</mat-card-title>
+      <mat-card-subtitle>Rejoignez notre communauté</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        
+        <!-- Section Informations de base -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>account_circle</mat-icon>
+            Informations de base
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nom d'utilisateur</mat-label>
+              <input
+                matInput
+                formControlName="username"
+                placeholder="Choisissez votre nom d'utilisateur"
+              >
+              <mat-icon matSuffix>account_circle</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('username')">
+                {{ getErrorMessage('username') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Prénom</mat-label>
+              <input
+                matInput
+                formControlName="firstName"
+                placeholder="Votre prénom"
+              >
+              <mat-error *ngIf="isFieldInvalid('firstName')">
+                {{ getErrorMessage('firstName') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Nom</mat-label>
+              <input
+                matInput
+                formControlName="lastName"
+                placeholder="Votre nom de famille"
+              >
+              <mat-error *ngIf="isFieldInvalid('lastName')">
+                {{ getErrorMessage('lastName') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="votre.email@exemple.com"
+              >
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('email')">
+                {{ getErrorMessage('email') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Téléphone</mat-label>
+              <input
+                matInput
+                formControlName="numTel"
+                placeholder="0123456789"
+              >
+              <mat-icon matSuffix>phone</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('numTel')">
+                {{ getErrorMessage('numTel') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Section Adresse -->
+        <div class="form-section" formGroupName="address">
+          <h3 class="section-title">
+            <mat-icon>location_on</mat-icon>
+            Adresse
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Rue</mat-label>
+              <input
+                matInput
+                formControlName="street"
+                placeholder="Numéro et nom de rue"
+              >
+              <mat-icon matSuffix>home</mat-icon>
+              <mat-error *ngIf="isFieldInvalid('address.street')">
+                {{ getErrorMessage('address.street') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Ville</mat-label>
+              <input
+                matInput
+                formControlName="city"
+                placeholder="Ville"
+              >
+              <mat-error *ngIf="isFieldInvalid('address.city')">
+                {{ getErrorMessage('address.city') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Code postal</mat-label>
+              <input
+                matInput
+                formControlName="postalCode"
+                placeholder="75000"
+              >
+              <mat-error *ngIf="isFieldInvalid('address.postalCode')">
+                {{ getErrorMessage('address.postalCode') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Pays</mat-label>
+              <input
+                matInput
+                formControlName="country"
+                placeholder="France"
+              >
+              <mat-error *ngIf="isFieldInvalid('address.country')">
+                {{ getErrorMessage('address.country') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="register-button"
+            [disabled]="registerForm.invalid || isLoading">
+            <mat-spinner *ngIf="isLoading" diameter="20" class="register-spinner"></mat-spinner>
+            <span *ngIf="!isLoading">Créer mon compte</span>
+            <span *ngIf="isLoading">Création en cours...</span>
+          </button>
+
+          <div class="login-section">
+            <p class="login-text">Vous avez déjà un compte ?</p>
+            <button 
+              mat-button 
+              type="button"
+              class="login-link"
+              (click)="goToLogin()">
+              Se connecter
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <div class="register-footer">
+        <p class="app-branding">SEDO STORE</p>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>

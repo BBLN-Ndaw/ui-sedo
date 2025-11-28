@@ -11,6 +11,15 @@ export interface User {
   roles: string[];
 }
 
+export interface RegisterUser {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  address: Address;
+  numTel: string
+  email: string;
+}
+
 // ===== INTERFACES =====
 export interface UserListResponse {
   content: User[];
@@ -23,15 +32,6 @@ export interface UserFilterOptions {
   search?: string;
   isActive?: boolean;
   hasOrders?: boolean;
-}
-
-export interface Client extends User {
-  totalOrders?: number;
-  totalSpent?: number;
-  lastOrderDate?: Date;
-  registrationDate: Date;
-  preferredPaymentMethod?: PaymentMethod;
-  loyaltyPoints?: number;
 }
 
 export interface Address {

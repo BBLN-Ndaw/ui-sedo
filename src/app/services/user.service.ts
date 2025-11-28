@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { RequestPasswordResetRequestDto, RequestPasswordResetResponseDto, UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
+import { RegisterUser, RequestPasswordResetRequestDto, RequestPasswordResetResponseDto, UpdatePasswordDto, User, UserFilterOptions, UserListResponse, UserRole } from '../shared/models';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 // ===== INTERFACES =====
 
@@ -148,7 +149,7 @@ export class UserService {
   }
 
   /**
-   * Créer un nouvel utilisateur
+   * Créer un nouvel utilisateur (admin uniquement)
    */
   createUser(createUserRequest: User): Observable<UserResponse> {
     return this.http.post<UserResponse>(
@@ -156,6 +157,13 @@ export class UserService {
       createUserRequest,
       { withCredentials: true }
     )
+  }
+
+  /**
+   * Inscription publique - création d'un nouveau compte client
+   */
+  registerUser(registerUserRequest: RegisterUser): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${USER_API_CONFIG.BASE_URL}${USER_API_CONFIG.ENDPOINTS.USERS}/register`, registerUserRequest)
   }
 
   /**

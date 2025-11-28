@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
       const auth = inject(AuthService);
 
       //prevent token refresh on password creation page
-      if(auth.shouldSkipRefreshForPasswordCreation()) {
+      if(auth.shouldSkipRefresh()) {
         return Promise.resolve();
       }  
       return firstValueFrom(auth.refreshToken()).catch(() => { });

@@ -131,15 +131,16 @@ export class AuthService {
     this.updateAccessTokenState(token);
   }
 
-  shouldSkipRefreshForPasswordCreation(): boolean {
+  shouldSkipRefresh(): boolean {
     const platformId = inject(PLATFORM_ID);
 
     // ---- SERVER SIDE ----
     if (!isPlatformBrowser(platformId)) {
       const req = inject(REQUEST);
       const url = req?.url ?? '';
-      if (url.includes('create-password')) {
-        console.log('Skip refresh token: create-password detected (server)');
+      if (url.includes('create-password') || url.includes('catalog') ||
+       url.includes('register') || url.includes('login') || url.includes('logout')) {
+        console.log('Skip refresh token: ', url);
         return true;
       }
       return false;
@@ -147,8 +148,9 @@ export class AuthService {
 
     // ---- BROWSER SIDE ----
     const url = window.location.pathname;
-    if (url.includes('create-password')) {
-      console.log('Skip refresh token: create-password detected (browser)');
+    if (url.includes('create-password') || url.includes('catalog') || url.includes('register') ||
+        url.includes('login') || url.includes('logout') || url.includes('request-password-reset')) {
+      console.log('Skip refresh token: ', url);
       return true;
     }
     return false;
