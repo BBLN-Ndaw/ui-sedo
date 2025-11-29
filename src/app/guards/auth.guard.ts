@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, first, map, switchMap, take, tap } from 'rxjs/operators';
+import { map,  } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -15,7 +15,10 @@ export class AuthGuard implements CanActivate {
    * Protège les routes nécessitant une authentification
    * @returns true si l'accès est autorisé, false sinon
    */
-  canActivate(): Observable<boolean> {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    if(this.authService.isPublicRoute(state.url)) {
+      return of(true);
+    }
     return this.authService.initialized$.pipe(
       map(() => {
         const isLoggedIn = !!this.authService.accessTokenSubject.value;

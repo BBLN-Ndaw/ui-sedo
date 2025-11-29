@@ -138,7 +138,7 @@ export class AuthService {
     if (!isPlatformBrowser(platformId)) {
       const req = inject(REQUEST);
       const url = req?.url ?? '';
-      if (url.includes('create-password') || url.includes('catalog') || url.includes('logout')) {
+      if (this.isPublicRoute(url)) {
         console.log('Skip refresh token: ', url);
         return true;
       }
@@ -147,8 +147,18 @@ export class AuthService {
 
     // ---- BROWSER SIDE ----
     const url = window.location.pathname;
-    if (url.includes('create-password') || url.includes('catalog')) {
+     if (this.isPublicRoute(url)
+      ) {
       console.log('Skip refresh token: ', url);
+      return true;
+    }
+    return false;
+  }
+
+  isPublicRoute(url: string): boolean {
+    if(url.match(/^\/create-password$/) 
+        || url.match(/^\/catalog$/) 
+        || url.match(/^\/catalog\/product\/details\/[a-zA-Z0-9]+$/)) {
       return true;
     }
     return false;

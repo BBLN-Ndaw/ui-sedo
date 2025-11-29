@@ -44,6 +44,10 @@ export const routes: Routes = [
     path: 'create-password', 
     component: CreatePasswordComponent
   },
+//   {
+//       path: 'catalog',
+//       component: CatalogComponent
+//    },
   { path: 'logout', redirectTo: '/login' },
   {
     path: '',
@@ -170,5 +174,5 @@ export const routes: Routes = [
       
     ]
   },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/catalog' }
 ];

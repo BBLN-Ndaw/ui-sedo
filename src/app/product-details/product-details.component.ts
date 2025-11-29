@@ -210,15 +210,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
   
-  // === Nouvelles méthodes d'amélioration ===
-  
-  // Navigation vers catégorie
-  navigateToCategory(categoryId: string | number): void {
-    this.router.navigate([PathNames.catalog], {
-      queryParams: { category: categoryId }
-    });
-  }
-  
   // Tronquer le texte
   truncateText(text: string, maxLength: number): string {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;

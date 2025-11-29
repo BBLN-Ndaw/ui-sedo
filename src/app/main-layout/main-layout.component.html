@@ -28,8 +28,6 @@
     </div>
 
     <!-- Navigation Menu -->
-    <!-- Navigation Menu -->
-    <!-- Navigation Menu -->
     <mat-nav-list class="navigation-menu">
       <mat-list-item 
         *ngFor="let item of filteredMenuItems" 
@@ -107,7 +105,7 @@
         <!-- Header modernisé -->
         <div class="user-menu-header" mat-menu-item disabled>
           <mat-icon class="user-menu-header-icon">person</mat-icon>
-          <div class="user-menu-header-info">
+          <div *ngIf="currentUser" class="user-menu-header-info">
             <div class="user-menu-header-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
             <div class="user-menu-header-email">{{ currentUser.email }}</div>
             <div class="user-menu-header-role">{{ getRoleDisplayName() }}</div>
@@ -125,14 +123,20 @@
           </button>
           <button mat-menu-item class="menu-action-item" [routerLink]="['/wishlist']">
             <mat-icon>favorite</mat-icon>
-            <span>Ma Liste de Souhaits</span>
+            <span>Ma Liste des favoris</span>
           </button>
         </div>
         <mat-divider></mat-divider>
-        <div class="user-menu-logout">
+        <div *ngIf="currentUser" class="user-menu-logout">
           <button mat-menu-item (click)="onLogout()" class="menu-action-item logout-action">
             <mat-icon>logout</mat-icon>
             <span>Se déconnecter</span>
+          </button>
+        </div>
+        <div *ngIf="!currentUser" class="user-menu-logout">
+          <button mat-menu-item (click)="onLogin()" class="menu-action-item logout-action">
+            <mat-icon>login</mat-icon>
+            <span>Se Connecter</span>
           </button>
         </div>
       </mat-menu>

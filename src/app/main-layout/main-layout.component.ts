@@ -55,7 +55,7 @@ interface MenuItem {
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
-  currentUser!: User;
+  currentUser?: User;
   UserRole = UserRole;
   cartSummary$: Observable<CartSummary>;
   
@@ -147,6 +147,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   private loadUserProfile(): void {
+    if(this.authService.isPublicRoute(this.router.url)) { // Ne pas charger le profil pour les routes publiques
+      return;
+    }
     this.errorHandlingUtilities.wrapOperation(
       this.userService.getCurrentUserProfile(),
       'chargement du profil utilisateur'
@@ -162,10 +165,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSearch(arg0: any) {
-    
-  }
-
   onLogout(): void {
     this.errorHandlingUtilities.wrapOperation(
     this.authService.logout(),
@@ -173,6 +172,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     )
     .pipe(takeUntil(this.destroy$))
    .subscribe(() => this.router.navigate(['/login']))
+  }
+  onLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   get filteredMenuItems(): MenuItem[] {
@@ -194,37 +196,5 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   getRoleDisplayName(): string {
     if (!this.currentUser) return '';
     return this.currentUser.roles.map(role => role).join(', ');
-  }
-
-  getPageTitle(): string {
-    const url = this.router.url.replace('/', '');
-    switch (url) {
-      case PathNames.dashboard:
-        return 'Dashboard';
-      case PathNames.catalog:
-        return 'Catalogue Boutique';
-      case PathNames.productDetails:
-        return 'Détails du Produit';
-      case PathNames.productsList:
-        return 'Gestion des Produits';
-      case PathNames.productForm:
-        return 'Formulaire Produit';
-      case PathNames.profile:
-        return 'Mon Profil';
-      case PathNames.pos:
-        return 'Point of Sale';
-      case PathNames.users:
-        return 'Clients';
-      case PathNames.suppliers:
-        return 'Fournisseurs';
-      case PathNames.categories:
-        return 'Catégories';
-      case PathNames.reports:
-        return 'Rapports & Analytics';
-      case PathNames.storeManagement:
-        return 'Administration';
-      default:
-        return 'Store Manager';
-    }
   }
 }

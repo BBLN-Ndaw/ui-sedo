@@ -14,13 +14,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services et Modèles
-import {Category, ProductWithCategoryDto } from '../shared/models';
+import { ProductWithCategoryDto } from '../shared/models';
 import { PathNames } from '../constant/path-names.enum';
 import { ProductService } from '../services/product.service';
-import { CategoryService} from '../services/category.service';
 import { PromotionUtilities } from '../services/promotion.utilities';
 import { StockUtilities } from '../services/stock.utilities';
-import { FormatUtilities } from '../services/format.utilities';
 import { NavigationUtilities } from '../services/navigation.utilities';
 import { ErrorHandlingUtilities } from '../services/error-handling.utilities';
 
@@ -47,13 +45,11 @@ export class CatalogComponent implements OnInit, OnDestroy {
   isLoading = false;
   productWithCategorys: ProductWithCategoryDto[] = [];
   promotionalProductWithCategorys: ProductWithCategoryDto[] = [];
-  categories: Category[] = [];
   
   // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   constructor(
-    private categoryService: CategoryService,
     public productService: ProductService,
     private promotionUtilities: PromotionUtilities,
     private stockUtilities: StockUtilities,
@@ -62,21 +58,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadCategories();
     this.loadProductsWithCategory();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private loadCategories(): void {
-    this.categoryService.getAllCategories()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(categories => {
-        this.categories = categories;
-      });
   }
 
   private loadProductsWithCategory(): void {
@@ -88,12 +75,11 @@ export class CatalogComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (productWithCategory) => {
-        console.log('Produits avec catégorie chargés:', productWithCategory);
         this.productWithCategorys = productWithCategory;
         this.promotionalProductWithCategorys = productWithCategory.filter(p => 
           this.promotionUtilities.isValidPromotion(p)
         );
-        console.log('Produits en promotion avec catégorie chargés:', this.promotionalProductWithCategorys);
+
         this.isLoading = false;
       },
       error: () => {
@@ -132,7 +118,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   onProductView(product: ProductWithCategoryDto): void {
-    console.log('Voir détails du produit:', product);
     this.navigationUtilities.goToRouteWithId(PathNames.productDetails, product.id);
   }
 

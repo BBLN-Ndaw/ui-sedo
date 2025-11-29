@@ -18,13 +18,7 @@
         <span>Catalogue</span>
       </button>
       <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
-      <button 
-        mat-button 
-        class="category-link"
-        (click)="navigateToCategory(product.category.id || 0)"
-        matRipple>
-        <span>{{ product.category.name }}</span>
-      </button>
+      <span class="category-link">{{ product.category.name }}</span>
       <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
       <span class="current-page" [title]="product.name">{{ truncateText(product.name, 40) }}</span>
     </div>

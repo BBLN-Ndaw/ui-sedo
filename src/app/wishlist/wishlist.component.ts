@@ -72,7 +72,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
 
   onRemoveFromWishlist(itemId: number) {
     this.favoriteService.removeFromFavorites(itemId);
-    this.snackBar.open('Article retiré de la liste de souhaits', 'Fermer', {
+    this.snackBar.open('Article retiré de la liste des favoris', 'Fermer', {
       duration: 2000
     });
   }

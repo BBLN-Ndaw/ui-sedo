@@ -4,7 +4,7 @@
       <div mat-card-avatar>
         <mat-icon>favorite</mat-icon>
       </div>
-      <mat-card-title>Ma liste de souhaits</mat-card-title>
+      <mat-card-title>Ma liste des favoris</mat-card-title>
       <mat-card-subtitle>{{ wishlistItems.length }} article{{ wishlistItems.length > 1 ? 's' : '' }} sauvegardé{{ wishlistItems.length > 1 ? 's' : '' }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
@@ -65,7 +65,7 @@
   <ng-template #noWishlistItems>
     <div class="empty-state">
       <mat-icon class="empty-icon">favorite_border</mat-icon>
-      <h3>Votre liste de souhaits est vide</h3>
+      <h3>Votre liste de favoris est vide</h3>
       <p>Parcourez notre catalogue et ajoutez vos articles préférés</p>
       <button mat-raised-button color="primary" routerLink="/catalog">
         <mat-icon>explore</mat-icon>
