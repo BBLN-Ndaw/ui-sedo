@@ -93,7 +93,8 @@
             [matBadge]="(cartSummary$ | async)?.itemCount || 0" 
             matBadgeColor="accent" 
             matBadgeSize="small"
-            [matBadgeHidden]="((cartSummary$ | async)?.itemCount || 0) === 0">
+            [matBadgeHidden]="((cartSummary$ | async)?.itemCount || 0) === 0"
+            aria-hidden="false">
             shopping_cart
           </mat-icon>
           <span class="cart-text">Panier</span>

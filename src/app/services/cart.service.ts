@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { 
@@ -14,6 +15,7 @@ import { PromotionUtilities } from './promotion.utilities';
 })
 export class CartService {
   private readonly CART_STORAGE_KEY = 'shopping_cart';
+  private platformId = inject(PLATFORM_ID);
   
   // État du panier avec BehaviorSubject pour la réactivité
   private cartSubject = new BehaviorSubject<Cart>(this.loadCartFromStorage());
@@ -28,6 +30,18 @@ export class CartService {
   );
 
   private promotionUtilities = inject(PromotionUtilities);
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) { // Côté client, on peut accéder à localStorage sans erreur 
+      // Attendre le prochain tick pour s'assurer que l'hydratation est terminée
+      setTimeout(() => {
+        const storedCart = this.loadCartFromStorage();
+        if (storedCart.items.length > 0 || storedCart.id !== this.cartSubject.value.id) {
+          this.cartSubject.next(storedCart);
+        }
+      });
+    }
+  }
 
   /**
    * Obtient le panier actuel
@@ -234,6 +248,9 @@ export class CartService {
    * Sauvegarde le panier dans le localStorage
    */
   private saveCartToStorage(cart: Cart): void {
+    if (!isPlatformBrowser(this.platformId)) { //empeche l'erreur côté serveur car localStorage n'est pas disponible
+      return;
+    }
     try {
       localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(cart));
     } catch (error) {
@@ -245,6 +262,11 @@ export class CartService {
    * Charge le panier depuis le localStorage
    */
   private loadCartFromStorage(): Cart {
+    if (!isPlatformBrowser(this.platformId)) {
+      // Côté serveur, retourner un panier vide car localStorage n'est pas disponible
+      return this.initializeCart();
+    }
+
     try {
       const storedCart = localStorage.getItem(this.CART_STORAGE_KEY);
       if (storedCart) {
