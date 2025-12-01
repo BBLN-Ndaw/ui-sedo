@@ -16,11 +16,13 @@ const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
 
-  if (req.url.includes('/api/auth/refresh') 
-    || req.url.includes('/api/auth/login') 
-    || req.url.includes('/api/auth/logout') 
-    || req.url.includes('/api/auth/create-password')
-    || req.url.includes('api/users/request-password-reset')) {
+  const path = new URL(req.url).pathname;
+  if (path === '/api/auth/login' 
+    || path === '/api/auth/logout' 
+    || path === '/api/auth/refresh_token' 
+    || path === '/api/products/product-with-category/all'
+    || path === '/api/auth/create-password'
+    || path === '/api/users/request-password-reset') {
     return next(req);
   }
   let accessToken: string | null = null;
@@ -34,7 +36,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   return next(authReq).pipe(
     catchError(error => {
       if (error.status === 401) {
-        // erreur 401 et ce n’est pas une requête de refresh
+        // Token expiré ou non valide - tenter de rafraîchir le token
         return handle401(authService, req, next);
       }
       return throwError(() => error);

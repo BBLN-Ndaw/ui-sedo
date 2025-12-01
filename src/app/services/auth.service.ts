@@ -43,9 +43,9 @@ export class AuthService {
 
   public readonly accessToken$ = this.accessTokenSubject.asObservable();
 
-  // flag pour indiquer que l'initApp (APP_INITIALIZER) est terminé
-  private initializedSubject = new BehaviorSubject<boolean>(false);
-  initialized$ = this.initializedSubject.asObservable();
+  // Indique si l'utilisateur est authentifié
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(
     private readonly http: HttpClient, 
@@ -66,6 +66,7 @@ export class AuthService {
         tap(response => {
           if (response.success === true && response.token) {
             this.updateAccessTokenState(response.token);
+            this.isAuthenticatedSubject.next(true); 
           }
         }),
         catchError(error => {
@@ -80,7 +81,7 @@ export class AuthService {
   */
   logout(): Observable<LoginResponse> {
     this.accessTokenSubject.next(null);
-    this.initializedSubject.next(true);
+    this.isAuthenticatedSubject.next(false);
     return this.http.post<LoginResponse>(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {}, {withCredentials: true})
   }
 
@@ -100,12 +101,12 @@ export class AuthService {
         if (response.success === true && response.token) {
           console.log('Token rafraîchi avec succès - nouveaux cookies reçus');
           this.updateAccessTokenState(response.token);
-          this.initializedSubject.next(true); // Indique que l'initialisation est terminée
+          this.isAuthenticatedSubject.next(true); // Indique que l'initialisation est terminée
         }
       }), catchError(error => {
-        this.logout().subscribe({
-          next: () => this.navigateToLogin(),
-          error: () => this.navigateToLogin()
+        this.logout().subscribe({ 
+          next: () => this.isAuthenticatedSubject.next(false),
+          error: () => this.isAuthenticatedSubject.next(false)
         });
         return of({ success: false });
       })
@@ -121,14 +122,10 @@ export class AuthService {
   }
 
   /**
-   * Naviguer vers la page de connexion
+   * Naviguer vers la home page (catalog)
    */
-  private navigateToLogin(): void {
-    this.router.navigate(['/login']);
-  }
-  
-  setAccessToken(token: string | null): void {
-    this.updateAccessTokenState(token);
+  navigateToHomePage(): void {
+    this.router.navigate(['']);
   }
 
   shouldSkipRefresh(): boolean {
@@ -157,8 +154,7 @@ export class AuthService {
 
   isPublicRoute(url: string): boolean {
     if(url.match(/^\/create-password$/) 
-        || url.match(/^\/catalog$/) 
-        || url.match(/^\/catalog\/product\/details\/[a-zA-Z0-9]+$/)) {
+      ) {
       return true;
     }
     return false;

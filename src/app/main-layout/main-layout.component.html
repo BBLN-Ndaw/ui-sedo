@@ -84,7 +84,11 @@
       <div class="header-actions">
         <!-- User Menu -->
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-          <mat-icon class="user-icon">person</mat-icon>
+          <mat-icon class="user-icon" *ngIf="!currentUser">person</mat-icon>
+          <span *ngIf="!currentUser" class="user-text">Connexion</span>
+          <div class="user-avatar-small" *ngIf="currentUser">
+            {{ getUserInitials() }}
+          </div>
         </button>
 
         <!-- Cart -->
@@ -94,7 +98,8 @@
             matBadgeColor="accent" 
             matBadgeSize="small"
             [matBadgeHidden]="((cartSummary$ | async)?.itemCount || 0) === 0"
-            aria-hidden="false">
+            aria-hidden="false"
+            [attr.aria-label]="'Panier avec ' + ((cartSummary$ | async)?.itemCount || 0) + ' article(s)'">
             shopping_cart
           </mat-icon>
           <span class="cart-text">Panier</span>

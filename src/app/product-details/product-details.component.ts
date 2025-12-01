@@ -49,7 +49,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   isLoading = false;
   currentImageIndex = 0;
   
-  // Nouvelles propriétés pour les améliorations
   isImageZoomed = false;
   showZoomHint = false;
   selectedQuantity = 1;
@@ -210,30 +209,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
   
-  // Tronquer le texte
   truncateText(text: string, maxLength: number): string {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
   
   // Vérifications de statut produit
   isNewProduct(product: ProductWithCategoryDto): boolean {
-    // Considérer un produit comme nouveau s'il a été créé dans les 30 derniers jours
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
-    // Si le produit a une date de création, la comparer
     if ((product as any).createdDate) {
       return new Date((product as any).createdDate) > thirtyDaysAgo;
     }
     
-    // Sinon, utiliser l'ID (produits récents ont des IDs plus élevés)
-    return product.id > 100; // Exemple de logique
-  }
-  
-  isBestseller(product: ProductWithCategoryDto): boolean {
-    // Logique pour déterminer si c'est un bestseller
-    // Peut être basé sur les ventes, les avis, etc.
-    return product.id % 5 === 0; // Exemple simplifié
+    return false;
   }
   
   // Gestion du zoom d'image
@@ -252,7 +241,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     document.body.style.overflow = '';
   }
   
-  // Gestion de la quantité
   increaseQuantity(): void {
     if (this.product && this.selectedQuantity < this.product.stockQuantity) {
       this.selectedQuantity++;
@@ -265,9 +253,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
   
-  // Méthodes de prix avancées
   formatProductPriceHT(product: ProductWithCategoryDto): string {
-    const priceHT = product.sellingPrice / 1.2; // Enlever la TVA de 20%
+    const priceHT = product.sellingPrice / 1.2; 
     return this.formatUtilities.formatCurrency(priceHT);
   }
   
@@ -277,8 +264,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
   
   getPromotionEndDate(product: ProductWithCategoryDto): Date | null {
-    // Retourner une date de fin de promotion si disponible
-    // Pour l'exemple, retourner une date dans 7 jours
     if (this.isPromotional(product)) {
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + 7);
@@ -296,11 +281,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
   
-  // Achat express
   buyNow(product: ProductWithCategoryDto): void {
-    // Ajouter au panier et rediriger vers le paiement
     this.onProductSelect(product);
-    // Redirection vers le panier/checkout
     setTimeout(() => {
       this.router.navigate([PathNames.cart]);
     }, 500);

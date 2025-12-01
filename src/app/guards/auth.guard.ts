@@ -15,11 +15,8 @@ export class AuthGuard implements CanActivate {
    * Protège les routes nécessitant une authentification
    * @returns true si l'accès est autorisé, false sinon
    */
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    if(this.authService.isPublicRoute(state.url)) {
-      return of(true);
-    }
-    return this.authService.initialized$.pipe(
+  canActivate(): Observable<boolean> {
+    return this.authService.isAuthenticated$.pipe(
       map(() => {
         const isLoggedIn = !!this.authService.accessTokenSubject.value;
         if (!isLoggedIn) {

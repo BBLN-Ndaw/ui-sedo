@@ -80,7 +80,7 @@ export class LoginComponent implements OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading = false;
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['']);
         },
         error: () => {
           this.isLoading = false;

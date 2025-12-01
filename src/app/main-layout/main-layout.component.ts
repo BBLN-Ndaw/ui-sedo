@@ -104,25 +104,37 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       route: PathNames.storeManagement,
       roles: [UserRole.ADMIN]
     },
-    //Menu pour tous les utilisateurs
-    {
-      icon: 'storefront',
-      label: 'Catalogue Boutique',
-      route: PathNames.catalog,
-      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
-    },
-    {
-      icon: 'shopping_bag',
-      label: 'Mes Commandes',
-      route: PathNames.orders,
-      roles: [UserRole.CUSTOMER]
-    },
     {
       icon: 'account_circle',
       label: 'Mon Espace Client',
       route: PathNames.profile,
       roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
-    }
+    },
+    //Menu pour tous les utilisateurs
+    {
+      icon: 'storefront',
+      label: 'Catalogue Boutique',
+      route: PathNames.catalog,
+      roles: []
+    },
+    {
+      icon: 'shopping_bag',
+      label: 'Mes Commandes',
+      route: PathNames.orders,
+      roles: []
+    },
+    {
+      icon: 'favorite',
+      label: 'Mes Favoris',
+      route: PathNames.wishlist,
+      roles: []
+    },
+    {
+      icon: 'account_circle',
+      label: 'Mon Espace Client',
+      route: PathNames.profile,
+      roles: []
+    },
   ];
 
   constructor(
@@ -138,7 +150,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadUserProfile();
+    // Charger le profil utilisateur si connecté
+    this.authService.isAuthenticated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isAuthenticated => {
+        if (isAuthenticated) {
+          this.loadUserProfile();
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -147,9 +166,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   private loadUserProfile(): void {
-    if(this.authService.isPublicRoute(this.router.url)) { // Ne pas charger le profil pour les routes publiques
-      return;
-    }
     this.errorHandlingUtilities.wrapOperation(
       this.userService.getCurrentUserProfile(),
       'chargement du profil utilisateur'
@@ -159,7 +175,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       next: (fullProfile) => {
         this.currentUser = fullProfile;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erreur lors du chargement du profil:', error);
         this.authService.logout().subscribe(() => this.router.navigate(['/login']));
       }
     });
@@ -173,12 +190,15 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
    .subscribe(() => this.router.navigate(['/login']))
   }
+  
   onLogin(): void {
     this.router.navigate(['/login']);
   }
 
   get filteredMenuItems(): MenuItem[] {
-    if (!this.currentUser) return [];
+    if (!this.currentUser) 
+      return  this.menuItems.filter(item =>item.roles.length === 0);
+
     return this.menuItems.filter(item =>
       this.currentUser!.roles.some(userRole => item.roles.includes(userRole as UserRole))
     );

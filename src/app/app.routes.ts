@@ -44,25 +44,15 @@ export const routes: Routes = [
     path: 'create-password', 
     component: CreatePasswordComponent
   },
-//   {
-//       path: 'catalog',
-//       component: CatalogComponent
-//    },
   { path: 'logout', redirectTo: '/login' },
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [AuthGuard],
     children: [
+      // Public routes
       {
-         path: 'dashboard',
-         canActivate: [RoleGuard],
-         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
-         component: DashboardComponent
-      },
-      {
-         path: 'catalog',
-         component: CatalogComponent
+         path: '',
+         component: CatalogComponent // Home page
       },
       {
          path: 'catalog/product/details/:id',
@@ -73,106 +63,122 @@ export const routes: Routes = [
          component: CartComponent
       },
       {
+         path: 'wishlist',
+         component: WishlistComponent
+      },
+      // Protected routes
+      // User routes
+      {
          path: 'profile',
+         canActivate: [AuthGuard],
          component: ProfileComponent
       },
       {
          path: 'orders',
+         canActivate: [AuthGuard],
          component: MyOrdersComponent
       },
       {
+         path: 'wishlist',
+         canActivate: [AuthGuard],
+         component: WishlistComponent
+      },
+      {
+         path: 'payment',
+         canActivate: [AuthGuard],
+         component: PaypalComponentComponent
+      },
+      {
+         path: 'payment-confirmation',
+         canActivate: [AuthGuard],
+         component: PaymentConfirmationComponent
+      },
+      // Admin & Employee routes
+      {
+         path: 'dashboard',
+         canActivate: [AuthGuard, RoleGuard],
+         data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
+         component: DashboardComponent
+      },
+      {
          path: 'orders-management',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: OrdersManagementComponent
       },
       {
          path: 'users',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UsersListComponent
       },
       {
          path: 'suppliers',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: SuppliersListComponent
       },
       {
          path: 'products-list',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: ProductsListComponent
       },
       {
          path: 'users/details/:id',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UserDetailsComponent
       },
       {
          path: 'suppliers/details/:id',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: SupplierDetailsComponent
       },
       {
          path: 'user-form',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: UserFormComponent
       },
       {
          path: 'supplier-form',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: SupplierFormComponent
       },
       {
          path: 'product-form',
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] },
          component: ProductFormComponent
       },
       {
-         path: 'wishlist',
-         component: WishlistComponent
-      },
-      {
-         path: 'payment',
-         component: PaypalComponentComponent
-      },
-      {
-         path: 'payment-confirmation',
-         component: PaymentConfirmationComponent
-      },
-      {
          path: 'categories',
          component: CategoriesListComponent,
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
       },
       {
          path: 'category-form',
          component: CategoryFormComponent,
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
       },
       {
          path: 'category-form/:id',
          component: CategoryFormComponent,
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
       },
       {
          path: 'store-management',
          component: StoreAdministrationComponent,
-         canActivate: [RoleGuard],
+         canActivate: [AuthGuard, RoleGuard],
          data: { roles: [UserRole.ADMIN, UserRole.EMPLOYEE] }
-      },
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-      
+      }      
     ]
   },
-  { path: '**', redirectTo: '/catalog' }
+  { path: '**', redirectTo: '' } // for any unknown path, redirect to home (catalog)
 ];

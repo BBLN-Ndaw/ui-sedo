@@ -21,5 +21,6 @@ export enum PathNames{
     storeManagement = 'store-management',
     settings = 'settings',
     orders = 'orders',
-    ordersManagement = 'orders-management'
+    ordersManagement = 'orders-management',
+    wishlist = 'wishlist',
 };

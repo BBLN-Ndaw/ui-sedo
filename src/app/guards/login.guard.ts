@@ -20,7 +20,7 @@ export class LoginGuard implements CanActivate {
    */
 
   canActivate(): Observable<boolean> {
-    return this.authService.initialized$.pipe(
+    return this.authService.isAuthenticated$.pipe(
       map(() => {
         const isLoggedIn = !!this.authService.accessTokenSubject.value;
         if (isLoggedIn) {
