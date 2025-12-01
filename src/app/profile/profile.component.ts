@@ -68,7 +68,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private errorHandlingUtilities = inject(ErrorHandlingUtilities);
 
-    // Sujet pour gérer la désinscription des observables
     private destroy$ = new Subject<void>();
 
   currentUser: User | null = null;
@@ -77,7 +76,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isEditingProfile = false;
   isChangingPassword = false;
 
-  // Données pour les composants
   recentOrders: Order[] = [];
 
   loyaltyProgram: LoyaltyProgram | null = null;
@@ -110,7 +108,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.loadUserProfile();
     this.loadOrders();
     this.loadLoyaltyProgram();
-    // Écouter les changements de navigation pour rafraîchir les données
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
@@ -291,11 +288,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed()
-    // .pipe(takeUntil(this.destroy$))
     .subscribe(result => {
       if (result === 'reorder') {
-        //Mettre à jours ke panier
-        // this.loadOrders();
+        
       }
     });
   }

@@ -46,7 +46,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
   productWithCategorys: ProductWithCategoryDto[] = [];
   promotionalProductWithCategorys: ProductWithCategoryDto[] = [];
   
-  // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   constructor(

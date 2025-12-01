@@ -92,7 +92,6 @@ export class RegisterComponent implements OnDestroy {
         .subscribe({
           next: () => {
             this.isLoading = false;
-            // Rediriger vers la page de connexion
             this.router.navigate(['/login']);
           },
           error: () => {

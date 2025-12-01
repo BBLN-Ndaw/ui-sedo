@@ -75,12 +75,10 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
       let matchesStatus = true;
       let matchesPeriod = true;
 
-      // Filtre par statut
       if (this.selectedStatus) {
         matchesStatus = order.status === this.selectedStatus;
       }
 
-      // Filtre par période
       if (this.selectedPeriod) {
         const orderDate = new Date(order.createdAt!);
         const now = new Date();
@@ -133,7 +131,6 @@ export class MyOrdersComponent implements OnInit, OnDestroy {
     return 'Vous n\'avez pas encore passé de commande';
   }
 
-  // Statistiques
   getTotalSpent(): number {
     return this.orders.reduce((total, order) => total + order.totalAmount, 0);
   }

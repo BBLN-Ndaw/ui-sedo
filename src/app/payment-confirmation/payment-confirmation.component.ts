@@ -44,7 +44,6 @@ export class PaymentConfirmationComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // Récupérer les informations de paiement depuis le state de navigation
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state || history.state;
     
@@ -52,7 +51,6 @@ export class PaymentConfirmationComponent implements OnInit {
       this.paymentInfo = state['paymentInfo'] as PaypalCapturedResponse;
       this.populateOrderDetails();
     } else {
-      // Si aucune donnée n'est disponible, rediriger vers le catalogue
       this.errorHandlingUtilities.handleError(
         'Aucune information de paiement disponible',
         undefined,
@@ -67,7 +65,6 @@ export class PaymentConfirmationComponent implements OnInit {
   private populateOrderDetails(): void {
     if (!this.paymentInfo) return;
 
-    // Extraire les informations du paiement PayPal
     const firstPurchaseUnit = this.paymentInfo.purchase_units?.[0];
     const firstCapture = firstPurchaseUnit?.payments?.captures?.[0];
     
@@ -103,17 +100,14 @@ export class PaymentConfirmationComponent implements OnInit {
     this.navigationUtilities.goToCatalog();
   }
 
-  // Méthode utilitaire pour formater le montant
   getFormattedAmount(): string {
     return `${this.orderDetails.amount} ${this.orderDetails.currency}`;
   }
 
-  // Méthode pour obtenir l'icône de statut
   getStatusIcon(): string {
     return this.orderDetails.status === 'Confirmé' ? 'check_circle' : 'hourglass_empty';
   }
 
-  // Méthode pour obtenir la classe CSS du statut
   getStatusClass(): string {
     return this.orderDetails.status === 'Confirmé' ? 'status-confirmed' : 'status-pending';
   }

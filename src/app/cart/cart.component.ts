@@ -45,7 +45,6 @@ export class CartComponent implements OnInit, OnDestroy {
   cart: Cart | null = null;
   isLoading = false;
   
-  // Sujet pour gérer la désinscription des observables
   private destroy$ = new Subject<void>();
 
   constructor(

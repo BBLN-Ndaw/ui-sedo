@@ -70,7 +70,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Images handling
   productImages: Array<{name: string, url: string, file?: File}> = [];
   imagesToDelete: string[] = []; //image names to delete on server when updating product
-  maxFileSize = 5 * 1024 * 1024; // 5MB
+  maxFileSize = 6 * 1024 * 1024; // 6MB
   allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/gif'];
   
   private destroy$ = new Subject<void>();

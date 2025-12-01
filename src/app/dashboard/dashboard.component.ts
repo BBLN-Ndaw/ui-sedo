@@ -187,7 +187,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
         
-    // month names in french for display
     const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     
     // month mapping from English to index (0-11)
@@ -197,10 +196,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'SEPTEMBER': 8, 'OCTOBER': 9, 'NOVEMBER': 10, 'DECEMBER': 11
     };
     
-      // Initialize an array for the 12 months
       const monthlyData: number[] = new Array(12).fill(0);
       
-      // Process backend data
         Object.entries(revenueMap).forEach(([monthKey, value]) => {
           const monthIndex = monthMapping[monthKey.toUpperCase()];
           if (monthIndex !== undefined && typeof value === 'number') {
@@ -208,13 +205,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         });
       
-      // Calculate total annual revenue
       this.totalYearRevenue = monthlyData.reduce((sum, value) => sum + value, 0);
       
-      // Find the maximum revenue to calculate percentages
       const maxRevenue = Math.max(...monthlyData);
       
-      // Prepare data for the chart
       this.monthlyRevenueData = monthlyData.map((value, index) => ({
         month: monthNames[index],
         value: value,
@@ -222,11 +216,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         formattedValue: this.dashboardService.formatCurrency(value)
       }));
       
-      // Calculate current month revenue
       const currentMonth = new Date().getMonth(); // 0-11
       this.currentMonthRevenue = monthlyData[currentMonth] || 0;
       
-      // Calculate growth compared to previous month
       const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
       const previousMonthRevenue = monthlyData[previousMonth] || 0;
       

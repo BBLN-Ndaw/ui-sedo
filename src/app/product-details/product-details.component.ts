@@ -213,7 +213,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
   
-  // Vérifications de statut produit
   isNewProduct(product: ProductWithCategoryDto): boolean {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

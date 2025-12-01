@@ -4,7 +4,7 @@ import { Router, RouterOutlet, RouterModule } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
 // Angular Material
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -108,7 +108,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       icon: 'account_circle',
       label: 'Mon Espace Client',
       route: PathNames.profile,
-      roles: [UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.CUSTOMER]
+      roles: [UserRole.ADMIN, UserRole.EMPLOYEE]
     },
     //Menu pour tous les utilisateurs
     {
@@ -150,7 +150,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Charger le profil utilisateur si connecté
     this.authService.isAuthenticated$
       .pipe(takeUntil(this.destroy$))
       .subscribe(isAuthenticated => {
@@ -196,12 +195,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   get filteredMenuItems(): MenuItem[] {
-    if (!this.currentUser) 
-      return  this.menuItems.filter(item =>item.roles.length === 0);
-
-    return this.menuItems.filter(item =>
+    
+    if(this.currentUser && (this.currentUser.roles.includes(UserRole.ADMIN) || this.currentUser.roles.includes(UserRole.EMPLOYEE))) {
+       return this.menuItems.filter(item =>
       this.currentUser!.roles.some(userRole => item.roles.includes(userRole as UserRole))
     );
+    } else {
+      return this.menuItems.filter(item => item.roles.length === 0);
+  }
   }
 
   onMenuItemClick(route: string): void {

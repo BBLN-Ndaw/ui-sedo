@@ -97,7 +97,6 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onOrderDetails(orderId: string) {
-    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.orderDetails.observed) {
       this.orderDetails.emit(orderId);
     } else {
@@ -106,7 +105,6 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onReorderItems(orderId: string, event: Event) {
-    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.reorderItems.observed) {
       this.reorderItems.emit({ orderId, event });
     } else {
@@ -115,7 +113,6 @@ export class OrdersListComponent implements OnDestroy {
   }
 
   onCancelOrder(orderId: string, event: Event) {
-    // If an external handler is provided, use it; otherwise, use the default behavior
     if (this.cancelOrder.observed) {
       this.cancelOrder.emit({ orderId, event });
     } else {
@@ -123,7 +120,6 @@ export class OrdersListComponent implements OnDestroy {
     }
   }
 
-  // Default methods for handling actions
   private openOrderDetailsDialog(orderId: string) {
     const dialogRef = this.dialog.open(OrderDetailsDialogComponent, {
       width: '800px',
@@ -135,7 +131,6 @@ export class OrdersListComponent implements OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'reorder') {
-        // Optionnel: recharger les commandes ou notifier le parent
       }
     });
   }

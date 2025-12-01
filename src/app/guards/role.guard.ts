@@ -6,7 +6,6 @@ import { UserRole } from '../shared/models';
 interface JwtPayload {
   userName: string;
   roles: UserRole[];
-  // add other properties if needed
 }
 
 
@@ -44,7 +43,6 @@ export class RoleGuard implements CanActivate {
   }
 }
 function jwt_decode<T>(token: string): T {
-    // Simple JWT decode (without verification)
     const payload = token.split('.')[1];
     if (!payload) throw new Error('Invalid token format');
     return JSON.parse(atob(payload));

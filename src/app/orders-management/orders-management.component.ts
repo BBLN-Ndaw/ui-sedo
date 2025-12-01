@@ -62,19 +62,15 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   
-  // Exposer l'énumération pour le template
   readonly OrderStatus = OrderStatus;
   
-  // État du composant
   isLoading = false;
   totalOrders = 0;
   
-  // Contrôles de formulaire
   searchControl = new FormControl('');
   statusFilter = new FormControl('');
   periodFilter = new FormControl('');
   
-  // Configuration de la table
   dataSource = new MatTableDataSource<Order>([]);
   displayedColumns: string[] = [
     'orderNumber', 
@@ -86,11 +82,9 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
     'actions'
   ];
   
-  // Pagination
   currentPage = 0;
   currentPageSize = 20;
   
-  // Options de filtre
   statusOptions = [
     { value: '', label: 'Tous les statuts' },
     { value: OrderStatus.PENDING, label: 'En attente' },
@@ -137,7 +131,6 @@ export class OrdersManagementComponent implements OnInit, OnDestroy {
       this.applyFilters();
     });
 
-    // Filtres de statut et période
     this.statusFilter.valueChanges.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {

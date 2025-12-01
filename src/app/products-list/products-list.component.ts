@@ -120,7 +120,6 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   currentPage = 0;
   currentPageSize = 50;
 
-  // Subscription management
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -368,7 +367,6 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  // Utilities for display
   formatCurrency(price: number): string {
     return this.formatUtilities.formatCurrency(price);
   }
@@ -414,7 +412,6 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     this.navigationUtilities.goToRouteWithState(PathNames.dashboard);
   }
 
-  // Utilities for price filters
   onPriceFilterChange(): void {
     const minPrice = this.minPriceControl.value;
     const maxPrice = this.maxPriceControl.value;

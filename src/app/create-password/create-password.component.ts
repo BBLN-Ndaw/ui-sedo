@@ -132,7 +132,6 @@ export class CreatePasswordComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading = false;
-          // Redirection vers login après succès
           setTimeout(() => {
             this.navigationUtilities.goToLogin();
           }, 2000);
