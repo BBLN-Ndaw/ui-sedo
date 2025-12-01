@@ -27,7 +27,116 @@
   <!-- Détails du produit -->
   <div class="product-showcase" *ngIf="!isLoading && product">
     <div class="product-layout">
-      <!-- Section gauche - Images -->
+      <!-- Section gauche - Description et informations -->
+      <div class="product-description-section">
+        <!-- Description -->
+        <mat-card class="description-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>description</mat-icon>
+              Description du produit
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="product-description">{{ product.description }}</p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Caractéristiques -->
+        <mat-card class="specs-card enhanced-specs-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>list_alt</mat-icon>
+              Informations produit
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="specs-grid">
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>info</mat-icon>
+                  Informations générales
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>tag</mat-icon>
+                    Référence
+                  </span>
+                  <span class="spec-value">{{ product.sku }}</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>category</mat-icon>
+                    Catégorie
+                  </span>
+                  <span class="spec-value">{{ product.category.name }}</span>
+                </div>
+                <div class="spec-row" *ngIf="product.category.description">
+                  <span class="spec-label">
+                    <mat-icon>label</mat-icon>
+                    Type
+                  </span>
+                  <span class="spec-value">{{ product.category.description }}</span>
+                </div>
+              </div>
+              
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>inventory</mat-icon>
+                  Stock et disponibilité
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>warehouse</mat-icon>
+                    Disponibilité
+                  </span>
+                  <span class="spec-value enhanced-stock" [ngClass]="getStockStatus(product)">
+                    <mat-icon class="status-icon">{{ getStockStatusIcon(product) }}</mat-icon>
+                    {{ getStockStatusText(product) }}
+                  </span>
+                </div>
+                <div class="spec-row" *ngIf="getStockStatus(product) !== 'out-of-stock'">
+                  <span class="spec-label">
+                    <mat-icon>confirmation_number</mat-icon>
+                    Quantité disponible
+                  </span>
+                  <span class="spec-value">{{ product.stockQuantity }} unité{{ product.stockQuantity > 1 ? 's' : '' }}</span>
+                </div>
+              </div>
+              
+              <div class="spec-group">
+                <h4 class="spec-group-title">
+                  <mat-icon>local_shipping</mat-icon>
+                  Livraison et service
+                </h4>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>schedule</mat-icon>
+                    Délai de livraison
+                  </span>
+                  <span class="spec-value">2-3 jours ouvrés</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>autorenew</mat-icon>
+                    Retour
+                  </span>
+                  <span class="spec-value">14 jours pour changer d'avis</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-label">
+                    <mat-icon>support_agent</mat-icon>
+                    Support
+                  </span>
+                  <span class="spec-value">Service client disponible 7j/7</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Section centrale - Images -->
       <div class="product-gallery">
         <div class="main-image-container">
           <!-- Badges -->
@@ -300,111 +409,7 @@
           </div>
         </div>
 
-        <!-- Description -->
-        <mat-card class="description-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>description</mat-icon>
-              Description du produit
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p class="product-description">{{ product.description }}</p>
-          </mat-card-content>
-        </mat-card>
 
-        <!-- Caractéristiques -->
-        <mat-card class="specs-card enhanced-specs-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>list_alt</mat-icon>
-              Informations produit
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="specs-grid">
-              <div class="spec-group">
-                <h4 class="spec-group-title">
-                  <mat-icon>info</mat-icon>
-                  Informations générales
-                </h4>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>tag</mat-icon>
-                    Référence
-                  </span>
-                  <span class="spec-value">{{ product.sku }}</span>
-                </div>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>category</mat-icon>
-                    Catégorie
-                  </span>
-                  <span class="spec-value">{{ product.category.name }}</span>
-                </div>
-                <div class="spec-row" *ngIf="product.category.description">
-                  <span class="spec-label">
-                    <mat-icon>label</mat-icon>
-                    Type
-                  </span>
-                  <span class="spec-value">{{ product.category.description }}</span>
-                </div>
-              </div>
-              
-              <div class="spec-group">
-                <h4 class="spec-group-title">
-                  <mat-icon>inventory</mat-icon>
-                  Stock et disponibilité
-                </h4>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>warehouse</mat-icon>
-                    Disponibilité
-                  </span>
-                  <span class="spec-value enhanced-stock" [ngClass]="getStockStatus(product)">
-                    <mat-icon class="status-icon">{{ getStockStatusIcon(product) }}</mat-icon>
-                    {{ getStockStatusText(product) }}
-                  </span>
-                </div>
-                <div class="spec-row" *ngIf="getStockStatus(product) !== 'out-of-stock'">
-                  <span class="spec-label">
-                    <mat-icon>confirmation_number</mat-icon>
-                    Quantité disponible
-                  </span>
-                  <span class="spec-value">{{ product.stockQuantity }} unité{{ product.stockQuantity > 1 ? 's' : '' }}</span>
-                </div>
-              </div>
-              
-              <div class="spec-group">
-                <h4 class="spec-group-title">
-                  <mat-icon>local_shipping</mat-icon>
-                  Livraison et service
-                </h4>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>schedule</mat-icon>
-                    Délai de livraison
-                  </span>
-                  <span class="spec-value">2-3 jours ouvrés</span>
-                </div>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>autorenew</mat-icon>
-                    Retour
-                  </span>
-                  <span class="spec-value">14 jours pour changer d'avis</span>
-                </div>
-                <div class="spec-row">
-                  <span class="spec-label">
-                    <mat-icon>support_agent</mat-icon>
-                    Support
-                  </span>
-                  <span class="spec-value">Service client disponible 7j/7</span>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
 
         <!-- Actions secondaires -->
         <div class="secondary-actions">
