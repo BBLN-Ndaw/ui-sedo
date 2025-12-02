@@ -1,102 +1,283 @@
+@use '../../styles/responsive.scss' as *;
+
 .category-form-container {
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: var(--space-2xl) auto;
+  @extend .p-responsive;
+
+  @include mobile {
+    margin: var(--space-md);
+  }
 }
 
 .form-card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  @extend .card-responsive;
+  @include card-base;
   
   mat-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    @include gradient-primary;
     color: white;
-    margin: -24px -24px 0 -24px;
-    padding: 24px;
-    border-radius: 12px 12px 0 0;
+    margin: -var(--space-xl) -var(--space-xl) 0 -var(--space-xl);
+    padding: var(--space-xl);
+    @include border-radius-lg;
+    
+    & {
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    }
+
+    @include mobile {
+      padding: var(--space-md);
+      margin: -var(--space-md) -var(--space-md) 0 -var(--space-md);
+    }
+
+    mat-card-title {
+      @extend .flex-responsive;
+      @include h2-responsive;
+      
+      & {
+        align-items: center;
+        margin: 0;
+      }
+    }
 
     .title-icon {
       margin-right: 8px;
       vertical-align: middle;
+      font-size: 24px;
+
+      @include mobile {
+        font-size: 20px;
+        margin-right: 6px;
+      }
     }
   }
 }
 
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
+  @include center-content;
+  @extend .p-responsive;
+  min-height: 200px;
+  
+  @include mobile {
+    padding: var(--space-2xl) var(--space-md);
+  }
   
   p {
-    margin-top: 1rem;
-    color: #666;
+    margin-top: var(--space-md);
+    color: var(--color-gray-600);
+    @include body-responsive;
   }
 }
 
 .form-section {
   margin-bottom: 2rem;
 
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
+
   .section-title {
-    display: flex;
+    @extend .flex-responsive;
     align-items: center;
-    margin-bottom: 1rem;
-    color: #333;
+    margin-bottom: var(--space-md);
+    color: var(--color-gray-800);
     font-weight: 500;
+    @include h3-responsive;
+
+    @include mobile {
+      margin-bottom: var(--space-sm);
+    }
 
     mat-icon {
-      margin-right: 8px;
-      color: #667eea;
+      margin-right: var(--space-xs);
+      color: var(--color-primary);
+      font-size: 20px;
+
+      @include mobile {
+        margin-right: var(--space-2xs);
+        font-size: 18px;
+      }
     }
   }
 
   mat-divider {
     margin-bottom: 1.5rem;
+
+    @include mobile {
+      margin-bottom: 1rem;
+    }
   }
 }
 
 .form-row {
   margin-bottom: 1rem;
+
+  @include mobile {
+    margin-bottom: 0.75rem;
+  }
 }
 
 .full-width {
   width: 100%;
-}
 
-.checkbox-label {
-  font-weight: 500;
-  color: #333;
-}
+  // champs de formulaire
+  mat-form-field {
+    @include mobile {
+      .mat-mdc-form-field-subscript-wrapper {
+        font-size: 12px;
+      }
+      
+      .mdc-text-field--outlined {
+        .mdc-notched-outline .mdc-notched-outline__leading,
+        .mdc-notched-outline .mdc-notched-outline__notch,
+        .mdc-notched-outline .mdc-notched-outline__trailing {
+          border-width: 1px;
+        }
+      }
+    }
+  }
 
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 2rem;
-
-  button {
-    min-width: 120px;
-
-    mat-icon {
-      margin-right: 8px;
+  // Responsive textarea
+  textarea {
+    @include mobile {
+      min-height: 80px !important;
+      resize: vertical;
     }
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .category-form-container {
-    margin: 1rem;
-    padding: 0;
+.checkbox-label {
+  font-weight: 500;
+  color: var(--color-gray-800);
+  @include body-responsive;
+}
+
+mat-checkbox {
+  @include mobile {
+    .mat-mdc-checkbox {
+      --mdc-checkbox-state-layer-size: 40px;
+    }
+    
+    .mdc-checkbox {
+      padding: 8px;
+    }
+    
+    .mdc-form-field {
+      align-items: center;
+    }
   }
+}
 
-  .form-actions {
-    flex-direction: column;
-
+.form-actions {
+  @extend .form-actions;
+  
+  @include mobile {
+    padding: 1rem 0;
+    margin-top: 1.5rem;
+    
     button {
       width: 100%;
+      min-width: auto;
+      padding: 12px 16px;
+      
+      .mat-button-wrapper {
+        @include body-responsive;
+        font-weight: 500;
+      }
+      
+      mat-icon {
+        margin-right: 6px;
+        font-size: 18px;
+      }
+    }
+  }
+
+  button {
+    min-width: 120px;
+    transition: all 0.2s ease;
+
+    @include desktop {
+      min-width: 140px;
+    }
+
+    mat-icon {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    &:disabled {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// erreurs de validation sur mobile
+@include mobile {
+  mat-error {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  mat-hint {
+    font-size: 11px;
+  }
+}
+
+// les états de chargement
+.loading-container mat-spinner {
+  @include mobile {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+// Accessibilité
+@media (prefers-reduced-motion: reduce) {
+  .form-actions button {
+    transition: none;
+  }
+  
+  .loading-container mat-spinner {
+    animation: none;
+  }
+}
+
+// Accessibilité
+mat-form-field {
+  &.mat-focused {
+    .mdc-notched-outline {
+      border-color: var(--primary-blue);
+      border-width: 2px;
+    }
+  }
+}
+
+// Material Design
+@include tablet {
+  .form-section {
+    .section-title {
+      font-size: 18px;
+    }
+  }
+}
+
+@include mobile {
+  // Espacement vertical pour les petits écrans
+  mat-card-content {
+    padding: 16px !important;
+  }
+  
+  // bordures pour les petits écrans
+  .form-card {
+    border-radius: 8px;
+    
+    mat-card-header {
+      border-radius: 8px 8px 0 0;
     }
   }
 }

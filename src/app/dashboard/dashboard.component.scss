@@ -1,82 +1,121 @@
-// 🎨 DASHBOARD MODERNE ET SIMPLE
+@use '../../styles/responsive.scss' as *;
+
 .ultra-modern-dashboard {
-  background: #f8fafc;
+  @extend .bg-gray-50;
   min-height: 100vh;
-  padding: 24px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-// 📝 EN-TÊTE SIMPLE
+// 📝 EN-TÊTE
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-2xl);
 
   .page-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0;
+    @include h1-responsive;
+    @extend .text-dark;
+    
+    & {
+      margin: 0;
+    }
+
+    @include mobile-tablet {
+      font-size: 28px;
+    }
+
+    @include mobile {
+      font-size: 24px;
+    }
   }
 }
 
 // 📊 SECTION PRINCIPALE
 .dashboard-main {
-  max-width: 1200px;
-  margin: 0 auto;
+  @extend .container;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--space-2xl);
+
+  @include mobile-tablet {
+    gap: var(--space-lg);
+  }
 
   // 💹 GRAPHIQUE CHIFFRE D'AFFAIRES
   .revenue-chart-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    @extend .card-responsive;
     overflow: hidden;
 
     mat-card-header {
-      padding: 24px 24px 0;
+      @extend .p-responsive;
+      padding-bottom: 0;
       
       mat-card-title {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
+        gap: var(--space-sm);
+        @include h3-responsive;
+        @extend .text-dark;
+        
+        & {
+          margin: 0;
+        }
+
+        @include mobile-tablet {
+          font-size: 18px;
+          gap: var(--space-xs);
+        }
 
         mat-icon {
-          color: #667eea;
+          color: var(--color-primary);
+
+          @include mobile-tablet {
+            font-size: 20px;
+          }
         }
       }
     }
 
     mat-card-content {
-      padding: 24px;
+      @extend .p-responsive;
 
       .chart-container {
         .revenue-summary {
-          display: flex;
-          justify-content: space-between;
+          @extend .flex-responsive;
           align-items: center;
-          margin-bottom: 32px;
-          padding-bottom: 20px;
-          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: var(--space-2xl);
+          padding-bottom: var(--space-lg);
+          border-bottom: 1px solid var(--color-gray-200);
+
+          @include mobile-tablet {
+            align-items: flex-start;
+            text-align: center;
+            margin-bottom: var(--space-lg);
+          }
 
           .revenue-total {
             .amount {
               display: block;
               font-size: 36px;
               font-weight: 800;
-              color: #1e293b;
+              @extend .text-dark;
               line-height: 1;
+
+              @include mobile-tablet {
+                font-size: 28px;
+              }
+
+              @include mobile {
+                font-size: 24px;
+              }
             }
 
             .period {
               font-size: 14px;
-              color: #64748b;
+              @extend .text-muted;
               margin-top: 4px;
+
+              @include mobile {
+                font-size: 12px;
+              }
             }
           }
 
@@ -84,27 +123,23 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 16px;
-            border-radius: 12px;
+            padding: var(--space-xs) var(--space-md);
+            @extend .rounded-lg;
             font-weight: 600;
             font-size: 14px;
 
-            &.positive {
-              background: #dcfce7;
-              color: #16a34a;
+            @include mobile-tablet {
+              padding: 6px var(--space-sm);
+              font-size: 12px;
+              gap: 4px;
+            }
 
-              mat-icon {
-                color: #16a34a;
-              }
+            &.positive {
+              @include status-success;
             }
 
             &.negative {
-              background: #fecaca;
-              color: #dc2626;
-
-              mat-icon {
-                color: #dc2626;
-              }
+              @include status-error;
             }
           }
         }
@@ -113,26 +148,40 @@
           .bars-chart {
             display: flex;
             align-items: end;
-            gap: 12px;
+            gap: var(--space-sm);
             height: 200px;
-            margin-bottom: 12px;
+            margin-bottom: var(--space-sm);
+
+            @include mobile-tablet {
+              height: 150px;
+              gap: var(--space-xs);
+            }
+
+            @include mobile {
+              height: 120px;
+              gap: 4px;
+            }
 
             .bar {
               flex: 1;
-              background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+              @extend .bg-gray-300;
               border-radius: 4px 4px 0 0;
               position: relative;
               transition: all 0.3s ease;
               cursor: pointer;
-              min-height: 2px; // Hauteur minimale pour les barres avec peu de données
+              min-height: 2px;
+
+              @include mobile {
+                border-radius: 2px 2px 0 0;
+              }
 
               &:hover {
-                background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+                @extend .bg-gray-400;
                 transform: scaleY(1.05);
               }
 
               &.active {
-                background: linear-gradient(135deg, #667eea, #764ba2);
+                @include gradient-primary;
               }
 
               &::after {
@@ -143,9 +192,14 @@
                 transform: translateX(-50%);
                 font-size: 12px;
                 font-weight: 600;
-                color: #64748b;
+                @extend .text-muted;
                 opacity: 0;
                 transition: opacity 0.3s ease;
+
+                @include mobile {
+                  font-size: 10px;
+                  top: -20px;
+                }
               }
 
               &:hover::after,
@@ -160,21 +214,32 @@
               align-items: center;
               justify-content: center;
               height: 100%;
-              color: #64748b;
-              text-align: center;
+              @extend .text-muted;
+              @extend .text-center;
 
               mat-icon {
                 font-size: 48px;
                 width: 48px;
                 height: 48px;
-                margin-bottom: 12px;
+                margin-bottom: var(--space-sm);
                 opacity: 0.5;
+
+                @include mobile {
+                  font-size: 32px;
+                  width: 32px;
+                  height: 32px;
+                  margin-bottom: var(--space-xs);
+                }
               }
 
               p {
                 margin: 0;
                 font-weight: 500;
                 opacity: 0.7;
+
+                @include mobile {
+                  font-size: 14px;
+                }
               }
             }
           }
@@ -183,8 +248,20 @@
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            color: #64748b;
+            @extend .text-muted;
             font-weight: 500;
+
+            @include mobile {
+              font-size: 10px;
+            }
+
+            span {
+              @include mobile {
+                &:nth-child(even) {
+                  display: none; // Masquer un label sur deux en mobile
+                }
+              }
+            }
           }
         }
       }
@@ -192,30 +269,42 @@
   }
 }
 
-// 📊 CARTES DE STATISTIQUES MODERNES
+// 📊 CARTES DE STATISTIQUES
 .stats-showcase {
   margin-bottom: 32px;
 
+  @include mobile-tablet {
+    margin-bottom: 24px;
+  }
+
   .stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
+    @extend .grid;
+    @extend .grid-auto;
+    @extend .container;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
 
     .premium-stat-card {
-      background: white;
-      border-radius: 20px;
+      @extend .card-responsive;
       padding: 0;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.06);
       position: relative;
       overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.06);
 
       &:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+        @include mobile-tablet {
+          transform: translateY(-4px); // Réduire l'effet sur mobile
+        }
       }
 
       // Bordure colorée en haut
@@ -245,13 +334,21 @@
       }
 
       .card-body {
-        padding: 32px;
+        @extend .p-responsive;
+
+        @include mobile {
+          padding: 20px;
+        }
 
         .stat-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 24px;
+
+          @include mobile {
+            margin-bottom: 16px;
+          }
 
           .icon-container {
             width: 56px;
@@ -263,37 +360,27 @@
             justify-content: center;
             transition: transform 0.3s ease;
 
+            @include mobile {
+              width: 48px;
+              height: 48px;
+              border-radius: 12px;
+            }
+
             .stat-icon {
               font-size: 24px;
               color: #64748b;
+
+              @include mobile {
+                font-size: 20px;
+              }
             }
 
             &:hover {
               transform: scale(1.1);
-            }
-          }
 
-          .trend-indicator {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-
-            &.increase {
-              background: #dcfce7;
-              color: #16a34a;
-            }
-
-            &.decrease {
-              background: #fef2f2;
-              color: #dc2626;
-            }
-
-            mat-icon {
-              font-size: 14px;
+              @include mobile-tablet {
+                transform: scale(1.05); // Réduire l'effet sur mobile
+              }
             }
           }
         }
@@ -305,6 +392,10 @@
             color: #1e293b;
             line-height: 1;
             margin-bottom: 8px;
+
+            @include mobile {
+              font-size: 28px;
+            }
           }
 
           .stat-title {
@@ -312,12 +403,20 @@
             font-weight: 600;
             color: #475569;
             margin-bottom: 4px;
+
+            @include mobile {
+              font-size: 14px;
+            }
           }
 
           .stat-description {
             font-size: 13px;
             color: #94a3b8;
             line-height: 1.4;
+
+            @include mobile {
+              font-size: 12px;
+            }
           }
         }
       }
@@ -325,20 +424,28 @@
   }
 }
 
-// 📊 TABLEAU DE BORD PRINCIPAL
+// 📊 TABLEAU DE BORD
 .dashboard-grid {
+  @extend .container;
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 32px;
-  margin: 0 auto;
-  max-width: 1200px;
+
+  @include desktop {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  @include mobile {
+    gap: 16px;
+  }
 
   .featured-products {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    @extend .card-responsive;
 
     .section-header {
       display: flex;
@@ -348,29 +455,28 @@
       padding-bottom: 16px;
       border-bottom: 1px solid #f1f5f9;
 
+      @include mobile {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+      }
+
       h3 {
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
+        @include h3-responsive;
+        
+        & {
+          color: #1e293b;
+          margin: 0;
+        }
 
         mat-icon {
           color: #fbbf24;
-        }
-      }
 
-      .view-all-btn {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        transition: color 0.2s ease;
-
-        &:hover {
-          color: #5a67d8;
+          @include mobile {
+            font-size: 18px;
+          }
         }
       }
     }
@@ -379,8 +485,13 @@
       display: grid;
       gap: 16px;
 
+      @include mobile {
+        gap: 12px;
+      }
+
       .product-item {
-        display: flex;
+        @extend .flex-responsive;
+        flex-direction: row;
         align-items: center;
         gap: 16px;
         padding: 16px;
@@ -388,9 +499,19 @@
         background: #f8fafc;
         transition: all 0.2s ease;
 
+        @include mobile {
+          flex-direction: row;
+          padding: 12px;
+          gap: 12px;
+        }
+
         &:hover {
           background: #e2e8f0;
           transform: translateX(4px);
+
+          @include mobile-tablet {
+            transform: translateX(2px);
+          }
         }
 
         .product-rank {
@@ -404,6 +525,14 @@
           border-radius: 8px;
           font-weight: 700;
           font-size: 12px;
+          flex-shrink: 0;
+
+          @include mobile {
+            width: 28px;
+            height: 28px;
+            font-size: 11px;
+            border-radius: 6px;
+          }
         }
 
         .product-image {
@@ -416,21 +545,41 @@
           justify-content: center;
           color: #64748b;
           font-size: 20px;
+          flex-shrink: 0;
+
+          @include mobile {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            border-radius: 6px;
+          }
         }
 
         .product-info {
           flex: 1;
+          min-width: 0;
 
           .product-name {
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 4px;
             font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @include mobile {
+              font-size: 13px;
+            }
           }
 
           .product-details {
             font-size: 12px;
             color: #64748b;
+
+            @include mobile {
+              font-size: 11px;
+            }
           }
         }
 
@@ -438,6 +587,11 @@
           font-weight: 700;
           color: #059669;
           font-size: 16px;
+          flex-shrink: 0;
+
+          @include mobile {
+            font-size: 14px;
+          }
         }
       }
     }
@@ -448,18 +602,32 @@
     flex-direction: column;
     gap: 20px;
 
+    @include tablet {
+      flex-direction: row;
+      gap: 24px;
+    }
+
+    @include mobile {
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .activity-timeline,
     .stock-management {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      @extend .card-responsive;
+
+      @include tablet {
+        flex: 1;
+      }
 
       .section-header {
         margin-bottom: 20px;
         padding-bottom: 12px;
         border-bottom: 1px solid #f1f5f9;
+
+        @include mobile {
+          margin-bottom: 16px;
+        }
 
         h4 {
           display: flex;
@@ -470,9 +638,17 @@
           color: #1e293b;
           margin: 0;
 
+          @include mobile {
+            font-size: 16px;
+          }
+
           mat-icon {
             color: #667eea;
             font-size: 20px;
+
+            @include mobile {
+              font-size: 18px;
+            }
           }
         }
       }
@@ -484,9 +660,17 @@
         flex-direction: column;
         gap: 16px;
 
+        @include mobile {
+          gap: 12px;
+        }
+
         .timeline-item {
           display: flex;
           gap: 12px;
+
+          @include mobile {
+            gap: 8px;
+          }
 
           .timeline-dot {
             width: 8px;
@@ -495,6 +679,12 @@
             background: #667eea;
             margin-top: 6px;
             flex-shrink: 0;
+
+            @include mobile {
+              width: 6px;
+              height: 6px;
+              margin-top: 4px;
+            }
           }
 
           .timeline-content {
@@ -503,11 +693,19 @@
               color: #1e293b;
               font-size: 14px;
               margin-bottom: 2px;
+
+              @include mobile {
+                font-size: 13px;
+              }
             }
 
             .timeline-time {
               font-size: 12px;
               color: #64748b;
+
+              @include mobile {
+                font-size: 11px;
+              }
             }
           }
         }
@@ -517,27 +715,46 @@
     .stock-management {
       .stock-items {
         .stock-item {
-          display: flex;
+          @extend .flex-responsive;
+          flex-direction: row;
           justify-content: space-between;
           align-items: center;
           padding: 12px 0;
           border-bottom: 1px solid #f1f5f9;
+          gap: 12px;
+
+          @include mobile {
+            padding: 8px 0;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+          }
 
           &:last-child {
             border-bottom: none;
           }
 
           .stock-info {
+            flex: 1;
+
             .product-name {
               font-weight: 600;
               color: #1e293b;
               font-size: 14px;
               margin-bottom: 2px;
+
+              @include mobile {
+                font-size: 13px;
+              }
             }
 
             .stock-quantity {
               font-size: 12px;
               color: #64748b;
+
+              @include mobile {
+                font-size: 11px;
+              }
             }
           }
 
@@ -546,6 +763,12 @@
             border-radius: 8px;
             font-size: 11px;
             font-weight: 600;
+
+            @include mobile {
+              align-self: flex-end;
+              font-size: 10px;
+              padding: 3px 6px;
+            }
 
             &.low-stock {
               background: #fef3c7;
@@ -561,72 +784,81 @@
       }
     }
   }
-
-  // Responsive
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-
-    .activity-panel {
-      flex-direction: row;
-
-      .activity-timeline,
-      .stock-management {
-        flex: 1;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    .activity-panel {
-      flex-direction: column;
-    }
-  }
 }
 
 // 🎯 HUB D'ACTIONS RAPIDES
 .premium-actions-hub {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 0 40px;
+  @extend .container;
+  padding-bottom: 40px;
+
+  @include mobile-tablet {
+    padding-bottom: 24px;
+  }
 
   .hub-header {
     text-align: center;
     margin-bottom: 32px;
 
+    @include mobile-tablet {
+      margin-bottom: 24px;
+    }
+
     .hub-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0 0 8px 0;
+      @include h2-responsive;
+      
+      & {
+        color: #1e293b;
+        margin: 0 0 8px 0;
+      }
     }
 
     .hub-subtitle {
       font-size: 16px;
       color: #64748b;
       margin: 0;
+
+      @include mobile {
+        font-size: 14px;
+      }
     }
   }
 
   .actions-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    @extend .grid;
+    @extend .grid-auto;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include desktop {
+      grid-template-columns: repeat(3, 1fr);
+    }
 
     .action-item.spotlight {
-      background: white;
-      border-radius: 16px;
-      padding: 32px 24px;
+      @extend .card-responsive;
       text-align: center;
       border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       transition: all 0.3s ease;
       cursor: pointer;
       position: relative;
       overflow: hidden;
 
+      @include mobile {
+        padding: 24px 16px;
+      }
+
       &:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+        @include mobile-tablet {
+          transform: translateY(-4px);
+        }
       }
 
       // Bordure colorée en haut
@@ -637,30 +869,6 @@
         left: 0;
         right: 0;
         height: 4px;
-      }
-
-      &.supplier::before {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-      }
-
-      &.product::before {
-        background: linear-gradient(90deg, #f093fb, #f5576c);
-      }
-
-      &.orders::before {
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
-      }
-
-      &.customer::before {
-        background: linear-gradient(90deg, #fa709a, #fee140);
-      }
-
-      &.reports::before {
-        background: linear-gradient(90deg, #a8edea, #fed6e3);
-      }
-
-      &.settings::before {
-        background: linear-gradient(90deg, #43e97b, #38f9d7);
       }
 
       .action-content {
@@ -675,9 +883,20 @@
           margin: 0 auto 20px auto;
           transition: all 0.3s ease;
 
+          @include mobile {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+          }
+
           mat-icon {
             font-size: 28px;
             color: #64748b;
+
+            @include mobile {
+              font-size: 24px;
+            }
           }
         }
 
@@ -686,6 +905,11 @@
           font-weight: 700;
           color: #1e293b;
           margin: 0 0 8px 0;
+
+          @include mobile {
+            font-size: 16px;
+            margin-bottom: 6px;
+          }
         }
 
         .action-desc {
@@ -693,63 +917,21 @@
           color: #64748b;
           margin: 0;
           line-height: 1.5;
+
+          @include mobile {
+            font-size: 13px;
+          }
         }
       }
 
       &:hover .action-icon {
         transform: scale(1.1);
         background: #e2e8f0;
-      }
-    }
-  }
 
-  // Responsive
-  @media (max-width: 768px) {
-    .actions-gallery {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-  }
-}
-
-// 📱 RESPONSIVE GLOBAL
-@media (max-width: 768px) {
-  .ultra-modern-dashboard {
-    padding: 16px;
-
-    .page-header {
-      margin-bottom: 24px;
-
-      .page-title {
-        font-size: 24px;
-      }
-    }
-
-    .dashboard-main {
-      gap: 24px;
-
-      .revenue-chart-card {
-        mat-card-content {
-          .chart-container {
-            .revenue-summary {
-              flex-direction: column;
-              gap: 16px;
-              text-align: center;
-            }
-          }
+        @include mobile-tablet {
+          transform: scale(1.05);
         }
       }
-    }
-
-    .stats-showcase {
-      .stats-container {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-    }
-
-    .dashboard-grid {
-      gap: 20px;
     }
   }
 }

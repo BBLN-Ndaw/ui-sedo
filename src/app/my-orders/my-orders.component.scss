@@ -1,118 +1,106 @@
+@use '../../styles/responsive.scss' as *;
+
+// Breadcrumb navigation
+.breadcrumb-nav {
+  @extend .flex-responsive;
+  align-items: center;
+  @extend .p-responsive;
+  background: var(--color-white-alpha-90);
+  border-bottom: 1px solid var(--color-gray-200);
+  margin-bottom: var(--space-md);
+
+  @include mobile {
+    padding: 12px 16px;
+    margin-bottom: 0.75rem;
+  }
+
+  .nav-link {
+    @extend .flex-responsive;
+    align-items: center;
+    gap: 4px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    @include mobile {
+      .mat-button-wrapper {
+        font-size: 14px;
+      }
+    }
+
+    &:hover {
+      color: var(--secondary-green);
+    }
+
+    mat-icon {
+      font-size: 18px;
+
+      @include mobile {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .breadcrumb-separator {
+    color: var(--color-gray-400);
+    margin: 0 var(--space-xs);
+    font-size: 16px;
+
+    @include mobile {
+      margin: 0 6px;
+      font-size: 14px;
+    }
+  }
+
+  .current-page {
+    color: var(--color-gray-600);
+    font-weight: 500;
+    @include body-responsive;
+  }
+}
+
 .my-orders-container {
-  padding: 2rem;
-  max-width: 1200px;
+  @extend .p-responsive;
+  @extend .container-responsive;
   margin: 0 auto;
+
+  @include mobile {
+    padding: 1rem;
+  }
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-2xl);
   text-align: center;
 
+  @include mobile {
+    margin-bottom: var(--space-xl);
+  }
+
   h1 {
-    display: flex;
+    @extend .flex-responsive;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    margin: 0 0 0.5rem 0;
-    font-size: 2.5rem;
-    color: #333;
+    gap: var(--space-sm);
+    margin: 0 0 var(--space-xs) 0;
+    @include h1-responsive;
+    
+    & {
+      color: var(--color-gray-800);
+    }
+
+    @include mobile {
+      gap: var(--space-xs);
+      margin-bottom: var(--space-2xs);
+    }
 
     mat-icon {
       font-size: 2.5rem;
       width: 2.5rem;
       height: 2.5rem;
-      color: #1976d2;
-    }
-  }
+      color: var(--color-primary);
 
-  .page-description {
-    color: #666;
-    font-size: 1.1rem;
-    margin: 0;
-  }
-}
-
-.filters-section {
-  margin-bottom: 2rem;
-}
-
-.filters-card {
-  .filters-content {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-
-    .filter-field {
-      min-width: 200px;
-      flex: 1;
-    }
-
-    .refresh-btn {
-      margin-top: 0.5rem;
-      min-width: 120px;
-    }
-  }
-}
-
-.stats-section {
-  margin-top: 2rem;
-}
-
-.stats-card {
-  mat-card-header {
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      
-      mat-icon {
-        color: #1976d2;
-      }
-    }
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #1976d2;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.9rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .my-orders-container {
-    padding: 1rem;
-  }
-
-  .page-header {
-    h1 {
-      font-size: 2rem;
-
-      mat-icon {
+      @include mobile {
         font-size: 2rem;
         width: 2rem;
         height: 2rem;
@@ -120,39 +108,249 @@
     }
   }
 
-  .filters-content {
-    flex-direction: column;
-    align-items: stretch;
-
-    .filter-field {
-      min-width: auto;
-    }
-
-    .refresh-btn {
-      margin-top: 1rem;
-    }
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .stat-item {
-    padding: 0.75rem;
-
-    .stat-value {
-      font-size: 1.5rem;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
+  .page-description {
+    @include body-large-responsive;
+    
+    & {
+      color: var(--color-gray-600);
+      margin: 0;
+      font-weight: 400;
     }
   }
 }
 
-@media (max-width: 480px) {
-  .stats-grid {
+.filters-section {
+  margin-bottom: 2rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.filters-card {
+  @extend .card-responsive;
+  border: 1px solid #e2e8f0;
+
+  .filters-content {
+    @extend .flex-responsive;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+
+    @include mobile-tablet {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-field {
+      min-width: 200px;
+      flex: 1;
+
+      @include mobile-tablet {
+        min-width: auto;
+      }
+
+      @include mobile {
+        .mat-mdc-form-field-subscript-wrapper,
+        .mdc-text-field--outlined .mdc-notched-outline {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .refresh-btn {
+      margin-top: 0.5rem;
+      min-width: 120px;
+      transition: all 0.2s ease;
+
+      @include mobile-tablet {
+        margin-top: 1rem;
+        width: 100%;
+        min-width: auto;
+      }
+
+      @include mobile {
+        .mat-button-wrapper {
+          font-size: 14px;
+        }
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      mat-icon {
+        margin-right: 8px;
+
+        @include mobile {
+          margin-right: 6px;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}
+
+.stats-section {
+  margin-top: 2rem;
+
+  @include mobile {
+    margin-top: 1.5rem;
+  }
+}
+
+.stats-card {
+  @extend .card-responsive;
+  @include gradient-subtle;
+  
+  & {
+    border: 1px solid var(--color-gray-200);
+  }
+
+  mat-card-header {
+    margin-bottom: 1rem;
+
+    @include mobile {
+      margin-bottom: 0.75rem;
+    }
+
+    mat-card-title {
+      @extend .flex-responsive;
+      align-items: center;
+      gap: 0.5rem;
+      @include h2-responsive;
+      
+      & {
+        margin: 0;
+        color: #1f2937;
+      }
+      
+      mat-icon {
+        color: var(--primary-blue);
+        font-size: 24px;
+
+        @include mobile {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+.stats-grid {
+  @extend .grid-responsive;
+  gap: 1.5rem;
+  margin-top: 1rem;
+
+  @include desktop {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  @include mobile {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.stat-item {
+  text-align: center;
+  padding: var(--space-md);
+  @include card-base;
+  @include border-radius-lg;
+  
+  & {
+    transition: all 0.2s ease;
+  }
+
+  @include mobile {
+    padding: var(--space-sm);
+    @include border-radius-md;
+  }
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+
+    @include mobile-tablet {
+      transform: translateY(-1px);
+    }
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--space-xs);
+    line-height: 1;
+
+    @include mobile {
+      font-size: 1.5rem;
+      margin-bottom: var(--space-2xs);
+    }
+
+    @include tablet {
+      font-size: 1.75rem;
+    }
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--color-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+
+    @include mobile {
+      font-size: 0.8rem;
+      letter-spacing: 0.25px;
+    }
+  }
+}
+
+// Animation et d'accessibilité
+@media (prefers-reduced-motion: reduce) {
+  .refresh-btn,
+  .stat-item {
+    transition: none;
+  }
+}
+
+// État de focus
+.filters-card .filter-field {
+  mat-select:focus,
+  input:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+}
+
+// pour les très petits écrans
+@media (max-width: 360px) {
+  .page-header h1 {
+    font-size: 1.75rem;
+    
+    mat-icon {
+      font-size: 1.75rem;
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+
+  .stat-item {
+    padding: 0.5rem;
+
+    .stat-value {
+      font-size: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
   }
 }

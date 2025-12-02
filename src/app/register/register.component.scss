@@ -1,24 +1,45 @@
-// Import des styles communs pour la cohérence avec le login
+@use '../../styles/responsive.scss' as *;
+
+// Styles responsive
 .register-container {
-  background: linear-gradient(135deg, #2E7D32 0%, #FF6F00 100%);
+  @extend .center-content;
+  @include gradient-primary;
   min-height: 100vh;
-  padding: 20px;
+  @extend .p-responsive;
+
+  @include mobile {
+    padding: var(--space-sm);
+  }
 }
 
 .register-card {
-  max-width: 600px; // Plus large que la carte de login pour accommoder plus de champs
-  width: 100%;
-  margin: 0 auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  @include card-base;
+  
+  & {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    animation: slideInUp 0.5s ease-out;
+  }
+
+  @include mobile {
+    max-width: none;
+    margin: 0;
+    border-radius: var(--border-radius-md);
+  }
+
+  @include tablet {
+    max-width: 500px;
+  }
+
+  @include desktop {
+    max-width: 650px;
+  }
 }
 
 .register-header-image {
-  background: linear-gradient(45deg, #2E7D32, #FF6F00);
-  color: white;
+  @include gradient-primary;
+  @extend .text-white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,65 +48,107 @@
     font-size: 32px;
     height: 32px;
     width: 32px;
+
+    @include mobile {
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+    }
   }
 }
 
 .register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 16px;
+  @extend .form-responsive;
   max-height: 70vh;
   overflow-y: auto;
-  padding-right: 8px;
-  
-  // Scroll bar personnalisé
-  &::-webkit-scrollbar {
-    width: 6px;
+  padding-right: var(--space-xs);
+
+  @include mobile {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
   }
   
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #2E7D32, #FF6F00);
-    border-radius: 10px;
+  // Scroll bar personnalisé (masqué sur mobile)
+  @include tablet-desktop {
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: var(--color-gray-100);
+      border-radius: var(--border-radius-lg);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      @include gradient-primary;
+      border-radius: var(--border-radius-lg);
+    }
   }
 }
 
-// Sections du formulaire
+// Sections du formulaire responsive
 .form-section {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
+
+  @include mobile {
+    margin-bottom: var(--space-sm);
+  }
   
   .section-title {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 0 12px 0;
+    gap: var(--space-xs);
+    margin: 0 0 var(--space-sm) 0;
     font-size: 18px;
     font-weight: 500;
-    color: #2E7D32;
+    @extend .text-primary;
+
+    @include mobile {
+      font-size: 16px;
+      margin-bottom: var(--space-xs);
+      gap: 6px;
+    }
     
     mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
+
+      @include mobile {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
   }
   
   mat-divider {
-    margin-bottom: 16px;
-    border-color: #e0e0e0;
+    margin-bottom: var(--space-md);
+    border-color: var(--color-gray-300);
+
+    @include mobile {
+      margin-bottom: var(--space-sm);
+    }
   }
 }
 
-// Lignes de formulaire
+// Lignes de formulaire responsive
 .form-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+
+  @include tablet-desktop {
+    flex-direction: row;
+    gap: var(--space-md);
+  }
+
+  @include mobile {
+    margin-bottom: 4px;
+    gap: var(--space-xs);
+  }
   
   .full-width {
     width: 100%;
@@ -93,122 +156,162 @@
   
   .half-width {
     flex: 1;
-  }
-}
+    width: 100%;
 
-// Responsive design
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 8px;
-    
-    .half-width {
+    @include mobile-tablet {
       width: 100%;
     }
-  }
-  
-  .register-card {
-    max-width: 100%;
-    margin: 10px;
-  }
-  
-  .register-container {
-    padding: 10px;
+
+    @include desktop {
+      min-width: 0;
+    }
   }
 }
 
-// Actions du formulaire
+// Actions du formulaire responsive
 .form-actions {
-  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+
+  @include mobile {
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+  }
+
+  @include desktop {
+    gap: var(--space-lg);
+  }
   
   .register-button {
+    @include btn-primary;
     width: 100%;
-    height: 48px;
+    max-width: 300px;
+    padding: var(--space-md) var(--space-xl);
     font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 16px;
-    position: relative;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    margin-bottom: 0;
     
-    &:disabled {
-      opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @include mobile {
+      max-width: 100%;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 14px;
+    }
+
+    @include desktop {
+      max-width: 350px;
+      padding: var(--space-md) var(--space-2xl);
+      font-size: 18px;
     }
   }
   
   .register-spinner {
-    margin-right: 8px;
+    margin-right: var(--space-xs);
+
+    @include mobile {
+      margin-right: 6px;
+    }
   }
   
   .login-section {
     text-align: center;
-    padding-top: 16px;
-    border-top: 1px solid #e0e0e0;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    width: 100%;
+    max-width: 400px;
+
+    @include mobile {
+      padding-top: var(--space-sm);
+      max-width: 100%;
+    }
+
+    @include desktop {
+      padding-top: var(--space-lg);
+      max-width: 500px;
+    }
     
     .login-text {
-      margin: 0 0 8px 0;
-      color: #666;
+      margin: 0 0 var(--space-xs) 0;
+      color: var(--color-text-muted);
       font-size: 14px;
+      line-height: 1.5;
+
+      @include mobile {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      @include desktop {
+        font-size: 15px;
+        margin-bottom: var(--space-sm);
+      }
     }
     
     .login-link {
-      color: #2E7D32;
+      color: var(--color-primary);
       text-decoration: none;
       font-weight: 500;
+      font-size: 14px;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--border-radius-sm);
+      transition: all 0.2s ease;
+      display: inline-block;
+
+      @include mobile {
+        font-size: 13px;
+        padding: 6px var(--space-xs);
+      }
+
+      @include desktop {
+        font-size: 15px;
+        padding: var(--space-sm) var(--space-md);
+      }
       
       &:hover {
-        color: #FF6F00;
+        color: var(--color-secondary);
+        background-color: rgba(59, 130, 246, 0.05);
+        transform: translateY(-1px);
+      }
+
+      &:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
       }
     }
   }
 }
 
-// Footer
+// Footer responsive
 .register-footer {
-  text-align: center;
-  margin-top: 16px;
+  @extend .text-center;
+  margin-top: var(--space-md);
+
+  @include mobile {
+    margin-top: var(--space-sm);
+  }
   
   .app-branding {
     margin: 0;
     font-weight: bold;
-    color: #2E7D32;
+    @extend .text-primary;
     font-size: 18px;
     letter-spacing: 2px;
-  }
-}
 
-// Styles pour les champs de formulaire Material
-::ng-deep .register-form {
-  .mat-mdc-form-field {
-    margin-bottom: 8px;
-    
-    .mat-mdc-form-field-error {
-      font-size: 12px;
+    @include mobile {
+      font-size: 16px;
+      letter-spacing: 1px;
     }
-  }
-  
-  .mat-mdc-outlined-form-field {
-    .mat-mdc-form-field-outline {
-      color: #e0e0e0;
-    }
-    
-    &.mat-focused .mat-mdc-form-field-outline-thick {
-      color: #2E7D32;
-    }
-  }
-  
-  .mat-mdc-form-field-label {
-    color: #666;
-  }
-  
-  &.mat-focused .mat-mdc-form-field-label {
-    color: #2E7D32;
   }
 }
 
 // Animation d'entrée
-.register-card {
-  animation: slideInUp 0.5s ease-out;
-}
-
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -220,27 +323,56 @@
   }
 }
 
-// Utilitaire pour centrer le contenu (réutilisé du login)
-.center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+// Styles responsive pour les champs Material
+::ng-deep .register-form {
+  .mat-mdc-form-field {
+    @include mobile {
+      .mat-mdc-form-field-infix {
+        min-height: 48px;
+      }
+      
+      .mat-mdc-form-field-error {
+        font-size: 11px;
+      }
+    }
+
+    @include tablet-desktop {
+      .mat-mdc-form-field-error {
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .mat-mdc-outlined-form-field {
+    .mat-mdc-form-field-outline {
+      color: var(--color-gray-300);
+    }
+    
+    &.mat-focused .mat-mdc-form-field-outline-thick {
+      color: var(--color-primary);
+    }
+  }
+  
+  .mat-mdc-form-field-label {
+    @extend .text-muted;
+  }
+  
+  &.mat-focused .mat-mdc-form-field-label {
+    color: var(--color-primary);
+  }
 }
 
 // Custom snackbar styles
 ::ng-deep {
   .success-snackbar {
-    background-color: #4CAF50;
-    color: white;
+    @include status-success;
   }
   
   .error-snackbar {
-    background-color: #F44336;
-    color: white;
+    @include status-error;
   }
   
   .warning-snackbar {
-    background-color: #FF9800;
-    color: white;
+    @include status-warning;
   }
 }

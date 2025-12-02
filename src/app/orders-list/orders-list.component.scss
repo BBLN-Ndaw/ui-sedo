@@ -1,101 +1,213 @@
+@use '../../styles/responsive.scss' as *;
+
 .orders-card {
-  margin-bottom: 2rem;
+  @include card-base;
+  
+  & {
+    margin-bottom: 2rem;
+  }
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .orders-list {
-  display: flex;
+  @extend .flex-responsive;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-md);
+
+  @include mobile {
+    gap: 0.75rem;
+  }
 }
 
 .order-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-  transition: box-shadow 0.3s ease;
+  @include card-base;
+  
+  & {
+    border: 1px solid var(--color-gray-300);
+    transition: box-shadow 0.3s ease;
+  }
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    @extend .shadow-lg;
+  }
+
+  @include mobile {
+    padding: 16px;
   }
 }
 
 .order-header {
-  display: flex;
+  @extend .flex-responsive;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.75rem;
+  flex-direction: row;
+
+  @include mobile-tablet {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
 }
 
 .order-id {
-  display: flex;
+  @extend .flex-responsive;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   font-weight: 500;
-  color: #333;
+  @extend .text-dark;
+  flex-direction: row;
+
+  @include mobile {
+    gap: 0.4rem;
+  }
 
   mat-icon {
-    color: #666;
+    @extend .text-muted;
+
+    @include mobile {
+      font-size: 18px;
+    }
   }
 }
 
 .order-date {
-  color: #666;
+  @extend .text-muted;
   font-size: 0.9rem;
+
+  @include mobile {
+    font-size: 0.8rem;
+  }
 }
 
 .order-details {
-  display: flex;
+  @extend .flex-responsive;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-direction: row;
+
+  @include mobile-tablet {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
 }
 
 .order-info {
-  display: flex;
+  @extend .flex-responsive;
   gap: 2rem;
+  flex-direction: row;
+
+  @include mobile-tablet {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  @include mobile {
+    gap: 0.4rem;
+  }
 }
 
 .order-items {
-  display: flex;
+  @extend .flex-responsive;
   align-items: center;
   gap: 0.5rem;
   color: #666;
+  flex-direction: row;
+
+  @include mobile {
+    gap: 0.4rem;
+  }
 
   mat-icon {
     font-size: 1.2rem;
     width: 1.2rem;
     height: 1.2rem;
+
+    @include mobile {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
   }
 }
 
 .order-total {
   .total-amount {
     font-weight: 600;
-    font-size: 1.1rem;
-    color: #2e7d32;
+    @include h3-responsive;
+    
+    & {
+      color: #2e7d32;
+    }
   }
 }
 
 .order-status {
   .status-chip {
     font-weight: 500;
+
+    @include mobile {
+      ::ng-deep .mat-mdc-chip {
+        font-size: 12px;
+        min-height: 28px;
+      }
+    }
   }
 }
 
 .order-actions {
-  display: flex;
+  @extend .flex-responsive;
   gap: 0.5rem;
   flex-wrap: wrap;
+  flex-direction: row;
+
+  @include mobile-tablet {
+    justify-content: center;
+    width: 100%;
+  }
+
+  @include mobile {
+    gap: 0.4rem;
+  }
 
   button {
     min-width: auto;
+    @extend .btn-responsive;
+
+    @include mobile-tablet {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    @include mobile {
+      min-width: 100px;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
   }
 }
 
 .empty-state {
+  @extend .flex-responsive;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 2rem;
+  @extend .p-responsive;
   color: #666;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+
+  @include mobile {
+    padding: 1.5rem;
+  }
 
   .empty-icon {
     font-size: 4rem;
@@ -103,43 +215,44 @@
     height: 4rem;
     color: #ccc;
     margin-bottom: 1rem;
+
+    @include mobile {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 0.75rem;
+    }
   }
 
   h3 {
     margin: 1rem 0 0.5rem 0;
-    color: #333;
+    @include h3-responsive;
+    
+    & {
+      color: #333;
+    }
+
+    @include mobile {
+      margin: 0.75rem 0 0.4rem 0;
+    }
   }
 
   p {
     margin-bottom: 1.5rem;
-  }
-}
+    font-size: 14px;
 
-// Responsive
-@media (max-width: 768px) {
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    @include mobile {
+      margin-bottom: 1rem;
+      font-size: 13px;
+    }
   }
 
-  .order-details {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+  button {
+    @extend .btn-responsive;
 
-  .order-info {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .order-actions {
-    justify-content: center;
-    
-    button {
-      flex: 1;
-      min-width: 120px;
+    @include mobile {
+      width: 100%;
+      max-width: 200px;
     }
   }
 }

@@ -1,3 +1,5 @@
+@use '../../styles/responsive.scss' as *;
+
 .sidenav-container {
   height: 100vh;
   
@@ -8,14 +10,14 @@
     z-index: 1001 ; 
   }
   
-  // Le backdrop aussi couvre toute la page
+  // Le backdrop pour toute la page
   ::ng-deep .mat-drawer-backdrop {
     top: 0 !important;
     height: 100vh !important;
     background-color: rgba(0, 0, 0, 0.5);
   }
 
-  // S'assurer que le contenu principal peut scroller correctement
+  // Faire scroller le contenu principal
   ::ng-deep .mat-drawer-content {
     overflow-y: auto;
     height: 100vh;
@@ -24,22 +26,34 @@
 
 .sidenav {
   width: 280px;
-  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
-  border-right: 1px solid #e2e8f0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08), 0 -2px 8px rgba(0, 0, 0, 0.05);
-  z-index: 1000;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-gray-300);
+  @include shadow-lg;
+  
+  & {
+    z-index: 1000;
+  }
+
+  @include mobile {
+    width: 100vw;
+    max-width: 320px;
+  }
+
+  @include tablet {
+    width: 260px;
+  }
 }
 
 // Sidebar Header
 .sidenav-header {
-  padding: 24px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: var(--space-xl) var(--space-lg);
+  border-bottom: 1px solid var(--color-gray-300);
+  @include gradient-primary;
+  color: var(--color-white);
   position: relative;
   overflow: hidden;
 
-  // Effet de superposition subtil
+  // Effet de superposition
   &::before {
     content: '';
     position: absolute;
@@ -54,19 +68,19 @@
   .logo {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-lg);
 
     .logo-icon {
       font-size: 28px;
-      margin-right: 12px;
-      color: #ffd700;
+      margin-right: var(--space-sm);
+      color: var(--color-warning);
     }
 
     .logo-text {
       font-size: 20px;
       font-weight: 600;
       letter-spacing: 0.5px;
-      color: white;
+      color: var(--color-white);
     }
   }
 
@@ -76,34 +90,43 @@
     align-items: center;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 16px;
-    padding: 16px;
-    backdrop-filter: blur(20px);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    @include border-radius-xl;
+    @include shadow-lg;
+    
+    & {
+      padding: var(--space-md);
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
 
     &:hover {
       background: rgba(255, 255, 255, 0.25);
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      border-color: rgba(255, 255, 255, 0.4);
+      @include shadow-xl;
+      
+      & {
+        border-color: rgba(255, 255, 255, 0.4);
+      }
     }
 
     .user-avatar {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      background-color: var(--color-warning);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
       font-size: 15px;
-      color: white;
-      margin-right: 14px;
-      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: var(--color-white);
+      margin-right: var(--space-sm);
+      @include shadow-md;
+      
+      & {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
     }
 
     .user-info {
@@ -113,7 +136,7 @@
       .user-name {
         font-weight: 600;
         font-size: 15px;
-        color: white;
+        color: var(--color-white);
         margin-bottom: 4px;
         white-space: nowrap;
         overflow: hidden;
@@ -128,9 +151,12 @@
         text-transform: capitalize;
         letter-spacing: 0.3px;
         background: rgba(255, 255, 255, 0.2);
-        padding: 4px 12px;
-        border-radius: 12px;
-        display: inline-block;
+        padding: 4px var(--space-sm);
+        @include border-radius-lg;
+        
+        & {
+          display: inline-block;
+        }
       }
     }
 
@@ -150,7 +176,7 @@
   }
 }
 
-// Navigation Menu - Design moderne et épuré
+// Navigation Menu
 .navigation-menu {
   padding: 20px 0;
   flex: 1;
@@ -248,7 +274,7 @@
       transition: all 0.3s ease;
     }
 
-    // Badge de notification moderne
+    // Badge de notification
     .nav-badge {
       position: absolute;
       top: 12px;
@@ -268,7 +294,6 @@
       animation: pulse 2s infinite;
     }
 
-    // Suppression de l'ancien badge-icon
     .badge-icon {
       display: none;
     }
@@ -311,13 +336,13 @@
   }
 }
 
-// Sidebar Footer - Design moderne
+// Sidebar Footer
 .sidenav-footer {
   margin-top: auto;
   padding: 20px 16px 24px;
   position: relative;
 
-  // Ligne de séparation moderne en haut
+  // Ligne de séparation en haut
   &::before {
     content: '';
     position: absolute;
@@ -465,7 +490,7 @@
   }
 }
 
-// User Menu - Design moderne et spacieux
+// User Menu
 .user-menu {
   min-width: 320px;
   max-width: 380px;
@@ -480,7 +505,7 @@
     color: white;
     position: relative;
 
-    // Effet de texture subtil
+    // Effet de texture
     &::before {
       content: '';
       position: absolute;
@@ -607,7 +632,7 @@
     }
   }
 
-  // Dividers modernes
+  // Dividers
   .mat-mdc-menu-divider {
     border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
     margin: 8px 16px !important;
@@ -671,7 +696,7 @@
   }
 }
 
-// Top Header - Design moderne et élégant avec couleurs discrètes
+// Top Header
 .top-header {
   display: flex;
   align-items: center;
@@ -687,7 +712,7 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 
-  // Effet de superposition très subtil
+  // Effet de superposition
   &::before {
     content: '';
     position: absolute;
@@ -857,7 +882,7 @@
       overflow: hidden;
       box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.04);
 
-      // Effet de pulsation subtile
+      // Effet de pulsation
       &::before {
         content: '';
         position: absolute;
@@ -871,7 +896,7 @@
         transition: all 0.4s ease;
       }
 
-      // Effet de brillance très discret
+      // Effet de brillance
       &::after {
         content: '';
         position: absolute;
@@ -921,11 +946,11 @@
         justify-content: center;
       }
 
-      // Animation de respiration très subtile
+      // Animation de respiration
       animation: breathe-subtle 6s ease-in-out infinite;
     }
 
-    // Animation de respiration très discrète
+    // Animation de respiration
     @keyframes breathe-subtle {
       0%, 100% {
         box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.04);
@@ -987,7 +1012,7 @@
   }
 }
 
-// Navigation Breadcrumb - Style cohérent
+// Navigation Breadcrumb
 .breadcrumb-nav {
   padding: 14px 24px;
   background: #F9FAFB;
@@ -1033,7 +1058,7 @@
   }
 }
 
-// Menu utilisateur - Design moderne et élégant
+// Menu utilisateur
 .user-menu {
   ::ng-deep .mat-mdc-menu-panel {
     border-radius: 20px;
@@ -1180,31 +1205,229 @@
 }
 
 // Design responsive
+@media (max-width: 1024px) {
+  .top-header {
+    padding: 12px 20px;
+    gap: 20px;
+    
+    .store-info {
+      min-width: 250px;
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .top-header {
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 12px;
+    min-height: auto;
+
+    .menu-toggle-btn {
+      width: 44px;
+      height: 44px;
+      order: 1;
+    }
 
     .store-info {
       min-width: auto;
-      width: 100%;
-      text-align: center;
-    }
+      flex: 1;
+      order: 2;
+      
+      .store-name {
+        font-size: 18px;
+      }
 
-    .search-container {
-      max-width: 100%;
-      width: 100%;
+      .store-address {
+        font-size: 12px;
+        
+        span {
+          display: none;
+        }
+      }
     }
 
     .header-actions {
+      order: 3;
+      gap: 12px;
+
+      .user-menu-btn {
+        padding: 10px;
+      }
+
+      .cart-btn {
+        padding: 10px 16px;
+        
+        .cart-text {
+          display: none;
+        }
+      }
+    }
+
+    .search-container {
+      order: 4;
       width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
+      margin-top: 8px;
+
+      .search-field {
+        ::ng-deep {
+          .mat-mdc-form-field {
+            .mat-mdc-text-field-wrapper {
+              border-radius: 12px;
+            }
+
+            .mat-mdc-form-field-infix {
+              padding: 12px 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .sidenav {
+    width: 100vw;
+    max-width: 300px;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+
+  .sidenav-header {
+    padding: 16px 12px;
+
+    .logo {
+      .logo-text {
+        font-size: 18px;
+      }
+    }
+
+    .user-card {
+      padding: 12px;
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+      }
+
+      .user-info {
+        .user-name {
+          font-size: 14px;
+        }
+
+        .user-role {
+          font-size: 11px;
+          padding: 2px 8px;
+        }
+      }
+    }
+  }
+
+  .navigation-menu {
+    padding: 12px 0;
+
+    .nav-item {
+      margin: 2px 8px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      span {
+        font-size: 14px;
+      }
     }
   }
 
   .breadcrumb-nav {
-    padding: 10px 16px;
+    padding: 8px 12px;
+  }
+
+  .user-menu {
+    ::ng-deep .mat-mdc-menu-panel {
+      min-width: 260px;
+    }
+
+    .user-menu-header {
+      padding: 16px !important;
+
+      .user-menu-header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+      }
+
+      .user-menu-header-info {
+        .user-menu-header-name {
+          font-size: 16px;
+        }
+
+        .user-menu-header-email {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .menu-action-item {
+      padding: 12px 16px !important;
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .top-header {
+    .store-info {
+      .store-address {
+        display: none;
+      }
+    }
+
+    .search-container {
+      .search-field {
+        .search-input {
+          font-size: 14px;
+          
+          &::placeholder {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  .sidenav {
+    max-width: 280px;
+  }
+
+  .sidenav-header {
+    padding: 12px;
+
+    .logo {
+      margin-bottom: 12px;
+
+      .logo-icon {
+        font-size: 24px;
+      }
+
+      .logo-text {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .main-content {
+    padding: 8px;
+  }
+
+  .user-menu {
+    ::ng-deep .mat-mdc-menu-panel {
+      min-width: 240px;
+      margin: 8px;
+    }
   }
 }

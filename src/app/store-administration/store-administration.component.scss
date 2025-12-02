@@ -1,47 +1,53 @@
-// 🎨 STORE ADMINISTRATION - DESIGN MODERNE
+@use '../../styles/responsive.scss' as *;
+
+// 🎨 STORE ADMINISTRATION
 .store-administration {
-  background: #f8fafc;
+  background: var(--color-gray-50);
   min-height: 100vh;
-  padding: 24px;
+  @extend .p-responsive;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  @include mobile {
+    padding: var(--space-md);
+  }
 }
 
 // 📝 EN-TÊTE ADMINISTRATION
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-2xl);
 
   .header-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 20px;
+    gap: var(--space-lg);
 
     .header-info {
       .page-title {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: var(--space-md);
         font-size: 32px;
         font-weight: 700;
-        color: #1e293b;
-        margin: 0 0 8px 0;
+        color: var(--color-gray-900);
+        margin: 0 0 var(--space-xs) 0;
 
         .title-icon {
           font-size: 36px;
-          color: #6366f1;
+          color: var(--color-primary);
         }
       }
 
       .page-subtitle {
         font-size: 18px;
-        color: #64748b;
-        margin: 0 0 12px 0;
+        color: var(--color-gray-600);
+        margin: 0 0 var(--space-sm) 0;
         font-weight: 500;
       }
 
       .header-date {
         font-size: 14px;
-        color: #94a3b8;
+        color: var(--color-gray-400);
         text-transform: capitalize;
       }
     }
@@ -73,18 +79,19 @@
     gap: 20px;
 
     .admin-stat-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      @include card-base;
+      @include border-radius-lg;
+      
+      & {
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
       &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--shadow-2xl);
       }
 
       // Couleurs des cartes
@@ -130,7 +137,7 @@
           .stat-value {
             font-size: 32px;
             font-weight: 800;
-            color: #1e293b;
+            color: var(--color-gray-900);
             line-height: 1;
           }
         }
@@ -139,13 +146,13 @@
           .stat-title {
             font-size: 16px;
             font-weight: 600;
-            color: #374151;
-            margin: 0 0 4px 0;
+            color: var(--color-gray-700);
+            margin: 0 0 var(--space-2xs) 0;
           }
 
           .stat-description {
             font-size: 14px;
-            color: #6b7280;
+            color: var(--color-gray-600);
             margin: 0;
           }
         }
@@ -225,14 +232,15 @@
   gap: 24px;
 
   .system-module-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    @include card-base;
+    @include border-radius-lg;
+    
+    & {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
 
     &::before {
       content: '';
@@ -283,14 +291,14 @@
       .module-title {
         font-size: 18px;
         font-weight: 600;
-        color: #1f2937;
-        margin: 0 0 8px 0;
+        color: var(--color-gray-800);
+        margin: 0 0 var(--space-xs) 0;
       }
 
       .module-description {
         font-size: 14px;
-        color: #6b7280;
-        margin: 0 0 16px 0;
+        color: var(--color-gray-600);
+        margin: 0 0 var(--space-md) 0;
         line-height: 1.5;
       }
 

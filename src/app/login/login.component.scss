@@ -1,23 +1,40 @@
+@use '../../styles/responsive.scss' as *;
+
 .login-container {
-  background: linear-gradient(135deg, #2E7D32 0%, #FF6F00 100%);
+  @extend .center-content;
+  @include gradient-primary;
   min-height: 100vh;
-  padding: 20px;
+  @extend .p-responsive;
+
+  @include mobile {
+    padding: var(--space-sm);
+  }
 }
 
 .login-card {
-  max-width: 400px;
-  width: 100%;
-  margin: 0 auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  @include card-base;
+  
+  & {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @include mobile {
+    max-width: none;
+    margin: 0;
+    border-radius: var(--border-radius-md);
+  }
+
+  @include tablet-desktop {
+    max-width: 450px;
+  }
 }
 
 .login-header-image {
-  background: linear-gradient(45deg, #2E7D32, #FF6F00);
-  color: white;
+  @include gradient-primary;
+  @extend .text-white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,88 +43,130 @@
     font-size: 32px;
     height: 32px;
     width: 32px;
+
+    @include mobile {
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+    }
   }
 }
 
 .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
+  @extend .form-responsive;
+  
+  .mat-mdc-form-field {
+    margin-bottom: var(--space-md);
+
+    @include mobile {
+      margin-bottom: var(--space-sm);
+    }
+  }
 }
 
 .login-button {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  margin-top: 8px;
-  position: relative;
+  @include btn-primary;
+  @extend .btn-full-mobile;
+  margin-top: var(--space-xs);
   
-  &:disabled {
-    opacity: 0.7;
+  @include desktop {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    min-width: 200px;
   }
 }
 
 .login-spinner {
-  margin-right: 8px;
+  margin-right: var(--space-xs);
+
+  @include mobile {
+    margin-right: 6px;
+  }
 }
 
 .forgot-password-section {
-  text-align: center;
-  margin-top: 16px;
+  @extend .text-center;
+  margin-top: var(--space-md);
+
+  @include mobile {
+    margin-top: var(--space-sm);
+  }
 }
 
 .forgot-password-link {
-  color: #2E7D32;
+  @extend .text-primary;
   text-decoration: none;
   font-size: 14px;
   
+  @include mobile {
+    font-size: 13px;
+  }
+  
   &:hover {
-    color: #FF6F00;
+    color: var(--color-secondary);
   }
 }
 
 // Section création de compte
 .register-section {
-  text-align: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  @extend .text-center;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-gray-300);
+
+  @include mobile {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+  }
   
   .register-text {
-    margin: 0 0 8px 0;
-    color: #666;
+    margin: 0 0 var(--space-xs) 0;
+    @extend .text-muted;
     font-size: 14px;
+
+    @include mobile {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
   }
   
   .register-link {
-    color: #2E7D32;
+    @extend .text-primary;
     font-weight: 500;
     text-decoration: none;
+    font-size: 14px;
+
+    @include mobile {
+      font-size: 13px;
+    }
     
     &:hover {
-      color: #2E7D32;
+      color: var(--color-primary);
     }
   }
 }
 
 .reset-password-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
-  
-  // Animation simple et rapide
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-gray-300);
   animation: fadeIn 0.2s ease-out;
+
+  @include mobile {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+  }
   
   .reset-button {
-    height: 48px;
+    @include btn-secondary;
+    @extend .btn-full-mobile;
+    margin-top: var(--space-xs);
     font-size: 14px;
-    margin-top: 8px;
-    background: linear-gradient(45deg, #FF6F00, #2E7D32);
-    color: white;
-    
-    &:disabled {
-      opacity: 0.7;
+
+    @include mobile {
+      font-size: 13px;
     }
   }
 }
@@ -116,47 +175,41 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .login-footer {
   width: 100%;
-  text-align: center;
-  margin-top: 16px;
+  @extend .text-center;
+  margin-top: var(--space-md);
+
+  @include mobile {
+    margin-top: var(--space-sm);
+  }
   
   .app-branding {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-    background: linear-gradient(45deg, #2E7D32, #FF6F00);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 1px;
+    @extend .gradient-text;
+    
+    & {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    @include mobile {
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
   }
 }
 
-// Responsive design
-@media (max-width: 480px) {
-  .login-container {
-    padding: 16px;
-  }
-  
-  .login-card {
-    max-width: none;
-    margin: 0;
-  }
-}
-
-// Animations
-.login-card {
-  animation: slideIn 0.5s ease-out;
-}
-
+// Animations d'entrée
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -168,20 +221,27 @@
   }
 }
 
-// Custom snackbar styles
+// Les champs de formulaire
 ::ng-deep {
+  .login-card {
+    .mat-mdc-form-field {
+      @include mobile {
+        .mat-mdc-form-field-infix {
+          min-height: 48px;
+        }
+      }
+    }
+  }
+  
   .success-snackbar {
-    background-color: #4CAF50;
-    color: white;
+    @include status-success;
   }
   
   .error-snackbar {
-    background-color: #F44336;
-    color: white;
+    @include status-error;
   }
   
   .warning-snackbar {
-    background-color: #FF9800;
-    color: white;
+    @include status-warning;
   }
 }

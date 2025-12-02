@@ -1,31 +1,61 @@
-// ===== WISHLIST SECTION =====
+@use '../../styles/responsive.scss' as *;
+
+// ===== WISHLIST SECTION RESPONSIVE =====
 .wishlist-card {
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  margin-bottom: 24px;
-  background: white;
+  @extend .card-responsive;
+  @include card-base;
+  
+  & {
+    margin-bottom: var(--space-xl);
+  }
+
+  @include mobile {
+    margin-bottom: var(--space-md);
+  }
 
   ::ng-deep .mat-mdc-card-header {
-    padding: 24px 24px 16px 24px;
+    @extend .p-responsive;
+    padding-bottom: 16px;
+
+    @include mobile {
+      padding: 20px 20px 16px 20px;
+    }
 
     .mat-mdc-card-avatar {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-blue) 0%, #764ba2 100%);
       color: white;
+
+      @include mobile {
+        width: 32px;
+        height: 32px;
+        
+        mat-icon {
+          font-size: 18px;
+        }
+      }
     }
 
     .mat-mdc-card-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #374151;
+      @include h2-responsive;
+      
+      & {
+        font-weight: 600;
+        color: #374151;
+      }
     }
 
     .mat-mdc-card-subtitle {
       color: #6b7280;
+      @include body-responsive;
     }
   }
 
   ::ng-deep .mat-mdc-card-content {
     padding: 0 24px 24px 24px;
+
+    @include mobile {
+      padding: 0 20px 20px 20px;
+    }
   }
 }
 
@@ -34,25 +64,53 @@
 }
 
 .wishlist-grid {
-  display: grid;
+  @extend .grid-responsive;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
+
+  @include desktop {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .wishlist-item {
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  background: white;
+  @include card-base;
+  @extend .card-responsive;
+  
+  & {
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  @include mobile {
+    border-radius: 12px;
+  }
 
   &:hover {
-    border-color: #667eea;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg);
     transform: translateY(-4px);
+
+    @include mobile-tablet {
+      transform: translateY(-2px);
+    }
 
     .item-overlay {
       opacity: 1;
+    }
+
+    .item-image img {
+      transform: scale(1.05);
     }
   }
 
@@ -60,6 +118,10 @@
     position: relative;
     height: 200px;
     overflow: hidden;
+
+    @include mobile {
+      height: 160px;
+    }
 
     img {
       width: 100%;
@@ -76,6 +138,11 @@
       z-index: 2;
       transition: opacity 0.3s ease;
 
+      @include mobile {
+        top: 8px;
+        right: 8px;
+      }
+
       .remove-btn {
         background: rgba(220, 38, 38, 0.85);
         color: #fff;
@@ -83,56 +150,113 @@
         width: 38px;
         height: 38px;
         box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
-        display: flex;
+        @extend .flex-responsive;
         align-items: center;
         justify-content: center;
         font-size: 18px;
         border: none;
         outline: none;
-        transition: background 0.2s;
+        transition: all 0.2s ease;
+
+        @include mobile {
+          width: 32px;
+          height: 32px;
+          font-size: 16px;
+        }
 
         .mat-icon {
           font-size: 18px;
           width: 18px;
           height: 18px;
+
+          @include mobile {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
         }
 
         &:hover {
           background: rgba(220, 38, 38, 1);
+          transform: scale(1.1);
+
+          @include mobile-tablet {
+            transform: scale(1.05);
+          }
         }
       }
-    }
-
-    &:hover img {
-      transform: scale(1.05);
     }
   }
 
   .item-content {
-    padding: 20px;
+    @extend .p-responsive;
+
+    @include mobile {
+      padding: 16px;
+    }
 
     .item-name {
-      font-size: 16px;
-      font-weight: 600;
-      color: #374151;
-      margin: 0 0 8px 0;
-      line-height: 1.4;
+      @include body-large-responsive;
+      
+      & {
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 8px 0;
+      }
+      
+      & {
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      @include mobile {
+        margin-bottom: 6px;
+        -webkit-line-clamp: 1;
+      }
     }
 
     .item-price {
       font-size: 18px;
       font-weight: 700;
-      color: #667eea;
+      color: var(--primary-blue);
       margin-bottom: 12px;
+
+      @include mobile {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
     }
 
     .item-availability {
       margin-bottom: 16px;
 
-      ::ng-deep .mat-mdc-chip {
-        border-radius: 16px;
-        font-size: 12px;
-        height: 28px;
+      @include mobile {
+        margin-bottom: 12px;
+      }
+
+      .availability-chip {
+        ::ng-deep .mat-mdc-chip {
+          border-radius: 16px;
+          font-size: 12px;
+          height: 28px;
+
+          @include mobile {
+            font-size: 11px;
+            height: 24px;
+            padding: 0 8px;
+          }
+
+          mat-icon {
+            font-size: 14px;
+
+            @include mobile {
+              font-size: 12px;
+            }
+          }
+        }
       }
     }
 
@@ -141,77 +265,226 @@
         width: 100%;
         border-radius: 8px;
         font-weight: 500;
+        transition: all 0.2s ease;
+
+        @include mobile {
+          padding: 10px 16px;
+          font-size: 14px;
+          border-radius: 6px;
+        }
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+          @include mobile-tablet {
+            transform: none;
+          }
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        mat-icon {
+          margin-right: 8px;
+
+          @include mobile {
+            margin-right: 6px;
+            font-size: 18px;
+          }
+        }
       }
     }
   }
 }
 
-// ===== EMPTY STATES =====
+// ===== EMPTY STATES RESPONSIVE =====
 .empty-state {
+  @include center-content;
+  @extend .p-responsive;
+  min-height: 300px;
   text-align: center;
-  padding: 48px 24px;
+
+  @include mobile {
+    padding: var(--space-2xl) var(--space-lg);
+    min-height: 250px;
+  }
 
   .empty-icon {
     font-size: 64px;
     width: 64px;
     height: 64px;
-    color: #d1d5db;
-    margin-bottom: 16px;
+    color: var(--color-gray-300);
+    margin-bottom: var(--space-md);
+
+    @include mobile {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: var(--space-sm);
+    }
   }
 
   h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 8px 0;
+    @include h2-responsive;
+    
+    & {
+      font-weight: 600;
+      color: var(--color-gray-700);
+      margin: 0 0 var(--space-xs) 0;
+    }
+
+    @include mobile {
+      margin-bottom: var(--space-2xs);
+    }
   }
 
   p {
-    color: #6b7280;
-    margin: 0 0 24px 0;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
+    color: var(--color-gray-600);
+    @include body-responsive;
+    
+    & {
+      margin: 0 0 var(--space-xl) 0;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+
+    @include mobile {
+      margin-bottom: var(--space-lg);
+      max-width: 280px;
+    }
   }
 
   button {
     border-radius: 8px;
     min-width: 200px;
+    transition: all 0.2s ease;
+
+    @include mobile {
+      min-width: auto;
+      width: 100%;
+      max-width: 250px;
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+      @include mobile-tablet {
+        transform: none;
+      }
+    }
+
+    mat-icon {
+      margin-right: 8px;
+
+      @include mobile {
+        margin-right: 6px;
+        font-size: 18px;
+      }
+    }
   }
 }
 
-// ===== RESPONSIVE DESIGN =====
-@media (max-width: 768px) {
-  .wishlist-card {
-    ::ng-deep .mat-mdc-card-header {
-      padding: 20px;
-    }
-
-    ::ng-deep .mat-mdc-card-content {
-      padding: 0 20px 20px 20px;
-    }
-  }
-
-  .wishlist-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wishlist-item .item-content {
-    padding: 16px;
-  }
-}
-
-// ===== ANIMATIONS =====
+// ===== ANIMATIONS RESPONSIVE =====
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fadeInMobile {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .wishlist-item {
   animation: fadeIn 0.6s ease-out;
+
+  @include mobile {
+    animation: fadeInMobile 0.4s ease-out;
+  }
 }
 
 .wishlist-item:nth-child(1) { animation-delay: 0.1s; }
 .wishlist-item:nth-child(2) { animation-delay: 0.2s; }
 .wishlist-item:nth-child(3) { animation-delay: 0.3s; }
 .wishlist-item:nth-child(4) { animation-delay: 0.4s; }
+.wishlist-item:nth-child(5) { animation-delay: 0.5s; }
+.wishlist-item:nth-child(6) { animation-delay: 0.6s; }
+
+// Disable animations for reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .wishlist-item {
+    animation: none;
+  }
+  
+  .item-image img,
+  .remove-btn,
+  .item-actions button {
+    transition: none;
+  }
+}
+
+// ===== LOADING STATES =====
+.wishlist-loading {
+  @extend .flex-responsive;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  
+  mat-spinner {
+    ::ng-deep circle {
+      stroke: var(--primary-blue);
+    }
+  }
+}
+
+// ===== ACCESSIBILITY IMPROVEMENTS =====
+.remove-btn {
+  &:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+}
+
+.item-actions button {
+  &:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+}
+
+// ===== TOUCH INTERACTIONS (MOBILE) =====
+@include mobile {
+  .wishlist-item {
+    // Zone de toucher
+    .remove-btn {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    
+    .item-actions button {
+      min-height: 44px;
+    }
+  }
+}
+
+// ===== PRINT STYLES =====
+@media print {
+  .item-overlay,
+  .item-actions {
+    display: none;
+  }
+  
+  .wishlist-item {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+}

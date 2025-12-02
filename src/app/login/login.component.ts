@@ -74,7 +74,6 @@ export class LoginComponent implements OnDestroy {
       this.errorHandlingUtilities.wrapOperation(
       this.authService.login(credentials),
       'Connexion utilisateur',
-      'Connexion réussie'
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe({

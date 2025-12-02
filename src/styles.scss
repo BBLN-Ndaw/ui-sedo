@@ -1,57 +1,18 @@
+@use './styles/responsive.scss' as *;
 
 // Import Angular Material base theme
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-// Design System - Store Management Application
+// Design System - Override Angular Material avec les couleurs du système responsive
 :root {
-  // Couleurs principales
-  --primary-blue: #2563EB;      // Bleu moderne et professionnel
-  --secondary-green: #10B981;   // Vert pour succès/validation
-  --accent-orange: #F59E0B;     // Orange pour alertes/actions
-  
-  // Couleurs neutres
-  --dark-gray: #1F2937;         // Texte principal
-  --medium-gray: #6B7280;       // Texte secondaire
-  --light-gray: #F3F4F6;        // Arrière-plans
-  --white: #FFFFFF;
-  
-  // Couleurs d'état
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
-  --info: #3B82F6;
-
-  // Override des variables CSS d'Angular Material
-  --mdc-theme-primary: var(--primary-blue);
-  --mdc-theme-secondary: var(--secondary-green);
-  --mat-toolbar-container-background-color: var(--primary-blue);
-  --mdc-filled-button-container-color: var(--primary-blue);
-  --mdc-protected-button-container-color: var(--primary-blue);
-  --mdc-outlined-button-outline-color: var(--primary-blue);
-  --mdc-text-button-label-text-color: var(--primary-blue);
-}
-
-// Classes utilitaires pour les couleurs
-.bg-primary { background-color: var(--primary-blue) !important; }
-.bg-secondary { background-color: var(--secondary-green) !important; }
-.bg-accent { background-color: var(--accent-orange) !important; }
-.bg-success { background-color: var(--success) !important; }
-.bg-warning { background-color: var(--warning) !important; }
-.bg-error { background-color: var(--error) !important; }
-
-.text-primary { color: var(--primary-blue) !important; }
-.text-secondary { color: var(--secondary-green) !important; }
-.text-accent { color: var(--accent-orange) !important; }
-.text-dark { color: var(--dark-gray) !important; }
-.text-medium { color: var(--medium-gray) !important; }
-
-// Gradient pour les backgrounds modernes
-.gradient-primary {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-green) 100%);
-}
-
-.gradient-accent {
-  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--primary-blue) 100%);
+  // Override des variables CSS d'Angular Material avec les couleurs de responsive.scss
+  --mdc-theme-primary: var(--color-primary);
+  --mdc-theme-secondary: var(--color-secondary);
+  --mat-toolbar-container-background-color: var(--color-primary);
+  --mdc-filled-button-container-color: var(--color-primary);
+  --mdc-protected-button-container-color: var(--color-primary);
+  --mdc-outlined-button-outline-color: var(--color-primary);
+  --mdc-text-button-label-text-color: var(--color-primary);
 }
 
 html, body { 
@@ -62,7 +23,7 @@ html, body {
 
 body { 
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f5f5f5;
+  background-color: var(--color-gray-50);
 }
 
 // Styles globaux pour l'application
@@ -72,26 +33,15 @@ body {
   flex-direction: column;
 }
 
-.full-width {
-  width: 100%;
-}
-
-.center-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
 // ===== STYLES POUR LES NOTIFICATIONS =====
 
 .notification-snackbar {
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-lg) !important;
 
   .mat-mdc-snack-bar-label {
     font-weight: 500;
-    font-size: 14px;
+    @include body-responsive;
   }
 
   .mat-mdc-snack-bar-action {
@@ -102,8 +52,8 @@ body {
 }
 
 .notification-success {
-  background-color: var(--success) !important;
-  color: white !important;
+  background-color: var(--color-success) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
@@ -111,8 +61,8 @@ body {
 }
 
 .notification-error {
-  background-color: var(--error) !important;
-  color: white !important;
+  background-color: var(--color-danger) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
@@ -120,8 +70,8 @@ body {
 }
 
 .notification-warning {
-  background-color: var(--warning) !important;
-  color: white !important;
+  background-color: var(--color-warning) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
@@ -129,8 +79,8 @@ body {
 }
 
 .notification-info {
-  background-color: var(--info) !important;
-  color: white !important;
+  background-color: var(--color-primary) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
@@ -146,10 +96,10 @@ body {
   }
 }
 
-// ===== SNACKBAR CUSTOM CLASSES =====
+// ===== SNACKBAR CUSTOM CLASSES (harmonisées avec responsive.scss) =====
 .success-snackbar {
-  background-color: var(--success) !important;
-  color: white !important;
+  background-color: var(--color-success) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
@@ -157,41 +107,46 @@ body {
 }
 
 .error-snackbar {
-  background-color: var(--error) !important;
-  color: white !important;
+  background-color: var(--color-danger) !important;
+  color: var(--color-text-white) !important;
 
   .mat-mdc-snack-bar-action {
     color: rgba(255, 255, 255, 0.9) !important;
   }
 }
 
+.warning-snackbar {
+  background-color: var(--color-warning) !important;
+  color: var(--color-text-white) !important;
 
-// Breadcrumb navigation 
-.breadcrumb-nav {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-  background: transparent;
-  font-size: 1rem;
+  .mat-mdc-snack-bar-action {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
 }
 
+// ===== NAVIGATION BREADCRUMB SPÉCIFIQUE =====
 .nav-link {
   display: flex;
   align-items: center;
-  color: #1976d2;
+  color: var(--color-primary);
   font-weight: 500;
   text-transform: none;
   background: none;
   border: none;
   cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-primary-dark);
+  }
 }
 
 .breadcrumb-separator {
-  margin: 0 8px;
-  color: #888;
+  margin: 0 var(--space-sm);
+  color: var(--color-text-muted);
 }
 
 .current-page {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }

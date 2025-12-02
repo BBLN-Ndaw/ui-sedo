@@ -60,6 +60,20 @@
               <div class="promo-stock" [ngClass]="getStockStatus(product)">
                 {{ getStockStatusText(product) }}
               </div>
+              
+              <!-- Bouton Ajouter pour les produits en promotion -->
+              <div class="promo-actions">
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  class="add-to-cart-btn promo-add-btn"
+                  (click)="onProductSelect(product); $event.stopPropagation()"
+                  [matTooltip]="getStockStatus(product) === 'out-of-stock' ? 'Indisponible' : 'Ajouter au panier'"
+                  [disabled]="getStockStatus(product) === 'out-of-stock'">
+                  <mat-icon>add_shopping_cart</mat-icon>
+                  {{ getStockStatus(product) === 'out-of-stock' ? 'Indisponible' : 'Ajouter' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>

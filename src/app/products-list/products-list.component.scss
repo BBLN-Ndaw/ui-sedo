@@ -1,49 +1,104 @@
+@use '../../styles/responsive.scss' as *;
+
+// ===== PRODUCTS LIST CONTAINER RESPONSIVE =====
 .products-container {
-  padding: 1rem;
-  max-width: 1400px;
+  @extend .p-responsive;
+  @extend .container-responsive;
   margin: 0 auto;
+
+  @include mobile {
+    padding: 1rem;
+  }
 }
 
-// Navigation breadcrumb
+// ===== NAVIGATION BREADCRUMB RESPONSIVE =====
 .breadcrumb-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  padding: 12px 16px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  @extend .flex-responsive;
+  @extend .bg-white;
+  @extend .rounded-md;
+  @extend .shadow-sm;
+  
+  & {
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-xl);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  @include mobile {
+    margin-bottom: var(--space-md);
+    padding: 10px var(--space-sm);
+    gap: 6px;
+  }
 
   .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #1976d2;
-    font-weight: 500;
+    @extend .flex-responsive;
+    @extend .text-primary;
+    
+    & {
+      align-items: center;
+      gap: var(--space-xs);
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    @include mobile {
+      gap: 6px;
+      font-size: 14px;
+    }
 
     &:hover {
-      background-color: rgba(25, 118, 210, 0.08);
+      @extend .bg-blue-50;
+    }
+
+    mat-icon {
+      @include mobile {
+        font-size: 18px;
+      }
     }
   }
 
   .breadcrumb-separator {
-    color: #666;
+    @extend .text-muted;
     font-size: 18px;
+
+    @include mobile {
+      font-size: 16px;
+    }
   }
 
   .current-page {
-    color: #666;
+    @extend .text-muted;
     font-weight: 500;
+    @include body-responsive;
   }
 }
 
+// ===== HEADER CARD RESPONSIVE =====
 .header-card {
   margin-bottom: 1rem;
+  @include card-base;
+
+  @include mobile {
+    margin-bottom: 0.75rem;
+  }
   
   .title-icon {
     margin-right: 0.5rem;
     vertical-align: middle;
+
+    @include mobile {
+      margin-right: 0.25rem;
+      font-size: 20px;
+    }
+  }
+
+  mat-card-title {
+    @include h1-responsive;
+  }
+
+  mat-card-subtitle {
+    @include body-responsive;
   }
 }
 
@@ -379,7 +434,7 @@ mat-chip {
   }
 }
 
-// Amélioration de l'accessibilité
+// accessibilité
 .clickable {
   cursor: pointer;
   

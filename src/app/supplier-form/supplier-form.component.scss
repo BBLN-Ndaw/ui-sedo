@@ -1,57 +1,77 @@
+@use '../../styles/responsive.scss' as *;
+
 .supplier-form-container {
-  padding: 16px;
-  max-width: 800px;
-  margin: 0 auto;
+  @extend .container-responsive;
+  @extend .p-responsive;
 }
 
 .form-card {
+  @extend .card-responsive;
+
   .title-icon {
     margin-right: 8px;
     vertical-align: middle;
+
+    @include mobile {
+      margin-right: 6px;
+    }
   }
 }
 
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
+  @extend .flex-responsive;
+  
+  & {
+    text-align: center;
+    padding: var(--space-2xl);
+  }
+  
+  & {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
   
   p {
-    margin-top: 16px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--color-gray-600);
+    margin-top: var(--space-md);
   }
 }
 
 .form-section {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-2xl);
 
   .section-title {
-    display: flex;
-    align-items: center;
-    margin: 0 0 16px 0;
-    color: #333;
-    font-size: 18px;
-    font-weight: 500;
+    @extend .flex-responsive;
+    @include h3-responsive;
+    
+    & {
+      align-items: center;
+      margin: 0 0 var(--space-md) 0;
+      font-weight: 500;
+      color: var(--color-gray-800);
+    }
 
     mat-icon {
-      margin-right: 8px;
-      color: #666;
+      color: var(--color-gray-600);
+      margin-right: var(--space-xs);
     }
   }
 
   mat-divider {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-xl);
   }
 }
 
 .form-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
+  @extend .flex-responsive;
   
-  @media (max-width: 768px) {
+  & {
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  
+  @include mobile-tablet {
     flex-direction: column;
     gap: 0;
   }
@@ -67,7 +87,7 @@
   .quarter-width {
     flex: 0 0 calc(25% - 12px);
 
-    @media (max-width: 768px) {
+    @include mobile-tablet {
       flex: 1;
     }
   }
@@ -75,16 +95,19 @@
 
 // Actions du formulaire
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
+  @extend .flex-responsive;
+  
+  & {
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--color-gray-200);
+  }
 
-  @media (max-width: 768px) {
+  @include mobile-tablet {
     flex-direction: column-reverse;
-    gap: 12px;
+    gap: var(--space-sm);
 
     button {
       width: 100%;
@@ -108,16 +131,10 @@
   margin: 8px 0;
 }
 
-// Responsive
-@media (max-width: 768px) {
+// Responsive avec les nouveaux mixins
+@include mobile {
   .supplier-form-container {
-    padding: 8px;
-  }
-
-  .form-section {
-    .section-title {
-      font-size: 16px;
-    }
+    padding: var(--space-xs);
   }
 }
 

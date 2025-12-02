@@ -1,100 +1,191 @@
+@use '../../styles/responsive.scss' as *;
+
 .categories-container {
-  max-width: 1200px;
+  @extend .container-responsive;
   margin: 2rem auto;
-  padding: 0 1rem;
+
+  @include mobile {
+    margin: 1rem;
+  }
 }
 
 .header-card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  @include card-base;
+  @extend .shadow-md;
   
   mat-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    @include gradient-primary;
+    @extend .text-white;
     margin: -24px -24px 0 -24px;
-    padding: 16px 24px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
+    padding: var(--space-md) var(--space-xl);
+    @extend .rounded-t-lg;
+    @extend .flex-responsive;
     justify-content: space-between;
     align-items: center;
 
+    @include mobile-tablet {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
     mat-card-title {
-      display: flex;
+      @extend .flex-responsive;
       align-items: center;
       margin: 0;
-      font-size: 1.25rem;
+      @include h3-responsive;
 
       .title-icon {
         margin-right: 8px;
         font-size: 20px;
         width: 20px;
         height: 20px;
+
+        @include mobile {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
       }
     }
 
     .header-stats {
       mat-chip-listbox {
-        display: flex;
+        @extend .flex-responsive;
         gap: 8px;
+
+        @include mobile-tablet {
+          justify-content: center;
+        }
+
+        @include mobile {
+          gap: 6px;
+          
+          mat-chip-option {
+            font-size: 12px;
+            min-height: 28px;
+            line-height: 20px;
+          }
+        }
       }
     }
   }
 }
 
 .toolbar {
-  display: flex;
+  @extend .flex-responsive;
   justify-content: space-between;
   align-items: center;
   margin-top: 1.5rem;
   margin-bottom: 2rem;
-  gap: 1rem;
+  gap: var(--space-md);
   flex-wrap: wrap;
 
+  @include mobile-tablet {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .search-section {
-    display: flex;
+    @extend .flex-responsive;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-xs);
     flex: 1;
     min-width: 300px;
+
+    @include mobile-tablet {
+      min-width: auto;
+    }
 
     .search-field {
       flex: 1;
       max-width: 400px;
+
+      @include mobile-tablet {
+        max-width: none;
+      }
+
+      @include mobile {
+        .mat-mdc-form-field-subscript-wrapper,
+        .mdc-text-field--outlined .mdc-notched-outline {
+          font-size: 14px;
+        }
+      }
     }
   }
 
   .action-section {
-    display: flex;
-    gap: 1rem;
+    @extend .flex-responsive;
+    gap: var(--space-md);
+
+    @include mobile-tablet {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @include mobile {
+      gap: var(--space-xs);
+    }
 
     button {
+      @include mobile-tablet {
+        flex: 1;
+        min-width: 140px;
+      }
+
+      @include mobile {
+        min-width: 120px;
+        padding: 8px 12px;
+        
+        .mat-button-wrapper {
+          font-size: 13px;
+        }
+      }
+      
       mat-icon {
         margin-right: 8px;
+
+        @include mobile {
+          margin-right: 6px;
+          font-size: 18px;
+        }
       }
     }
   }
 }
 
 .loading-container {
-  display: flex;
+  @extend .flex-responsive;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  @extend .p-responsive;
+  min-height: 200px;
+  
+  @include mobile {
+    padding: 2rem 1rem;
+  }
   
   p {
     margin-top: 1rem;
     color: #666;
+    @include body-responsive;
   }
 }
 
 .no-results, .no-data {
-  display: flex;
+  @extend .flex-responsive;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  @extend .p-responsive;
   text-align: center;
+  min-height: 300px;
+
+  @include mobile {
+    padding: 2rem 1rem;
+    min-height: 200px;
+  }
 
   mat-icon {
     font-size: 64px;
@@ -102,40 +193,101 @@
     height: 64px;
     color: #ccc;
     margin-bottom: 1rem;
+
+    @include mobile {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+    }
   }
 
   h3 {
     margin: 0 0 1rem 0;
     color: #666;
+    @include h3-responsive;
   }
 
   p {
     color: #999;
     margin-bottom: 2rem;
+    @include body-responsive;
+
+    @include mobile {
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  button {
+    @include mobile {
+      width: 100%;
+      max-width: 250px;
+    }
   }
 }
 
 .table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  
+  @include mobile {
+    margin: 0 -16px;
+    border-radius: 0;
+  }
+
   .categories-table {
     width: 100%;
     border-radius: 8px;
     overflow: hidden;
+    min-width: 600px;
+
+    @include mobile {
+      min-width: 500px;
+      border-radius: 0;
+    }
 
     th {
       background-color: #f8f9fa;
       color: #495057;
       font-weight: 600;
+      white-space: nowrap;
+
+      @include mobile {
+        padding: 8px 4px;
+        font-size: 12px;
+      }
 
       mat-icon {
         margin-right: 8px;
-        color: #667eea;
+        color: var(--primary-blue);
         vertical-align: middle;
+
+        @include mobile {
+          margin-right: 4px;
+          font-size: 16px;
+        }
+      }
+    }
+
+    td {
+      @include mobile {
+        padding: 8px 4px;
+        font-size: 13px;
       }
     }
 
     .category-row {
+      transition: background-color 0.2s ease;
+      cursor: pointer;
+
       &:hover {
         background-color: #f8f9fa;
+      }
+
+      @include mobile-tablet {
+        &:active {
+          background-color: #e9ecef;
+        }
       }
     }
 
@@ -143,6 +295,10 @@
       strong {
         color: #333;
         font-size: 14px;
+
+        @include mobile {
+          font-size: 13px;
+        }
       }
     }
 
@@ -153,6 +309,23 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      @include tablet {
+        max-width: 150px;
+      }
+
+      @include mobile {
+        font-size: 12px;
+        max-width: 100px;
+      }
+    }
+
+    mat-slide-toggle {
+      @include mobile {
+        .mdc-switch {
+          transform: scale(0.85);
+        }
+      }
     }
 
     .status-text {
@@ -160,60 +333,60 @@
       font-size: 12px;
       font-weight: 500;
 
+      @include mobile {
+        margin-left: 4px;
+        font-size: 11px;
+      }
+
       &.active {
-        color: #28a745;
+        color: var(--success-green);
       }
 
       &.inactive {
-        color: #dc3545;
+        color: var(--danger-red);
+      }
+    }
+
+    // Actions column
+    .mat-column-actions {
+      width: 80px;
+      text-align: center;
+
+      @include mobile {
+        width: 60px;
+      }
+    }
+
+    // Responsive column priorities
+    @include mobile {
+      .mat-column-description {
+        display: none;
       }
     }
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .categories-container {
-    margin: 1rem;
-    padding: 0;
+// Animation
+.categories-table .category-row,
+.toolbar button,
+.no-results button,
+.no-data button {
+  transition: all 0.2s ease;
+}
+
+.loading-container mat-spinner {
+  @include mobile {
+    width: 32px !important;
+    height: 32px !important;
   }
+}
 
-  .header-card mat-card-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-
-    .header-stats mat-chip-listbox {
-      justify-content: center;
-    }
-  }
-
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-
-    .search-section {
-      min-width: auto;
-
-      .search-field {
-        max-width: none;
-      }
-    }
-
-    .action-section {
-      justify-content: center;
-      flex-wrap: wrap;
-
-      button {
-        flex: 1;
-        min-width: 140px;
-      }
-    }
-  }
-
-  .categories-table {
-    .category-description {
-      max-width: 150px;
-    }
+@media (prefers-reduced-motion: reduce) {
+  .categories-table .category-row,
+  .toolbar button,
+  .no-results button,
+  .no-data button,
+  .loading-container mat-spinner {
+    transition: none;
   }
 }

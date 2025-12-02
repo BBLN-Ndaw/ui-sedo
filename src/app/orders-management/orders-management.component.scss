@@ -1,21 +1,33 @@
+@use '../../styles/responsive.scss' as *;
+
 .orders-management-container {
-  padding: 20px;
+  @extend .p-responsive;
   max-width: 1400px;
   margin: 0 auto;
+
+  @include mobile {
+    padding: 16px;
+  }
 }
 
 .breadcrumb-nav {
-  display: flex;
+  @extend .flex-responsive;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
   font-size: 14px;
+  flex-direction: row;
+
+  @include mobile {
+    margin-bottom: var(--space-md);
+    font-size: 13px;
+  }
 
   .nav-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-xs);
     text-decoration: none;
-    color: var(--primary-color, #2196F3);
+    color: var(--color-primary);
     
     &:hover {
       text-decoration: underline;
@@ -23,13 +35,13 @@
   }
 
   .breadcrumb-separator {
-    margin: 0 12px;
-    color: rgba(0, 0, 0, 0.54);
+    margin: 0 var(--space-sm);
+    color: var(--color-gray-500);
     font-size: 16px;
   }
 
   .current-page {
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--color-gray-900);
     font-weight: 500;
   }
 }
@@ -38,16 +50,16 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-md);
 
   h1 {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-sm);
     margin: 0;
-    color: rgba(0, 0, 0, 0.87);
+    color: var(--color-gray-900);
     font-size: 28px;
     font-weight: 400;
 
@@ -55,32 +67,34 @@
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: var(--primary-color, #2196F3);
+      color: var(--color-primary);
     }
   }
 
   .page-description {
-    margin: 8px 0 0 44px;
-    color: rgba(0, 0, 0, 0.6);
+    margin: var(--space-xs) 0 0 44px;
+    color: var(--color-gray-600);
     font-size: 16px;
   }
 
   .header-actions {
     display: flex;
-    gap: 12px;
+    gap: var(--space-sm);
     align-items: center;
   }
 }
 
 .stats-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 
   .stats-card {
+    @include card-base;
+    
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      padding: 8px 0;
+      gap: var(--space-xl);
+      padding: var(--space-xs) 0;
 
       .stat-item {
         text-align: center;
@@ -88,14 +102,14 @@
         .stat-value {
           font-size: 32px;
           font-weight: 500;
-          color: var(--primary-color, #2196F3);
+          color: var(--color-primary);
           line-height: 1.2;
         }
 
         .stat-label {
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.6);
-          margin-top: 4px;
+          color: var(--color-gray-600);
+          margin-top: var(--space-2xs);
         }
       }
     }
@@ -103,12 +117,14 @@
 }
 
 .filters-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 
   .filters-card {
+    @include card-base;
+    
     .filters-content {
       display: flex;
-      gap: 16px;
+      gap: var(--space-md);
       align-items: flex-end;
       flex-wrap: wrap;
 
@@ -123,46 +139,46 @@
 
       .reset-filters-btn {
         height: 40px;
-        margin-bottom: 8px;
+        margin-bottom: var(--space-xs);
       }
     }
   }
 }
 
 .loading-container {
-  margin: 40px 0;
+  margin: var(--space-xl) 0;
 
   .loading-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 40px;
+    @include center-content;
+    gap: var(--space-md);
+    padding: var(--space-xl);
     text-align: center;
 
     p {
-      color: rgba(0, 0, 0, 0.6);
+      color: var(--color-gray-600);
       margin: 0;
     }
   }
 }
 
 .orders-table-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 
   .table-card {
+    @include card-base;
+    
     mat-card-header {
       mat-card-title {
         display: flex;
         align-items: center;
-        gap: 12px;
-        color: rgba(0, 0, 0, 0.87);
+        gap: var(--space-sm);
+        color: var(--color-gray-900);
       }
     }
 
     .table-container {
       overflow-x: auto;
-      margin-top: 16px;
+      margin-top: var(--space-md);
 
       .orders-table {
         width: 100%;
@@ -377,33 +393,33 @@
 }
 
 .empty-state {
-  margin: 40px 0;
+  margin: var(--space-xl) 0;
 
   .empty-state-card {
+    @include card-base;
+    
     .empty-state-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      padding: 60px 40px;
+      @include center-content;
+      gap: var(--space-md);
+      padding: var(--space-3xl) var(--space-xl);
       text-align: center;
 
       .empty-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;
-        color: rgba(0, 0, 0, 0.26);
+        color: var(--color-gray-300);
       }
 
       h3 {
         margin: 0;
-        color: rgba(0, 0, 0, 0.6);
+        color: var(--color-gray-600);
         font-weight: 400;
       }
 
       p {
         margin: 0;
-        color: rgba(0, 0, 0, 0.4);
+        color: var(--color-gray-400);
         max-width: 400px;
       }
     }
@@ -417,7 +433,7 @@
       .orders-table {
         min-width: 900px;
 
-        // Réduire encore les largeurs sur écrans moyens
+        // Réduire les largeurs sur écrans moyens
         .mat-column-orderNumber {
           width: 130px;
         }
@@ -478,12 +494,10 @@
       .orders-table {
         min-width: 600px;
 
-        // Masquer la colonne "Traité par" sur mobile
         .mat-column-processedByUser {
-          display: none;
+          width: 70px;
         }
 
-        // Ajuster les autres colonnes
         .mat-column-orderNumber {
           width: 120px;
         }
@@ -508,7 +522,6 @@
           width: 80px;
         }
 
-        // Réduire la taille des textes
         .customer-cell .customer-info span {
           font-size: 12px;
         }
@@ -597,17 +610,17 @@
 // Custom colors for status chips
 :host ::ng-deep {
   .mat-mdc-chip.mat-warn {
-    --mdc-chip-label-text-color: #f44336;
-    background-color: rgba(244, 67, 54, 0.1);
+    --mdc-chip-label-text-color: var(--color-danger);
+    background-color: var(--color-danger-50);
   }
 
   .mat-mdc-chip.mat-primary {
-    --mdc-chip-label-text-color: #2196F3;
-    background-color: rgba(33, 150, 243, 0.1);
+    --mdc-chip-label-text-color: var(--color-primary);
+    background-color: var(--color-primary-50);
   }
 
   .mat-mdc-chip.mat-accent {
-    --mdc-chip-label-text-color: #ff9800;
-    background-color: rgba(255, 152, 0, 0.1);
+    --mdc-chip-label-text-color: var(--color-warning);
+    background-color: var(--color-warning-50);
   }
 }

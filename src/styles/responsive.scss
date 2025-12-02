@@ -1,0 +1,987 @@
+// Variables pour les breakpoints
+:root {
+  --mobile: 576px;
+  --tablet: 768px; 
+  --desktop: 992px;
+  --large-desktop: 1200px;
+  --extra-large: 1400px;
+  
+  // Variables de couleurs
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  --color-secondary: #10b981;
+  --color-secondary-dark: #059669;
+  --color-accent: #f59e0b;
+  --color-accent-dark: #d97706;
+  --color-danger: #ef4444;
+  --color-danger-dark: #dc2626;
+  --color-warning: #f59e0b;
+  --color-success: #10b981;
+  
+  // Variables de couleurs grises
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  // Couleurs utilitaires
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-error: #ef4444;
+  
+  // Variables de texte
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-text-light: #9ca3af;
+  --color-text-white: #ffffff;
+  
+  // Variables de background
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-muted: #f1f5f9;
+  --color-bg-dark: #1e293b;
+  
+  // Variables de bordure
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-border-dark: #d1d5db;
+  
+  // Variables de dimensions
+  --border-radius-sm: 6px;
+  --border-radius: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
+  
+  // Variables d'ombres
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.15);
+  
+  // Variables d'espacement
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space: 12px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 40px;
+}
+
+// Mixins pour la responsivité (mobile-first approach)
+@mixin mobile {
+  @media (max-width: 575.98px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 576px) and (max-width: 767.98px) {
+    @content;
+  }
+}
+
+@mixin mobile-tablet {
+  @media (max-width: 767.98px) {
+    @content;
+  }
+}
+
+@mixin tablet-desktop {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 992px) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: 1200px) {
+    @content;
+  }
+}
+
+@mixin extra-large {
+  @media (min-width: 1400px) {
+    @content;
+  }
+}
+
+// Classes utilitaires responsive
+.container,
+.container-responsive {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 12px;
+
+  @include mobile {
+    padding: 0 16px;
+  }
+
+  @include tablet-desktop {
+    padding: 0 24px;
+  }
+
+  @include large-desktop {
+    padding: 0 32px;
+    max-width: 1320px;
+  }
+
+  @include extra-large {
+    max-width: 1440px;
+  }
+}
+
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+// Utilities pour l'alignement
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-none { display: none; }
+
+// Flexbox utilities
+.justify-content-center { justify-content: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-around { justify-content: space-around; }
+.justify-content-start { justify-content: flex-start; }
+.justify-content-end { justify-content: flex-end; }
+
+.align-items-center { align-items: center; }
+.align-items-start { align-items: flex-start; }
+.align-items-end { align-items: flex-end; }
+.align-items-stretch { align-items: stretch; }
+
+.flex-direction-column { flex-direction: column; }
+.flex-direction-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+
+.grid,
+.grid-responsive {
+  display: grid;
+  gap: 16px;
+
+  @include tablet-desktop {
+    gap: 24px;
+  }
+}
+
+.grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-2 {
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include tablet-desktop {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.grid-3 {
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include desktop {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.grid-4 {
+  grid-template-columns: 1fr;
+
+  @include mobile-tablet {
+    grid-template-columns: 1fr;
+  }
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.grid-5 {
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include large-desktop {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.grid-6 {
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include large-desktop {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @include tablet-desktop {
+    flex-direction: row;
+    gap: 24px;
+  }
+}
+
+.flex-wrap-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+// Espacement responsive
+.p-responsive {
+  padding: 12px;
+
+  @include mobile {
+    padding: 16px;
+  }
+
+  @include tablet-desktop {
+    padding: 24px;
+  }
+
+  @include large-desktop {
+    padding: 32px;
+  }
+}
+
+.m-responsive {
+  margin: 12px;
+
+  @include mobile {
+    margin: 16px;
+  }
+
+  @include tablet-desktop {
+    margin: 24px;
+  }
+
+  @include large-desktop {
+    margin: 32px;
+  }
+}
+
+// Espacement spécifique
+.p-0 { padding: 0; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+
+.m-0 { margin: 0; }
+.m-1 { margin: 0.25rem; }
+.m-2 { margin: 0.5rem; }
+.m-3 { margin: 0.75rem; }
+.m-4 { margin: 1rem; }
+.m-5 { margin: 1.25rem; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-5 { margin-bottom: 1.25rem; }
+
+.mt-0 { margin-top: 0; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-5 { margin-top: 1.25rem; }
+
+// Dimensions
+.w-100 { width: 100%; }
+.w-75 { width: 75%; }
+.w-50 { width: 50%; }
+.w-25 { width: 25%; }
+.w-auto { width: auto; }
+
+.h-100 { height: 100%; }
+.h-75 { height: 75%; }
+.h-50 { height: 50%; }
+.h-25 { height: 25%; }
+.h-auto { height: auto; }
+
+// Mixins typographiques
+@mixin h1-responsive {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  @include mobile {
+    font-size: 26px;
+  }
+
+  @include tablet-desktop {
+    font-size: 32px;
+  }
+
+  @include large-desktop {
+    font-size: 40px;
+  }
+}
+
+// Typographie responsive
+.h1-responsive {
+  @include h1-responsive;
+}
+
+@mixin h2-responsive {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  @include mobile {
+    font-size: 22px;
+  }
+
+  @include tablet-desktop {
+    font-size: 24px;
+  }
+
+  @include large-desktop {
+    font-size: 28px;
+  }
+}
+
+.h2-responsive {
+  @include h2-responsive;
+}
+
+@mixin h3-responsive {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  @include mobile {
+    font-size: 19px;
+  }
+
+  @include tablet-desktop {
+    font-size: 20px;
+  }
+}
+
+.h3-responsive {
+  @include h3-responsive;
+}
+
+.h4-responsive {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  @include tablet-desktop {
+    font-size: 18px;
+  }
+}
+
+// Mixins typographiques
+@mixin body-responsive {
+  font-size: 14px;
+  line-height: 1.5;
+
+  @include tablet-desktop {
+    font-size: 16px;
+  }
+}
+
+@mixin body-large-responsive {
+  font-size: 16px;
+  line-height: 1.5;
+
+  @include tablet-desktop {
+    font-size: 18px;
+  }
+}
+
+@mixin body-small-responsive {
+  font-size: 12px;
+  line-height: 1.4;
+
+  @include tablet-desktop {
+    font-size: 14px;
+  }
+}
+
+.body-responsive {
+  @include body-responsive;
+}
+
+.body-large-responsive {
+  @include body-large-responsive;
+}
+
+.body-small-responsive {
+  @include body-small-responsive;
+}
+
+// Visibilité responsive
+.hide-mobile {
+  @include mobile-tablet {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @include tablet {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @include desktop {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  @include tablet-desktop {
+    display: none !important;
+  }
+}
+
+.show-tablet {
+  display: none !important;
+
+  @include tablet {
+    display: block !important;
+  }
+}
+
+.show-desktop {
+  display: none !important;
+
+  @include desktop {
+    display: block !important;
+  }
+}
+
+// Boutons responsive
+.btn-responsive {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  @include tablet-desktop {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}
+
+.btn-full-mobile {
+  @include mobile-tablet {
+    width: 100%;
+  }
+}
+
+// Tables responsive
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  table {
+    min-width: 600px;
+  }
+
+  @include mobile-tablet {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+}
+
+// Cards responsive
+.card-responsive {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  @include tablet-desktop {
+    padding: 24px;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Formulaires responsive
+.form-responsive {
+  .mat-mdc-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    @include tablet-desktop {
+      flex-direction: row;
+    }
+
+    .mat-mdc-form-field {
+      flex: 1;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+
+    @include tablet-desktop {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+
+    .mat-mdc-button {
+      @include mobile-tablet {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// ===== MIXINS RÉUTILISABLES =====
+
+// Mixin pour gradients
+@mixin gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+
+@mixin gradient-secondary {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+}
+
+@mixin gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+}
+
+@mixin gradient-danger {
+  background: linear-gradient(135deg, var(--color-danger), var(--color-danger-dark));
+}
+
+@mixin gradient-page {
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-muted) 100%);
+}
+
+// Mixin pour les cartes
+@mixin card-base {
+  background: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    
+    @include mobile-tablet {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Mixin pour les boutons
+@mixin btn-base {
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  @include gradient-primary;
+  color: var(--color-text-white);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-primary-dark), #1e40af);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  @include gradient-secondary;
+  color: var(--color-text-white);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-secondary-dark), #047857);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@mixin btn-outline {
+  @include btn-base;
+  background: transparent;
+  border: 2px solid var(--color-border-dark);
+  color: var(--color-text-secondary);
+  
+  &:hover:not(:disabled) {
+    background: var(--color-bg-muted);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+// Mixin pour les états de statut
+@mixin status-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-secondary-dark);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+@mixin status-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-accent-dark);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+@mixin status-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger-dark);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+// ===== CLASSES UTILITAIRES SUPPLÉMENTAIRES =====
+
+// Couleurs de texte
+.text-primary { color: var(--color-text-primary) !important; }
+.text-secondary { color: var(--color-text-secondary) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+.text-light { color: var(--color-text-light) !important; }
+.text-white { color: var(--color-text-white) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+
+// Couleurs de background
+.bg-primary { background-color: var(--color-bg-primary) !important; }
+.bg-secondary { background-color: var(--color-bg-secondary) !important; }
+.bg-muted { background-color: var(--color-bg-muted) !important; }
+
+// Border radius
+.rounded-sm { border-radius: var(--border-radius-sm) !important; }
+.rounded { border-radius: var(--border-radius) !important; }
+.rounded-md { border-radius: var(--border-radius-md) !important; }
+.rounded-lg { border-radius: var(--border-radius-lg) !important; }
+.rounded-xl { border-radius: var(--border-radius-xl) !important; }
+.rounded-full { border-radius: 50% !important; }
+
+// Ombres
+.shadow-none { box-shadow: none !important; }
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow { box-shadow: var(--shadow) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }
+.shadow-xl { box-shadow: var(--shadow-xl) !important; }
+
+// Bordures
+.border { border: 1px solid var(--color-border) !important; }
+.border-light { border: 1px solid var(--color-border-light) !important; }
+.border-dark { border: 1px solid var(--color-border-dark) !important; }
+.border-0 { border: none !important; }
+
+// Classes pour les cartes communes
+.card-base {
+  @include card-base;
+  @extend .p-responsive;
+}
+
+.card-header {
+  padding-bottom: 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-lg);
+}
+
+// Classes pour les boutons
+.btn-primary {
+  @include btn-primary;
+  @extend .btn-responsive;
+}
+
+.btn-secondary {
+  @include btn-secondary;
+  @extend .btn-responsive;
+}
+
+.btn-outline {
+  @include btn-outline;
+  @extend .btn-responsive;
+}
+
+// Classes pour les états
+.status-success {
+  @include status-success;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.status-warning {
+  @include status-warning;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.status-danger {
+  @include status-danger;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+// Classes pour les gradients
+.gradient-primary { @include gradient-primary; }
+.gradient-secondary { @include gradient-secondary; }
+.gradient-accent { @include gradient-accent; }
+.gradient-text {
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Classes pour les couleurs manquantes
+.text-error { color: var(--color-error) !important; }
+.text-gray-400 { color: #9ca3af !important; }
+.bg-gray-300 { background-color: #d1d5db !important; }
+.bg-gray-400 { background-color: #9ca3af !important; }
+.bg-blue-50 { background-color: #eff6ff !important; }
+.bg-error { background-color: var(--color-error) !important; }
+.gradient-danger { @include gradient-danger; }
+.gradient-page { @include gradient-page; }
+
+// Classes pour layouts communs
+.page-container {
+  @extend .gradient-page;
+  min-height: 100vh;
+  @extend .p-responsive;
+}
+
+.page-header {
+  margin-bottom: var(--space-2xl);
+  
+  .page-title {
+    @include h1-responsive;
+    
+    & {
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+  }
+  
+  .page-subtitle {
+    @include body-responsive;
+    
+    & {
+      color: var(--color-text-muted);
+      margin: var(--space-sm) 0 0 0;
+    }
+  }
+}
+
+// Navigation breadcrumb commune
+.breadcrumb-nav {
+  background: var(--color-bg-primary);
+  @extend .p-responsive;
+  margin: var(--space-xl) var(--space-xl) 0 var(--space-xl);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+
+  @include tablet {
+    margin: var(--space-lg) var(--space-lg) 0 var(--space-lg);
+  }
+
+  @include mobile {
+    margin: var(--space-md);
+    border-radius: var(--border-radius);
+  }
+  
+  .breadcrumb-container {
+    @extend .d-flex;
+    @extend .align-items-center;
+    @extend .flex-wrap;
+    gap: var(--space-sm);
+    max-width: 1400px;
+    margin: 0;
+
+    @include mobile {
+      gap: var(--space-xs);
+    }
+  }
+}
+
+// ===== MIXINS MANQUANTS =====
+
+// Mixins de bordures
+@mixin border-radius-sm { & { border-radius: var(--border-radius-sm); } }
+@mixin border-radius-md { & { border-radius: var(--border-radius-md); } }
+@mixin border-radius-lg { & { border-radius: var(--border-radius-lg); } }
+@mixin border-radius-xl { & { border-radius: var(--border-radius-xl); } }
+
+// Mixins de statut
+@mixin status-error {
+  background-color: var(--color-danger-50);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
+@mixin status-success {
+  background-color: var(--color-success-50);
+  border: 1px solid var(--color-success);
+  color: var(--color-success-dark);
+}
+
+@mixin status-warning {
+  background-color: var(--color-warning-50);
+  border: 1px solid var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+// Mixins pour les ombres manquants
+@mixin shadow-lg { & { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); } }
+@mixin shadow-xl { & { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); } }
+@mixin shadow-md { & { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); } }
+
+@mixin status-info {
+  background-color: var(--color-primary-50);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+// Mixin center-content
+@mixin center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Mixin gradient-subtle
+@mixin gradient-subtle {
+  & {
+    background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
+  }
+}
+
+// ===== CLASSES UTILITAIRES MANQUANTES =====
+
+// Classes de couleurs de fond
+.bg-white { background-color: var(--color-white) !important; }
+.bg-gray-50 { background-color: var(--color-gray-50) !important; }
+.bg-gray-100 { background-color: var(--color-gray-100) !important; }
+.bg-gray-200 { background-color: var(--color-gray-200) !important; }
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-success { background-color: var(--color-success) !important; }
+.bg-warning { background-color: var(--color-warning) !important; }
+.bg-danger { background-color: var(--color-danger) !important; }
+
+// Classes de couleurs de texte
+.text-dark { color: var(--color-gray-900) !important; }
+.text-light { color: var(--color-gray-100) !important; }
+.text-muted { color: var(--color-gray-600) !important; }
+.text-primary { color: var(--color-primary) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+
+// Classes de bordures arrondies
+.rounded-t-lg { 
+  border-top-left-radius: var(--border-radius-lg) !important;
+  border-top-right-radius: var(--border-radius-lg) !important;
+}
+.rounded-b-lg { 
+  border-bottom-left-radius: var(--border-radius-lg) !important;
+  border-bottom-right-radius: var(--border-radius-lg) !important;
+}
+.rounded-l-lg { 
+  border-top-left-radius: var(--border-radius-lg) !important;
+  border-bottom-left-radius: var(--border-radius-lg) !important;
+}
+.rounded-r-lg { 
+  border-top-right-radius: var(--border-radius-lg) !important;
+  border-bottom-right-radius: var(--border-radius-lg) !important;
+}
